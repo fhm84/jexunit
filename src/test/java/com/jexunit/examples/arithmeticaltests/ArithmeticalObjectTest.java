@@ -1,4 +1,4 @@
-package com.jexunit.arithmeticaltests;
+package com.jexunit.examples.arithmeticaltests;
 
 import com.jexunit.core.GevoTestBase;
 import com.jexunit.core.GevoTestCase;

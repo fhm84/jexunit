@@ -1,10 +1,16 @@
-package com.jexunit.arithmeticaltests;
+package com.jexunit.examples.arithmeticaltests;
+
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
 
 import com.jexunit.core.GevoTestBase;
 import com.jexunit.core.GevoTestCase;
+import com.jexunit.core.GevoTester;
+import com.jexunit.core.commands.TestCommand;
 import com.jexunit.core.junit.Parameterized.ExcelFile;
 
 /**
@@ -13,6 +19,7 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * @author fabian
  * 
  */
+@RunWith(GevoTester.class)
 public class ArithmeticalFieldTest extends GevoTestBase {
 
 	@ExcelFile
@@ -31,5 +38,12 @@ public class ArithmeticalFieldTest extends GevoTestBase {
 	@Override
 	public void runCommand(GevoTestCase testCase) throws Exception {
 		ArithmeticalTestCommands.runCommand(testCase);
+	}
+
+	@TestCommand(value = "div")
+	public static void runSubCommand(GevoTestCase testCase, ArithmeticalTestObject testObject)
+			throws Exception {
+		System.out.println("in test command: DIV!");
+		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 }

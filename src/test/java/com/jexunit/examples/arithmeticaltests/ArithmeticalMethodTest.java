@@ -1,4 +1,4 @@
-package com.jexunit.arithmeticaltests;
+package com.jexunit.examples.arithmeticaltests;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

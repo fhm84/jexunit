@@ -172,9 +172,9 @@ public class Parameterized extends Suite {
 
 	static {
 		// scan classes for test commands
-		final AnnotationDetector cf = new AnnotationDetector(new TestCommandMethodScanner());
+		final AnnotationDetector detector = new AnnotationDetector(new TestCommandMethodScanner());
 		try {
-			cf.detect();
+			detector.detect();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -187,6 +187,13 @@ public class Parameterized extends Suite {
 		super(klass, NO_RUNNERS);
 
 		String excelFile = getExcelFileName();
+		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
+		createRunnersForParameters(allParameters(excelFile), parameters.name());
+	}
+
+	public Parameterized(Class<?> klass, String excelFile) throws Throwable {
+		super(klass, NO_RUNNERS);
+
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
 		createRunnersForParameters(allParameters(excelFile), parameters.name());
 	}

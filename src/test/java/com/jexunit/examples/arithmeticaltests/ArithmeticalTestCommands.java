@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jexunit.arithmeticaltests;
+package com.jexunit.examples.arithmeticaltests;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;

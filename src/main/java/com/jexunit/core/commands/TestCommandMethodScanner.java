@@ -11,6 +11,9 @@ import java.util.Map;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 
 /**
+ * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan"
+ * will run once, so we can hold the methods found in the static methods-Map.
+ * 
  * @author fabian
  * 
  */
@@ -56,6 +59,11 @@ public class TestCommandMethodScanner implements MethodReporter {
 		}
 	}
 
+	/**
+	 * Get the methods found for the commands.
+	 * 
+	 * @return the Map with methods mapped to the command-names
+	 */
 	public static Map<String, Method> getTestCommandMethods() {
 		return methods;
 	}

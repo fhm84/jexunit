@@ -1,4 +1,4 @@
-package com.jexunit.arithmeticaltests;
+package com.jexunit.examples.arithmeticaltests;
 
 /**
  * This simulates a model-class to show how you can use your model-classes in the test-commands.

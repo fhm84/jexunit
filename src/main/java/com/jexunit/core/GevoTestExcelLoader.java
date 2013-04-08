@@ -162,7 +162,7 @@ public class GevoTestExcelLoader {
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				// TODO: configure the pattern from outside! (BUT: convention over configuration)
+				// TODO: configure the pattern from outside! (BUT: convention over configuration!)
 				SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 				return sdf.format(cell.getDateCellValue());
 			} else {

@@ -19,7 +19,7 @@ import com.jexunit.core.commands.TestCommandMethodScanner;
 import com.jexunit.core.junit.Parameterized;
 
 /**
- * BaseClass for the GevoTests.<br>
+ * BaseClass for the GevoTests (BusinessTransactionTests).<br>
  * This class is used to read the excel-file and "create" the separated junit-tests for each
  * worksheet. Each test will get a list of test-cases containing comands to execute.<br>
  * <br>
@@ -40,7 +40,7 @@ import com.jexunit.core.junit.Parameterized;
  * 
  */
 @RunWith(Parameterized.class)
-public abstract class GevoTestBase {
+public class GevoTestBase {
 
 	private static Logger log = Logger.getLogger(GevoTestBase.class.getName());
 
@@ -51,6 +51,9 @@ public abstract class GevoTestBase {
 
 	/**
 	 * Returns collection of input data for each test run.
+	 * 
+	 * @param excelFile
+	 *            the name/path of the excel file to load the test data from
 	 * 
 	 * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
 	 */
@@ -137,9 +140,9 @@ public abstract class GevoTestBase {
 	 * Get the method for the current testCommand (via the {@code @TestCommand}-Annotation) and call
 	 * it.
 	 * 
-	 * TODO: what to do, if the command was not found? call the overridden runCommand-method?
-	 * 
 	 * @param testCase
+	 *            the current testCase to run
+	 * 
 	 * @throws Exception
 	 */
 	private void runTestCommand(GevoTestCase testCase) throws Exception {
@@ -148,13 +151,20 @@ public abstract class GevoTestBase {
 				testCase.getTestCommand().toLowerCase());
 		if (method != null) {
 			if (method.getParameterTypes().length == 1) {
-				// TODO: no static call, if the method is declared in the Unit-Test-class?
-				method.invoke(null, testCase);
+				if (method.getDeclaringClass() == this.getClass()) {
+					method.invoke(this, testCase);
+				} else {
+					method.invoke(null, testCase);
+				}
 			} else if (method.getParameterTypes().length == 2) {
 				Class<?> type = method.getParameterTypes()[1];
 				Object o = GevoTestObjectHelper.createObject(testCase, type);
 				try {
-					method.invoke(null, testCase, o);
+					if (method.getDeclaringClass() == this.getClass()) {
+						method.invoke(this, testCase, o);
+					} else {
+						method.invoke(null, testCase, o);
+					}
 				} catch (IllegalAccessException | IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
@@ -176,33 +186,13 @@ public abstract class GevoTestBase {
 	}
 
 	/**
-	 * Checks if the {@link #runCommand(GevoTestCase)}-method is overridden by the Unit-Test. So we
-	 * can call this one to run the commands.
-	 * 
-	 * @return true, if the method is overridden, else false
-	 * @throws NoSuchMethodException
-	 * @throws SecurityException
-	 */
-	// TODO: when will the overridden method be called?
-	private boolean isRunCommandMethodOverridden() throws NoSuchMethodException, SecurityException {
-		// Try to check, if the runCommand-method is overridden
-		Method method = this.getClass().getMethod("runCommand", GevoTestCase.class);
-		if (GevoTestBase.class == method.getDeclaringClass()) {
-			log.log(Level.FINER, "the method \"{0}\" is NOT overridden", method);
-			return false;
-		} else {
-			log.log(Level.FINER, "the method \"{0}\" is overridden", method);
-			return true;
-		}
-	}
-
-	/**
 	 * This method runs your specified Test-Command. In the {@link GevoTestCase} you will find all
 	 * information you need (read from the excel file/row) to run the command.<br>
 	 * You have to implement this method to run your specific tests.
 	 * 
 	 * @param testCase
 	 *            the GevoTestCase containing all information from the excel file/row
+	 * 
 	 * @throws Exception
 	 */
 	public void runCommand(GevoTestCase testCase) throws Exception {
