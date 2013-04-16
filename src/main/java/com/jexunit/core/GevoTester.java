@@ -28,7 +28,7 @@ public class GevoTester extends Suite {
 	public GevoTester(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
 		// add the Parameterized GevoTestBase, initialized with the ExcelFileName
-		runners.add(new Parameterized(GevoTestBase.class, getExcelFileName()));
+		runners.add(new Parameterized(GevoTestBase.class, getExcelFileName(), klass));
 
 		// if there are Test-methods defined in the test-class, this once will be execute too
 		try {

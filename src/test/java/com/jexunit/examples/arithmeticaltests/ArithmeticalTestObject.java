@@ -2,6 +2,11 @@ package com.jexunit.examples.arithmeticaltests;
 
 /**
  * This simulates a model-class to show how you can use your model-classes in the test-commands.
+ * <p>
+ * In your excel-file you can set the parameter-names to the attribute-names of your model class.
+ * The framework will automatically match the values and create your model file that can be put into
+ * your test-command-method.
+ * </p>
  * 
  * @author fabian
  * 

@@ -50,6 +50,21 @@ public class GevoTestBase {
 	List<GevoTestCase> testCases;
 
 	/**
+	 * Get the type of the running test-class to identify, if a test-command is provided by the
+	 * test-class itself or by another class. If the {@link #getClass()}-Method returns the
+	 * GevoTestBase, this method will return null. This indicates the framework, that the test-class
+	 * was executed with the {@link @RunWith}-Annotation (so, the GevoTester-class).
+	 */
+	private Class<?> testType = null;
+
+	public GevoTestBase() {
+	}
+
+	public void setTestType(Class<?> testType) {
+		this.testType = testType;
+	}
+
+	/**
 	 * Returns collection of input data for each test run.
 	 * 
 	 * @param excelFile
@@ -147,8 +162,8 @@ public class GevoTestBase {
 	 */
 	private void runTestCommand(GevoTestCase testCase) throws Exception {
 		// check, which method to run for the current GevoTestCommand
-		Method method = TestCommandMethodScanner.getTestCommandMethods().get(
-				testCase.getTestCommand().toLowerCase());
+		Method method = TestCommandMethodScanner.getTestCommandMethod(testCase.getTestCommand()
+				.toLowerCase(), testType);
 		if (method != null) {
 			if (method.getParameterTypes().length == 1) {
 				if (method.getDeclaringClass() == this.getClass()) {

@@ -10,14 +10,36 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.jexunit.core.GevoTestBase;
 import com.jexunit.core.GevoTestCase;
 import com.jexunit.core.GevoTester;
 import com.jexunit.core.commands.TestCommand;
 import com.jexunit.core.junit.Parameterized.ExcelFile;
 
 /**
- * Simple Test for the framework. This test should provide the arithmetical operations MUL and DIV.
+ * Simple Test for the framework.
+ * <p>
+ * This test doesn't extend the base-class ({@link GevoTestBase}). This test works with the
+ * <code>@RunWith(GevoTester.class)</code>-Annotation as the integration point for the framework.
+ * </p>
+ * <p>
+ * This test should provide the arithmetical operations MUL and DIV. In this version the automatic
+ * object-creation / -matching mechanism is tested. The test-command-methods get the testCase and a
+ * model-object as parameters. The model-objects will automatically be created by the framework.
+ * Therefore the parameter-names in the excel-file will be matched to the attribute-names of the
+ * model-class.
+ * </p>
+ * <p>
+ * The test-command DIV will also be found in another class (that works as an ExcelCommandProvider),
+ * but in this test, the method/test-command defined in the class itself should be used!
+ * </p>
+ * <p>
  * The operations ADD and SUB will be provided by another ExcelCommandProvider.
+ * </p>
+ * <p>
+ * As add-on, there is an additional "normal" JUnit-Test(-Method), to test, if this method won't be
+ * ignored!
+ * </p>
  * 
  * @author fabian
  * 
@@ -51,6 +73,6 @@ public class ArithmeticalTest {
 
 	@Test
 	public void simpleTest() {
-		System.out.println("What about this test?");
+		log.info("What about this test?");
 	}
 }

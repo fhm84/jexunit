@@ -8,6 +8,10 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.runner.RunWith;
+
+import com.jexunit.core.GevoTester;
+
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 
 /**
@@ -19,7 +23,7 @@ import eu.infomas.annotation.AnnotationDetector.MethodReporter;
  */
 public class TestCommandMethodScanner implements MethodReporter {
 
-	private static final Map<String, Method> methods = new HashMap<>();
+	private static final Map<String, Map<Class<?>, Method>> methods = new HashMap<>();
 
 	/*
 	 * (non-Javadoc)
@@ -44,12 +48,25 @@ public class TestCommandMethodScanner implements MethodReporter {
 			String methodName) {
 		try {
 			Class<?> clazz = getClass().getClassLoader().loadClass(className);
+			Class<?> type = null;
+			if (clazz.isAnnotationPresent(RunWith.class)) {
+				RunWith rwa = clazz.getAnnotation(RunWith.class);
+				if (rwa.value() == GevoTester.class) {
+					type = clazz;
+				}
+			}
 			if (annotation.isAnnotation() && annotation == TestCommand.class) {
 				for (Method m : clazz.getDeclaredMethods()) {
 					TestCommand tc = m.getAnnotation(TestCommand.class);
 					if (tc != null) {
 						for (String command : tc.value()) {
-							methods.put(command, m);
+							if (methods.containsKey(command)) {
+								methods.get(command).put(type, m);
+							} else {
+								Map<Class<?>, Method> map = new HashMap<>();
+								map.put(type, m);
+								methods.put(command, map);
+							}
 						}
 					}
 				}
@@ -60,11 +77,37 @@ public class TestCommandMethodScanner implements MethodReporter {
 	}
 
 	/**
-	 * Get the methods found for the commands.
+	 * Get the command-method for the given command and type.
 	 * 
-	 * @return the Map with methods mapped to the command-names
+	 * @param command
+	 *            the excel-command
+	 * @param clazz
+	 *            the type of the test-class
+	 * 
+	 * @return the method for the given class, if found, else null
 	 */
-	public static Map<String, Method> getTestCommandMethods() {
-		return methods;
+	public static Method getTestCommandMethod(String command, Class<?> clazz) {
+		if (methods.containsKey(command)) {
+			Map<Class<?>, Method> map = methods.get(command);
+			if (map.containsKey(clazz)) {
+				return map.get(clazz);
+			} else if (clazz != null && !map.containsKey(clazz)) {
+				Class<?> c = clazz;
+				// is there a command-method defined for the test-class?
+				if (map.containsKey(c)) {
+					return map.get(c);
+				} else {
+					// or is there a command-method defined for a baseClass of the given type?
+					while ((c = c.getSuperclass()) != Object.class) {
+						if (map.containsKey(c)) {
+							return map.get(c);
+						}
+					}
+				}
+			}
+			return map.get(null);
+		} else {
+			return null;
+		}
 	}
 }

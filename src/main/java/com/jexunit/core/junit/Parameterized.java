@@ -23,6 +23,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
+import com.jexunit.core.GevoTestBase;
 import com.jexunit.core.GevoTestCase;
 import com.jexunit.core.commands.TestCommandMethodScanner;
 
@@ -50,15 +51,17 @@ public class Parameterized extends Suite {
 	 * @see org.junit.runners.Parameterized
 	 */
 	private class TestClassRunnerForParameters extends BlockJUnit4ClassRunner {
+
 		private final Object[] fParameters;
-
 		private final String fName;
+		private final Class<?> testType;
 
-		TestClassRunnerForParameters(Class<?> type, Object[] parameters, String name)
-				throws InitializationError {
+		TestClassRunnerForParameters(Class<?> type, Object[] parameters, String name,
+				Class<?> testType) throws InitializationError {
 			super(type);
 			fParameters = parameters;
 			fName = name;
+			this.testType = testType;
 		}
 
 		@Override
@@ -83,6 +86,9 @@ public class Parameterized extends Suite {
 								annotatedFieldsByParameter.size(), fParameters.length));
 			}
 			Object testClassInstance = getTestClass().getJavaClass().newInstance();
+			if (getTestClass().getJavaClass() == GevoTestBase.class) {
+				((GevoTestBase) testClassInstance).setTestType(testType);
+			}
 			for (FrameworkField each : annotatedFieldsByParameter) {
 				Field field = each.getField();
 				Parameter annotation = field.getAnnotation(Parameter.class);
@@ -198,6 +204,13 @@ public class Parameterized extends Suite {
 		createRunnersForParameters(allParameters(excelFile), parameters.name());
 	}
 
+	public Parameterized(Class<?> klass, String excelFile, Class<?> testType) throws Throwable {
+		super(klass, NO_RUNNERS);
+
+		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
+		createRunnersForParameters(allParameters(excelFile), parameters.name(), testType);
+	}
+
 	@Override
 	protected List<Runner> getChildren() {
 		return runners;
@@ -263,12 +276,17 @@ public class Parameterized extends Suite {
 
 	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern)
 			throws InitializationError, Exception {
+		createRunnersForParameters(allParameters, namePattern, null);
+	}
+
+	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern,
+			Class<?> testType) throws InitializationError, Exception {
 		try {
 			int i = 0;
 			for (Object[] parametersOfSingleTest : allParameters) {
 				String name = nameFor(namePattern, i, parametersOfSingleTest);
 				TestClassRunnerForParameters runner = new TestClassRunnerForParameters(
-						getTestClass().getJavaClass(), parametersOfSingleTest, name);
+						getTestClass().getJavaClass(), parametersOfSingleTest, name, testType);
 				runners.add(runner);
 				++i;
 			}

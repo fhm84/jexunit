@@ -6,6 +6,9 @@ package com.jexunit.examples.arithmeticaltests;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jexunit.core.GevoTestCase;
 import com.jexunit.core.GevoTestObjectHelper;
 import com.jexunit.core.commands.TestCommand;
@@ -18,11 +21,14 @@ import com.jexunit.core.commands.TestCommand;
  */
 public class ArithmeticalTestCommands {
 
+	private static final Logger log = Logger.getLogger(ArithmeticalTestCommands.class.getName());
+
 	public static void runCommand(GevoTestCase testCase) throws Exception {
 		Double val1, val2, result;
 		val1 = Double.parseDouble(testCase.getValues().get("param1").getValue());
 		val2 = Double.parseDouble(testCase.getValues().get("param2").getValue());
 		result = Double.parseDouble(testCase.getValues().get("result").getValue());
+		log.log(Level.INFO, "run command (testCase: {0})", testCase);
 		switch (testCase.getTestCommand()) {
 		case "ADD":
 			assertThat(val1 + val2, equalTo(result));
@@ -42,6 +48,7 @@ public class ArithmeticalTestCommands {
 	public static void runCommandWithObject(GevoTestCase testCase) throws Exception {
 		ArithmeticalTestObject obj = GevoTestObjectHelper.createObject(testCase,
 				ArithmeticalTestObject.class);
+		log.log(Level.INFO, "run comand with object (testCase: {0})", testCase);
 		switch (testCase.getTestCommand()) {
 		case "ADD":
 			assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
@@ -60,7 +67,7 @@ public class ArithmeticalTestCommands {
 
 	@TestCommand("add")
 	public static void runAddCommand(GevoTestCase testCase) throws Exception {
-		System.out.println("in test command: ADD!");
+		log.info("in test command: ADD!");
 		ArithmeticalTestObject obj = GevoTestObjectHelper.createObject(testCase,
 				ArithmeticalTestObject.class);
 		assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
@@ -69,7 +76,7 @@ public class ArithmeticalTestCommands {
 	@TestCommand(value = "sub")
 	public static void runSubCommand(GevoTestCase testCase, ArithmeticalTestObject testObject)
 			throws Exception {
-		System.out.println("in test command: SUB!");
+		log.info("in test command: SUB!");
 		assertThat(testObject.getParam1() - testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 }
