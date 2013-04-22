@@ -24,11 +24,14 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
 public class GevoTester extends Suite {
 
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
+	private String excelFileName;
+	private boolean worksheetAsTest = true;
 
 	public GevoTester(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
+		readExcelFileName();
 		// add the Parameterized GevoTestBase, initialized with the ExcelFileName
-		runners.add(new Parameterized(GevoTestBase.class, getExcelFileName(), klass));
+		runners.add(new Parameterized(GevoTestBase.class, excelFileName, klass, worksheetAsTest));
 
 		// if there are Test-methods defined in the test-class, this once will be execute too
 		try {
@@ -51,18 +54,22 @@ public class GevoTester extends Suite {
 	 * @return the name of the excel-file to use for the test
 	 * @throws Exception
 	 */
-	private String getExcelFileName() throws Exception {
+	private void readExcelFileName() throws Exception {
 		List<FrameworkField> fields = getTestClass().getAnnotatedFields(ExcelFile.class);
 		for (FrameworkField each : fields) {
 			if (each.isStatic() && each.getType() == String.class) {
 				Field field = each.getField();
+				ExcelFile annotation = field.getAnnotation(ExcelFile.class);
+				worksheetAsTest = annotation.worksheetAsTest();
 				if (field.isAccessible()) {
-					return (String) field.get(getTestClass());
+					excelFileName = (String) field.get(getTestClass());
+					return;
 				} else {
 					field.setAccessible(true);
 					String retVal = (String) field.get(getTestClass());
 					field.setAccessible(false);
-					return retVal;
+					excelFileName = retVal;
+					return;
 				}
 			}
 		}
@@ -71,7 +78,8 @@ public class GevoTester extends Suite {
 		List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(ExcelFile.class);
 		for (FrameworkMethod each : methods) {
 			if (each.isStatic() && each.isPublic() && each.getReturnType() == String.class) {
-				return (String) each.getMethod().invoke(null);
+				excelFileName = (String) each.getMethod().invoke(null);
+				return;
 			}
 		}
 

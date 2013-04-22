@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -43,15 +45,30 @@ public class GevoTestExcelLoader {
 	 * @param excelFile
 	 *            the name of the excel file (to be loaded). It has to be the filename incl. path to
 	 *            be loaded (for example: src/test/resources/myExcelFile.xls)
+	 * @param worksheetAsTest
+	 *            "group" all the test-commands of a worksheet to one test (true) or run each
+	 *            test-command as single test (false)
+	 * 
 	 * @return a list of the parsed {@link GevoTestCase}s
 	 * @throws Exception
 	 */
-	public static Collection<Object[]> loadTestData(String excelFile) throws Exception {
+	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest)
+			throws Exception {
 		Map<String, List<GevoTestCase>> tests = readExcel(excelFile);
 
 		Collection<Object[]> col = new ArrayList<Object[]>();
-		for (Entry<String, List<GevoTestCase>> e : tests.entrySet()) {
-			col.add(new Object[] { e.getValue() });
+		if (worksheetAsTest) {
+			for (Entry<String, List<GevoTestCase>> e : tests.entrySet()) {
+				col.add(new Object[] { e.getValue() });
+			}
+		} else {
+			for (Entry<String, List<GevoTestCase>> e : tests.entrySet()) {
+				for (GevoTestCase gtc : e.getValue()) {
+					List<GevoTestCase> list = new ArrayList<>();
+					list.add(gtc);
+					col.add(new Object[] { list });
+				}
+			}
 		}
 
 		return col;
@@ -85,7 +102,7 @@ public class GevoTestExcelLoader {
 					XSSFRow row = worksheet.getRow(i);
 
 					if (row != null) {
-						String cellValue = cellValues2String(row.getCell(0));
+						String cellValue = cellValues2String(workbook, row.getCell(0));
 						if (COMMAND.equalsIgnoreCase(cellValue)) {
 							commandHeaders = new ArrayList<String>();
 
@@ -103,7 +120,7 @@ public class GevoTestExcelLoader {
 
 							if (row.getLastCellNum() >= 1) {
 								GevoTestCell testCell = new GevoTestCell();
-								testCell.setvalue(cellValues2String(row.getCell(1)));
+								testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
 								testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
 								testCase.getValues().put(DISABLED, testCell);
 							}
@@ -122,7 +139,7 @@ public class GevoTestExcelLoader {
 
 							for (j = 1; j < row.getLastCellNum(); j++) {
 								GevoTestCell testCell = new GevoTestCell();
-								testCell.setvalue(cellValues2String(row.getCell(j)));
+								testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
 								testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
 								// the "report"-command don't need a header-line
 								testCase.getValues()
@@ -151,11 +168,13 @@ public class GevoTestExcelLoader {
 	/**
 	 * Get the value of the excel-cell as String.
 	 * 
+	 * @param workbook
+	 *            workbook (excel) for evaluating cell formulas
 	 * @param cell
 	 *            cell (excel)
 	 * @return the value of the excel-cell as String
 	 */
-	static String cellValues2String(XSSFCell cell) {
+	static String cellValues2String(XSSFWorkbook workbook, XSSFCell cell) {
 		if (cell == null) {
 			return null;
 		}
@@ -171,7 +190,7 @@ public class GevoTestExcelLoader {
 		case XSSFCell.CELL_TYPE_STRING:
 			return cell.getStringCellValue();
 		case XSSFCell.CELL_TYPE_FORMULA:
-			return cell.getCellFormula();
+			return evaluateCellFormula(workbook, cell);
 		case XSSFCell.CELL_TYPE_BLANK:
 			return cell.getStringCellValue();
 		case XSSFCell.CELL_TYPE_BOOLEAN:
@@ -180,6 +199,37 @@ public class GevoTestExcelLoader {
 			return String.valueOf(cell.getErrorCellValue());
 		}
 		return null;
+	}
+
+	/**
+	 * Evaluate the formula of the given cell.
+	 * 
+	 * @param workbook
+	 *            workbook (excel) for evaluating the cell formula
+	 * @param cell
+	 *            cell (excel)
+	 * @return the value of the excel-call as string (the formula will be executed)
+	 */
+	static String evaluateCellFormula(XSSFWorkbook workbook, XSSFCell cell) {
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+		// CellValue cellValue = evaluator.evaluate(cell);
+
+		switch (evaluator.evaluateFormulaCell(cell)) {
+		case Cell.CELL_TYPE_BOOLEAN:
+			return String.valueOf(cell.getBooleanCellValue());
+		case Cell.CELL_TYPE_NUMERIC:
+			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+				// TODO: configure the pattern from outside! (BUT: convention over configuration!)
+				SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+				return sdf.format(cell.getDateCellValue());
+			} else {
+				return String.valueOf(cell.getNumericCellValue());
+			}
+		case Cell.CELL_TYPE_STRING:
+			return cell.getStringCellValue();
+		default:
+			return null;
+		}
 	}
 
 	/**

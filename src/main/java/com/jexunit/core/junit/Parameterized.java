@@ -42,6 +42,7 @@ public class Parameterized extends Suite {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.FIELD, ElementType.METHOD })
 	public static @interface ExcelFile {
+		boolean worksheetAsTest() default true;
 	}
 
 	/**
@@ -194,21 +195,16 @@ public class Parameterized extends Suite {
 
 		String excelFile = getExcelFileName();
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile), parameters.name());
+		createRunnersForParameters(allParameters(excelFile, true), parameters.name());
 	}
 
-	public Parameterized(Class<?> klass, String excelFile) throws Throwable {
+	public Parameterized(Class<?> klass, String excelFile, Class<?> testType,
+			boolean worksheetAsTest) throws Throwable {
 		super(klass, NO_RUNNERS);
 
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile), parameters.name());
-	}
-
-	public Parameterized(Class<?> klass, String excelFile, Class<?> testType) throws Throwable {
-		super(klass, NO_RUNNERS);
-
-		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile), parameters.name(), testType);
+		createRunnersForParameters(allParameters(excelFile, worksheetAsTest), parameters.name(),
+				testType);
 	}
 
 	@Override
@@ -217,8 +213,10 @@ public class Parameterized extends Suite {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Iterable<Object[]> allParameters(String excelFile) throws Throwable {
-		Object parameters = getParametersMethod().invokeExplosively(null, excelFile);
+	private Iterable<Object[]> allParameters(String excelFile, boolean worksheetAsTest)
+			throws Throwable {
+		Object parameters = getParametersMethod().invokeExplosively(null, excelFile,
+				worksheetAsTest);
 		if (parameters instanceof Iterable) {
 			return (Iterable<Object[]>) parameters;
 		} else {

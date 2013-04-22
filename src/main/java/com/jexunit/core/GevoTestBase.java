@@ -35,8 +35,7 @@ import com.jexunit.core.junit.Parameterized;
  *         TODO: ability to provide the commands? (via annotation?) to check the file for valid
  *         commands while reading/parsing it!
  * 
- *         TODO: ability to report something (a command, that writes something from the excel file
- *         to the console)
+ *         TODO: multiple excel-files?
  * 
  */
 @RunWith(Parameterized.class)
@@ -69,12 +68,16 @@ public class GevoTestBase {
 	 * 
 	 * @param excelFile
 	 *            the name/path of the excel file to load the test data from
+	 * @param worksheetAsTest
+	 *            "group" all the test-commands of a worksheet to one test (true) or run each
+	 *            test-command as single test (false)
 	 * 
 	 * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
 	 */
-	@Parameters(name = "{0}")
-	public static Collection<Object[]> setUp(String excelFile) throws Exception {
-		return GevoTestExcelLoader.loadTestData(excelFile);
+	@Parameters(name = "{0} [{index}]")
+	public static Collection<Object[]> setUp(String excelFile, boolean worksheetAsTest)
+			throws Exception {
+		return GevoTestExcelLoader.loadTestData(excelFile, worksheetAsTest);
 	}
 
 	/**
