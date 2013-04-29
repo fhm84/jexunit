@@ -4,7 +4,9 @@
 package com.jexunit.core;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,20 +20,25 @@ import com.jexunit.core.junit.Parameterized;
 import com.jexunit.core.junit.Parameterized.ExcelFile;
 
 /**
+ * JUnit-Suite for running the tests with the <code>@RunWith</code>-Annotation.
+ * 
  * @author fabian
  * 
  */
 public class GevoTester extends Suite {
 
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
-	private String excelFileName;
+	// hold the information for multiple excel-files
+	private List<String> excelFileNames = new ArrayList<>();
 	private boolean worksheetAsTest = true;
 
 	public GevoTester(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
 		readExcelFileName();
 		// add the Parameterized GevoTestBase, initialized with the ExcelFileName
-		runners.add(new Parameterized(GevoTestBase.class, excelFileName, klass, worksheetAsTest));
+		for (String excelFileName : excelFileNames) {
+			runners.add(new Parameterized(GevoTestBase.class, excelFileName, klass, worksheetAsTest));
+		}
 
 		// if there are Test-methods defined in the test-class, this once will be execute too
 		try {
@@ -54,31 +61,65 @@ public class GevoTester extends Suite {
 	 * @return the name of the excel-file to use for the test
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	private void readExcelFileName() throws Exception {
 		List<FrameworkField> fields = getTestClass().getAnnotatedFields(ExcelFile.class);
 		for (FrameworkField each : fields) {
-			if (each.isStatic() && each.getType() == String.class) {
+			if (each.isStatic()
+					&& (each.getType() == String.class
+							|| each.getType().isAssignableFrom(List.class) || (each.getType()
+							.isArray() && each.getType().getComponentType() == String.class))) {
 				Field field = each.getField();
 				ExcelFile annotation = field.getAnnotation(ExcelFile.class);
 				worksheetAsTest = annotation.worksheetAsTest();
-				if (field.isAccessible()) {
-					excelFileName = (String) field.get(getTestClass());
-					return;
-				} else {
+				boolean isFieldAccessible = field.isAccessible();
+				if (!isFieldAccessible) {
 					field.setAccessible(true);
-					String retVal = (String) field.get(getTestClass());
-					field.setAccessible(false);
-					excelFileName = retVal;
-					return;
 				}
+
+				if (each.getType() == String.class) {
+					excelFileNames.add((String) field.get(getTestClass()));
+				} else if (each.getType().isArray()
+						&& each.getType().getComponentType() == String.class) {
+					excelFileNames.addAll(Arrays.asList((String[]) field.get(getTestClass())));
+				} else if (each.getType().isAssignableFrom(List.class)
+						&& ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0] == String.class) {
+					excelFileNames.addAll((List<String>) field.get(getTestClass()));
+				} else {
+					throw new IllegalArgumentException("The annotated static field '"
+							+ field.getName() + "' in class '" + getTestClass().getName()
+							+ "' as either to be of type String, String[] or List<String>!");
+				}
+
+				if (!isFieldAccessible) {
+					field.setAccessible(false);
+				}
+				return;
 			}
 		}
 
 		// check, if there is a method annotated with @ExcelFile
 		List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(ExcelFile.class);
 		for (FrameworkMethod each : methods) {
-			if (each.isStatic() && each.isPublic() && each.getReturnType() == String.class) {
-				excelFileName = (String) each.getMethod().invoke(null);
+			if (each.isStatic()
+					&& each.isPublic()
+					&& (each.getReturnType() == String.class
+							|| each.getReturnType().isAssignableFrom(List.class) || (each
+							.getReturnType().isArray() && each.getReturnType().getComponentType() == String.class))) {
+				if (each.getReturnType() == String.class) {
+					excelFileNames.add((String) each.getMethod().invoke(null));
+				} else if (each.getReturnType().isArray()
+						&& each.getReturnType().getComponentType() == String.class) {
+					excelFileNames.addAll(Arrays.asList((String[]) each.getMethod().invoke(null)));
+				} else if (each.getReturnType().isAssignableFrom(List.class)
+						&& ((ParameterizedType) each.getMethod().getGenericReturnType())
+								.getActualTypeArguments()[0] == String.class) {
+					excelFileNames.addAll((List<String>) each.getMethod().invoke(null));
+				} else {
+					throw new IllegalArgumentException("The annotated static field '"
+							+ each.getName() + "' in class '" + getTestClass().getName()
+							+ "' as either to be of type String, String[] or List<String>!");
+				}
 				return;
 			}
 		}

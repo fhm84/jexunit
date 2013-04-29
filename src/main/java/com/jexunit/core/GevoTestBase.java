@@ -32,10 +32,12 @@ import com.jexunit.core.junit.Parameterized;
  * 
  *         TODO: add possibility to override the default commands?
  * 
- *         TODO: ability to provide the commands? (via annotation?) to check the file for valid
- *         commands while reading/parsing it!
+ *         TODO: check the file for valid commands while reading/parsing it?
  * 
  *         TODO: multiple excel-files?
+ * 
+ *         TODO: use instances of CommandProviders (not only static command-methods for holding
+ *         state in the command-providers)?
  * 
  */
 @RunWith(Parameterized.class)
@@ -91,7 +93,7 @@ public class GevoTestBase {
 		}
 
 		log.log(Level.INFO, "Running GevoTestCase: {0}", testCases.get(0).getSheet());
-		for (GevoTestCase testCase : testCases) {
+		testCaseLoop: for (GevoTestCase testCase : testCases) {
 			boolean exceptionExpected = false;
 			try {
 				// each command has the ability to expect an exception. you can define this via the
@@ -120,7 +122,7 @@ public class GevoTestBase {
 					}
 					// continue: there is nothing else to do; you cannot expect an exception on a
 					// "report"-command
-					continue;
+					continue testCaseLoop;
 				} else {
 					try {
 						runTestCommand(testCase);
@@ -131,8 +133,27 @@ public class GevoTestBase {
 											testCase.getTestCommand(), testCase.getSheet(),
 											testCase.getRow()));
 						} else {
-							continue;
+							continue testCaseLoop;
 						}
+					} catch (Exception e) {
+						Throwable t;
+						while ((t = e.getCause()) != null) {
+							if (t instanceof AssertionError) {
+								if (!exceptionExpected) {
+									fail(String
+											.format("Exception expected! in GevoTestCommand: %s, worksheet: %s, row: %s",
+													testCase.getTestCommand(), testCase.getSheet(),
+													testCase.getRow()));
+								} else {
+									continue testCaseLoop;
+								}
+							}
+						}
+						e.printStackTrace();
+						fail(String
+								.format("Unexpected Exception thrown in GevoTestCommand: %s, worksheet: %s, row: %s. (Exception: %s)",
+										testCase.getTestCommand(), testCase.getSheet(),
+										testCase.getRow(), e));
 					}
 				}
 

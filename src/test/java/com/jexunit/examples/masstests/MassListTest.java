@@ -1,5 +1,8 @@
 package com.jexunit.examples.masstests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.runner.RunWith;
 
 import com.jexunit.core.GevoTestBase;
@@ -28,9 +31,13 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * 
  */
 @RunWith(GevoTester.class)
-public class MassTest {
+public class MassListTest {
 
 	@ExcelFile(worksheetAsTest = false)
-	static String[] excelFile = new String[] { "src/test/resources/MassTests.xlsx",
-			"src/test/resources/MassTests2.xlsx" };
+	static List<String> excelFile = new ArrayList<>();
+
+	static {
+		excelFile.add("src/test/resources/MassTests.xlsx");
+		excelFile.add("src/test/resources/MassTests2.xlsx");
+	}
 }

@@ -176,6 +176,8 @@ public class Parameterized extends Suite {
 
 	private static final List<Runner> NO_RUNNERS = Collections.<Runner> emptyList();
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
+	private Class<?> testType;
+	private String excelFile;
 
 	static {
 		// scan classes for test commands
@@ -201,15 +203,27 @@ public class Parameterized extends Suite {
 	public Parameterized(Class<?> klass, String excelFile, Class<?> testType,
 			boolean worksheetAsTest) throws Throwable {
 		super(klass, NO_RUNNERS);
+		this.testType = testType;
+		this.excelFile = excelFile;
 
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile, worksheetAsTest), parameters.name(),
-				testType);
+		createRunnersForParameters(allParameters(excelFile, worksheetAsTest), parameters.name());
 	}
 
 	@Override
 	protected List<Runner> getChildren() {
 		return runners;
+	}
+
+	@Override
+	protected String getName() {
+		StringBuilder sb = new StringBuilder();
+		if (excelFile != null) {
+			sb.append(getSimpleExcelFileName());
+		} else {
+			sb.append(super.getName());
+		}
+		return sb.toString();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,11 +288,6 @@ public class Parameterized extends Suite {
 
 	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern)
 			throws InitializationError, Exception {
-		createRunnersForParameters(allParameters, namePattern, null);
-	}
-
-	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern,
-			Class<?> testType) throws InitializationError, Exception {
 		try {
 			int i = 0;
 			for (Object[] parametersOfSingleTest : allParameters) {
@@ -295,6 +304,11 @@ public class Parameterized extends Suite {
 
 	private String nameFor(String namePattern, int index, Object[] parameters) {
 		String finalPattern = namePattern.replaceAll("\\{index\\}", Integer.toString(index));
+		if (getSimpleExcelFileName() != null) {
+			// change the name of the test to be unique in case of excelFileName is set (i.e. for
+			// mass tests)
+			finalPattern = getSimpleExcelFileName() + " - " + finalPattern;
+		}
 		String name;
 		if (parameters != null && parameters.length > 0 && parameters[0] instanceof List
 				&& !((List<?>) parameters[0]).isEmpty()
@@ -304,6 +318,19 @@ public class Parameterized extends Suite {
 			name = MessageFormat.format(finalPattern, parameters);
 		}
 		return "[" + name + "]";
+	}
+
+	/**
+	 * Get the simple filename of the excel file (without the path).
+	 * 
+	 * @return the simple name of the excel file
+	 */
+	private String getSimpleExcelFileName() {
+		if (excelFile != null) {
+			return excelFile.substring(excelFile.lastIndexOf("/") + 1);
+		} else {
+			return null;
+		}
 	}
 
 	private Exception parametersMethodReturnedWrongType() throws Exception {

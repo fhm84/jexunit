@@ -40,6 +40,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	
 	<properties>
 		<version.compiler>1.7</version.compiler>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
 	<build>
@@ -47,6 +48,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<source>${version.compiler}</source>
 					<target>${version.compiler}</target>
@@ -57,4 +59,11 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 			</plugin>
 		</plugins>
 	</build>
+	
+	<developers>
+		<developer>
+			<id>fhm84</id>
+			<name>Fabian Halbmann</name>
+		</developer>
+	</developers>
 </project>
