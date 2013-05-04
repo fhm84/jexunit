@@ -26,6 +26,10 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * the excel file, the formulas should be evaluated. So it should be possible to generate mass tests
  * using excel!
  * </p>
+ * <p>
+ * This test should check to provide multiple excel-files via <code>List&lt;String&gt;</code> from a
+ * method.
+ * </p>
  * 
  * @author fabian
  * 

@@ -24,17 +24,19 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * using excel!
  * </p>
  * <p>
- * This test should also check to provide multiple excel-files via a static <code>String[]</code>
- * -field.
+ * This test should check to provide multiple excel-files via <code>String[]</code> from a method.
  * </p>
  * 
  * @author fabian
  * 
  */
 @RunWith(GevoTester.class)
-public class MassTest {
+public class MassArrayMethodTest {
 
 	@ExcelFile(worksheetAsTest = false)
-	static String[] excelFile = new String[] { "src/test/resources/MassTests.xlsx",
-			"src/test/resources/MassTests2.xlsx" };
+	public static String[] getExcelFiles() {
+		String[] excelFiles = new String[] { "src/test/resources/MassTests.xlsx",
+				"src/test/resources/MassTests2.xlsx" };
+		return excelFiles;
+	}
 }

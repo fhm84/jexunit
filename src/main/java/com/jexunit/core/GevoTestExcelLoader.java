@@ -15,7 +15,9 @@ import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -88,7 +90,7 @@ public class GevoTestExcelLoader {
 		int i = 0;
 		int j = 0;
 		String sheet = null;
-		try (OPCPackage pkg = OPCPackage.open(excelFilePath);) {
+		try (OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
 			XSSFWorkbook workbook = new XSSFWorkbook(pkg);
 			// iterate over the worksheets
 			for (XSSFSheet worksheet : workbook) {
@@ -172,6 +174,7 @@ public class GevoTestExcelLoader {
 	 *            workbook (excel) for evaluating cell formulas
 	 * @param cell
 	 *            cell (excel)
+	 * 
 	 * @return the value of the excel-cell as String
 	 */
 	static String cellValues2String(XSSFWorkbook workbook, XSSFCell cell) {
@@ -208,25 +211,20 @@ public class GevoTestExcelLoader {
 	 *            workbook (excel) for evaluating the cell formula
 	 * @param cell
 	 *            cell (excel)
+	 * 
 	 * @return the value of the excel-call as string (the formula will be executed)
 	 */
 	static String evaluateCellFormula(XSSFWorkbook workbook, XSSFCell cell) {
 		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-		// CellValue cellValue = evaluator.evaluate(cell);
+		CellValue cellValue = evaluator.evaluate(cell);
 
-		switch (evaluator.evaluateFormulaCell(cell)) {
+		switch (cellValue.getCellType()) {
 		case Cell.CELL_TYPE_BOOLEAN:
-			return String.valueOf(cell.getBooleanCellValue());
+			return String.valueOf(cellValue.getBooleanValue());
 		case Cell.CELL_TYPE_NUMERIC:
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				// TODO: configure the pattern from outside! (BUT: convention over configuration!)
-				SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-				return sdf.format(cell.getDateCellValue());
-			} else {
-				return String.valueOf(cell.getNumericCellValue());
-			}
+			return String.valueOf(cellValue.getNumberValue());
 		case Cell.CELL_TYPE_STRING:
-			return cell.getStringCellValue();
+			return cellValue.getStringValue();
 		default:
 			return null;
 		}
@@ -237,6 +235,7 @@ public class GevoTestExcelLoader {
 	 * 
 	 * @param column
 	 *            the column index
+	 * 
 	 * @return the name of the column (A, B, C, ...)
 	 */
 	static String getColumn(int column) {

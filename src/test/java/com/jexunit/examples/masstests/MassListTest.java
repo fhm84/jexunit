@@ -26,6 +26,10 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * the excel file, the formulas should be evaluated. So it should be possible to generate mass tests
  * using excel!
  * </p>
+ * <p>
+ * This test should check to provide multiple excel-files via <code>List&lt;String&gt;</code> from a
+ * static field.
+ * </p>
  * 
  * @author fabian
  * 
@@ -34,10 +38,11 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
 public class MassListTest {
 
 	@ExcelFile(worksheetAsTest = false)
-	static List<String> excelFile = new ArrayList<>();
+	static List<String> excelFiles = new ArrayList<>();
 
 	static {
-		excelFile.add("src/test/resources/MassTests.xlsx");
-		excelFile.add("src/test/resources/MassTests2.xlsx");
+		excelFiles.add("src/test/resources/MassTests.xlsx");
+		excelFiles.add("src/test/resources/MassTests2.xlsx");
 	}
+
 }
