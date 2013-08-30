@@ -60,6 +60,7 @@ public class TestCommandMethodScanner implements MethodReporter {
 					TestCommand tc = m.getAnnotation(TestCommand.class);
 					if (tc != null) {
 						for (String command : tc.value()) {
+                                                        command = command.toLowerCase();
 							if (methods.containsKey(command)) {
 								methods.get(command).put(type, m);
 							} else {
