@@ -34,8 +34,6 @@ import com.jexunit.core.junit.Parameterized;
  * 
  *         TODO: check the file for valid commands while reading/parsing it?
  * 
- *         TODO: multiple excel-files?
- * 
  *         TODO: use instances of CommandProviders (not only static command-methods for holding
  *         state in the command-providers)?
  * 
@@ -136,8 +134,8 @@ public class GevoTestBase {
 							continue testCaseLoop;
 						}
 					} catch (Exception e) {
-						Throwable t;
-						while ((t = e.getCause()) != null) {
+						Throwable t = e;
+						while ((t = t.getCause()) != null) {
 							if (t instanceof AssertionError) {
 								if (!exceptionExpected) {
 									fail(String
