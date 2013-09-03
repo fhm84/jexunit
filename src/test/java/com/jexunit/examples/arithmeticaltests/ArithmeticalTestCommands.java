@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import com.jexunit.core.GevoTestCase;
 import com.jexunit.core.GevoTestObjectHelper;
 import com.jexunit.core.commands.TestCommand;
+import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 
 /**
  * Provide the Test-Commands for the Arithmetical tests.

@@ -18,6 +18,8 @@ import eu.infomas.annotation.AnnotationDetector.MethodReporter;
  * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan"
  * will run once, so we can hold the methods found in the static methods-Map.
  * 
+ * TODO: "override" command-methods (what about different parameter-types?)
+ * 
  * @author fabian
  * 
  */
@@ -60,7 +62,7 @@ public class TestCommandMethodScanner implements MethodReporter {
 					TestCommand tc = m.getAnnotation(TestCommand.class);
 					if (tc != null) {
 						for (String command : tc.value()) {
-                                                        command = command.toLowerCase();
+							command = command.toLowerCase();
 							if (methods.containsKey(command)) {
 								methods.get(command).put(type, m);
 							} else {

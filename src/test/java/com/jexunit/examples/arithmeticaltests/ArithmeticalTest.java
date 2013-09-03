@@ -15,6 +15,7 @@ import com.jexunit.core.GevoTestCase;
 import com.jexunit.core.GevoTester;
 import com.jexunit.core.commands.TestCommand;
 import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 
 /**
  * Simple Test for the framework.

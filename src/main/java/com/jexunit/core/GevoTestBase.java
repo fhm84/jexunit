@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -187,35 +188,36 @@ public class GevoTestBase {
 		Method method = TestCommandMethodScanner.getTestCommandMethod(testCase.getTestCommand()
 				.toLowerCase(), testType);
 		if (method != null) {
-			if (method.getParameterTypes().length == 1) {
-				if (method.getDeclaringClass() == this.getClass()) {
-					method.invoke(this, testCase);
+			// prepare the parameters
+			List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
+			for (Class<?> parameterType : method.getParameterTypes()) {
+				if (parameterType == GevoTestCase.class) {
+					parameters.add(testCase);
 				} else {
-					method.invoke(null, testCase);
+					Object o = GevoTestObjectHelper.createObject(testCase, parameterType);
+					parameters.add(o);
 				}
-			} else if (method.getParameterTypes().length == 2) {
-				Class<?> type = method.getParameterTypes()[1];
-				Object o = GevoTestObjectHelper.createObject(testCase, type);
-				try {
-					if (method.getDeclaringClass() == this.getClass()) {
-						method.invoke(this, testCase, o);
-					} else {
-						method.invoke(null, testCase, o);
-					}
-				} catch (IllegalAccessException | IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					Throwable t = e;
-					while (t.getCause() != null) {
-						t = t.getCause();
-					}
-					if (t instanceof AssertionError) {
-						throw (AssertionError) t;
-					}
-					throw e;
-				}
-			} else {
+			}
 
+			// invoke the method with the parameters
+			try {
+				if (method.getDeclaringClass() == this.getClass()) {
+					method.invoke(this, parameters.toArray());
+				} else {
+					method.invoke(null, parameters.toArray());
+				}
+			} catch (IllegalAccessException | IllegalArgumentException e) {
+				e.printStackTrace();
+				throw e;
+			} catch (InvocationTargetException e) {
+				Throwable t = e;
+				while (t.getCause() != null) {
+					t = t.getCause();
+				}
+				if (t instanceof AssertionError) {
+					throw (AssertionError) t;
+				}
+				throw e;
 			}
 		} else {
 			runCommand(testCase);
