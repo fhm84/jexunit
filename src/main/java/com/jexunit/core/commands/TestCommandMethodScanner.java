@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.jexunit.core.commands;
 
 import java.lang.annotation.Annotation;

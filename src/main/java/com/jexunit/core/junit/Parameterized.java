@@ -181,7 +181,7 @@ public class Parameterized extends Suite {
 	}
 
 	/**
-	 * Only called reflectively. Do not use programmatically.
+	 * Only called reflectively. Do not use programatically.
 	 */
 	public Parameterized(Class<?> klass) throws Throwable {
 		super(klass, NO_RUNNERS);

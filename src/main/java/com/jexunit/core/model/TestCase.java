@@ -18,6 +18,11 @@ public class TestCase {
 	private int row;
 	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
+	/**
+	 * Get the test-command for the test-case.
+	 * 
+	 * @return the test-command
+	 */
 	public String getTestCommand() {
 		return testCommand;
 	}
@@ -26,6 +31,11 @@ public class TestCase {
 		this.testCommand = testCommand;
 	}
 
+	/**
+	 * Get the values (found/read from the excel file) for the test-case.
+	 * 
+	 * @return the values for the test-case
+	 */
 	public Map<String, TestCell> getValues() {
 		return values;
 	}
@@ -34,6 +44,11 @@ public class TestCase {
 		this.values = values;
 	}
 
+	/**
+	 * Get the name of the sheet the test-case was defined in.
+	 * 
+	 * @return the name of the sheet of the test-case
+	 */
 	public String getSheet() {
 		return sheet;
 	}
@@ -42,6 +57,11 @@ public class TestCase {
 		this.sheet = sheet;
 	}
 
+	/**
+	 * Get the row-number of the test-case.
+	 * 
+	 * @return the row-number of the test-case
+	 */
 	public int getRow() {
 		return row;
 	}
@@ -50,6 +70,10 @@ public class TestCase {
 		this.row = row;
 	}
 
+	/**
+	 * Get the String-representation for the test-case. This will return the sheet-name, because
+	 * it's used for structured "description" of the JUnit test results.
+	 */
 	@Override
 	public String toString() {
 		return sheet;

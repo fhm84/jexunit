@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.jexunit.core;
 
 import java.lang.reflect.Field;

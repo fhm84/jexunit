@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.jexunit.core.data;
 
 import java.io.FileNotFoundException;
@@ -82,8 +79,7 @@ public class ExcelLoader {
 	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list
 	 * of GevoTestCases. So each worksheet will run as separated testrun.
 	 * 
-	 * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as
-	 *         value
+	 * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as value
 	 * @throws Exception
 	 */
 	public static Map<String, List<TestCase>> readExcel(String excelFilePath) throws Exception {

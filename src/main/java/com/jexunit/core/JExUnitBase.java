@@ -25,12 +25,12 @@ import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 
 /**
- * BaseClass for the GevoTests (BusinessTransactionTests).<br>
+ * BaseClass for the Tests (BusinessTransactionTests or simple unit-tests).<br>
  * This class is used to read the excel-file and "create" the separated junit-tests for each
  * worksheet. Each test will get a list of test-cases containing comands to execute.<br>
  * <br>
- * To run your own test-command, you have to implement the {@link #runCommand(TestCase)}-method.
- * All the surrounding features are implemented in this BaseClass. So you can define commands like
+ * To run your own test-command, you have to implement the {@link #runCommand(TestCase)}-method. All
+ * the surrounding features are implemented in this BaseClass. So you can define commands like
  * "disable" the test-case, "report" something and "expect" an exception. The only thing you have to
  * do is to implement your own commands!
  * 
@@ -55,8 +55,8 @@ public class JExUnitBase {
 	/**
 	 * Get the type of the running test-class to identify, if a test-command is provided by the
 	 * test-class itself or by another class. If the {@link #getClass()}-Method returns the
-	 * GevoTestBase, this method will return null. This indicates the framework, that the test-class
-	 * was executed with the {@link @RunWith}-Annotation (so, the GevoTester-class).
+	 * JExUnitBase, this method will return null. This indicates the framework, that the test-class
+	 * was executed with the {@link @RunWith}-Annotation (so, the JExUnit-class).
 	 */
 	private Class<?> testType = null;
 
@@ -94,13 +94,14 @@ public class JExUnitBase {
 			return;
 		}
 
-		log.log(Level.INFO, "Running GevoTestCase: {0}", testCases.get(0).getSheet());
+		log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getSheet());
 		testCaseLoop: for (TestCase testCase : testCases) {
 			boolean exceptionExpected = false;
 			try {
 				// each command has the ability to expect an exception. you can define this via the
 				// field EXCEPTION_EXPECTED.
-				TestCell exceptionCell = testCase.getValues().get(DefaultCommands.EXCEPTION_EXCPECTED);
+				TestCell exceptionCell = testCase.getValues().get(
+						DefaultCommands.EXCEPTION_EXCPECTED);
 				if (exceptionCell != null) {
 					exceptionExpected = Boolean.parseBoolean(exceptionCell.getValue());
 				}
@@ -131,7 +132,7 @@ public class JExUnitBase {
 					} catch (AssertionError e) {
 						if (!exceptionExpected) {
 							fail(String
-									.format("Exception expected! in GevoTestCommand: %s, worksheet: %s, row: %s",
+									.format("Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
 											testCase.getTestCommand(), testCase.getSheet(),
 											testCase.getRow()));
 						} else {
@@ -143,7 +144,7 @@ public class JExUnitBase {
 							if (t instanceof AssertionError) {
 								if (!exceptionExpected) {
 									fail(String
-											.format("Exception expected! in GevoTestCommand: %s, worksheet: %s, row: %s",
+											.format("Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
 													testCase.getTestCommand(), testCase.getSheet(),
 													testCase.getRow()));
 								} else {
@@ -153,7 +154,7 @@ public class JExUnitBase {
 						}
 						e.printStackTrace();
 						fail(String
-								.format("Unexpected Exception thrown in GevoTestCommand: %s, worksheet: %s, row: %s. (Exception: %s)",
+								.format("Unexpected Exception thrown in TestCommand: %s, worksheet: %s, row: %s. (Exception: %s)",
 										testCase.getTestCommand(), testCase.getSheet(),
 										testCase.getRow(), e));
 					}
@@ -162,14 +163,14 @@ public class JExUnitBase {
 				// if an exception is expected, but no exception is thrown, the test will fail!
 				if (exceptionExpected) {
 					fail(String.format(
-							"Exception expected! in GevoTestCommand: %s, worksheet: %s, row: %s",
+							"Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
 							testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()));
 				}
 			} catch (Exception e) {
-				log.log(Level.WARNING, "GevoTestException", e);
+				log.log(Level.WARNING, "TestException", e);
 				if (!exceptionExpected) {
 					fail(String
-							.format("Unexpected Exception thrown (%s)! in GevoTestCommand: %s, worksheet: %s, row: %s",
+							.format("Unexpected Exception thrown (%s)! in TestCommand: %s, worksheet: %s, row: %s",
 									e, testCase.getTestCommand(), testCase.getSheet(),
 									testCase.getRow()));
 				}
@@ -233,7 +234,7 @@ public class JExUnitBase {
 	 * You have to implement this method to run your specific tests.
 	 * 
 	 * @param testCase
-	 *            the GevoTestCase containing all information from the excel file/row
+	 *            the TestCase containing all information from the excel file/row
 	 * 
 	 * @throws Exception
 	 */

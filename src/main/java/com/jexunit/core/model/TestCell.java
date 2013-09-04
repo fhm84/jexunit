@@ -10,11 +10,16 @@ import com.jexunit.core.data.ExcelLoader;
  */
 public class TestCell {
 
-	// Inhalt der Zelle
+	// the cells value
 	private String value;
 
 	private int column;
 
+	/**
+	 * Get the cells value.
+	 * 
+	 * @return the value of the cell
+	 */
 	public String getValue() {
 		return value;
 	}

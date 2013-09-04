@@ -16,8 +16,8 @@ import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 
 /**
- * Hilfsklasse, um aus den Excel-Files generisch die Entity-Klassen zu generieren. Im Excel sind
- * lediglich die Attributnamen und die gewünschten Werte anzugeben.
+ * Helper-class for generating entities out of the data of the excel-files. In the excel-file the
+ * attributes names and values can be set.
  * 
  * @author fabian
  * 
@@ -29,14 +29,14 @@ public class TestObjectHelper {
 	private static final String PROP_DEL = ".";
 
 	/**
-	 * Erzeugt eine neue Instanz der angegebenen Klasse und befüllt die im TestCase angegebenen
-	 * Attribute mit den entsprechenden Werten.
+	 * Create a new instance of the given type with attributes set out of the TestCase. The TestCase
+	 * contains the attributes names and values to set.
 	 * 
 	 * @param testCase
-	 *            TestCase, der die zu setzenden Attribute (und Werte) enthält
+	 *            TestCase, containing the attributes (names) and values to set
 	 * @param clazz
-	 *            Klasse (Entität), die erstellt werden soll
-	 * @return einen neue Instanz der angegebenen Klasse
+	 *            type of the object/instance to create
+	 * @return a new instance of the given type with attributes set defined in the TestCase
 	 * @throws Exception
 	 */
 	public static <T> T createObject(TestCase testCase, Class<T> clazz) throws Exception {
@@ -49,13 +49,14 @@ public class TestObjectHelper {
 	}
 
 	/**
-	 * Ändert die im TestCase übergebenen Werte des Objekts.
+	 * Change the values of the given object set in the TestCase. So you can override the objects
+	 * values set in a first command with (some) values set in a l
 	 * 
 	 * @param testCase
-	 *            TestCase, der die zu ändernden Attribute (und Werte) enthält
+	 *            TestCase containing the attributes (names) and values to change
 	 * @param object
-	 *            konkretes Objekt, dessen Attribut-Werte geändert werden sollen
-	 * @return übergebenes Objekt mit geänderten Werten
+	 *            object instance to change the attributes values
+	 * @return the given object instance with modified attribute-values
 	 * @throws Exception
 	 */
 	public static <T> T createObject(TestCase testCase, T object) throws Exception {
@@ -66,14 +67,14 @@ public class TestObjectHelper {
 	}
 
 	/**
-	 * Setzt das Attribut (Property) des angegebenen Objekts auf den angegebenen Wert.
+	 * Set the attribute/property of the given object to the given value.
 	 * 
 	 * @param obj
-	 *            Objekt
+	 *            object/instance
 	 * @param propName
-	 *            Property-Name
+	 *            property-name
 	 * @param propValue
-	 *            Property-Wert
+	 *            property-value
 	 * @throws Exception
 	 */
 	private static void setPropertyToObject(Object obj, String propName, String propValue)
@@ -96,14 +97,13 @@ public class TestObjectHelper {
 	}
 
 	/**
-	 * Gibt den Typ (die Klasse) des Properties mit dem angegebenen Namen in dem angegebenen Objekt
-	 * zurück.
+	 * Get the type of the property with given name in the given object/instance.
 	 * 
 	 * @param obj
-	 *            Objekt
+	 *            object/instance
 	 * @param propName
-	 *            Property-Name
-	 * @return Klasse (Typ) des Properties
+	 *            property-name
+	 * @return Type of the property
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 * @throws NoSuchMethodException
@@ -114,6 +114,19 @@ public class TestObjectHelper {
 		return clazz;
 	}
 
+	/**
+	 * Get the "sub"-object; the object behind the given property-name of the given object.
+	 * 
+	 * @param obj
+	 *            the object/instance
+	 * @param propObj
+	 *            the property-name
+	 * @return the/a new instance of the objects property with given name
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 * @throws InstantiationException
+	 */
 	private static Object getSubObject(Object obj, String propObj) throws IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException, InstantiationException {
 		Object subObj = PropertyUtils.getProperty(obj, propObj);
@@ -126,15 +139,15 @@ public class TestObjectHelper {
 	}
 
 	/**
-	 * Konvertiert den Property-Wert in den angegebenen Typ (Klasse).
+	 * Convert the given (property-)value to the given type.
 	 * 
 	 * @param clazz
-	 *            Klasse (Typ) des Properties
+	 *            the type of the property (to convert the property to)
 	 * @param propName
-	 *            Property-Name
+	 *            the property-name
 	 * @param propValue
-	 *            Property-Wert
-	 * @return Property-Wert (in den richtigen Typ konvertiert)
+	 *            the property-value
+	 * @return the property-value (converted to the expected type)
 	 * @throws ParseException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
