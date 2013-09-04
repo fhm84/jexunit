@@ -1,8 +1,8 @@
 package com.jexunit.examples.arithmeticaltests;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTestCase;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.model.TestCase;
 
 /**
  * Simple Test for the framework. This test should provide the arithmetical operations ADD and SUB.
@@ -10,13 +10,13 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * @author fabian
  * 
  */
-public class ArithmeticalObjectTest extends GevoTestBase {
+public class ArithmeticalObjectTest extends JExUnitBase {
 
 	@ExcelFile
 	static String excelFile = "src/test/resources/ArithmeticalTests.xlsx";
 
 	@Override
-	public void runCommand(GevoTestCase testCase) throws Exception {
+	public void runCommand(TestCase testCase) throws Exception {
 		ArithmeticalTestCommands.runCommandWithObject(testCase);
 	}
 }

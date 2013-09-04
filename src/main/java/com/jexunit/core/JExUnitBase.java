@@ -16,15 +16,20 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandMethodScanner;
+import com.jexunit.core.data.ExcelLoader;
+import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.junit.Parameterized;
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
 
 /**
  * BaseClass for the GevoTests (BusinessTransactionTests).<br>
  * This class is used to read the excel-file and "create" the separated junit-tests for each
  * worksheet. Each test will get a list of test-cases containing comands to execute.<br>
  * <br>
- * To run your own test-command, you have to implement the {@link #runCommand(GevoTestCase)}-method.
+ * To run your own test-command, you have to implement the {@link #runCommand(TestCase)}-method.
  * All the surrounding features are implemented in this BaseClass. So you can define commands like
  * "disable" the test-case, "report" something and "expect" an exception. The only thing you have to
  * do is to implement your own commands!
@@ -40,14 +45,12 @@ import com.jexunit.core.junit.Parameterized;
  * 
  */
 @RunWith(Parameterized.class)
-public class GevoTestBase {
+public class JExUnitBase {
 
-	private static Logger log = Logger.getLogger(GevoTestBase.class.getName());
-
-	public static final String EXCEPTION_EXCPECTED = "exception";
+	private static Logger log = Logger.getLogger(JExUnitBase.class.getName());
 
 	@Parameter
-	List<GevoTestCase> testCases;
+	List<TestCase> testCases;
 
 	/**
 	 * Get the type of the running test-class to identify, if a test-command is provided by the
@@ -57,7 +60,7 @@ public class GevoTestBase {
 	 */
 	private Class<?> testType = null;
 
-	public GevoTestBase() {
+	public JExUnitBase() {
 	}
 
 	public void setTestType(Class<?> testType) {
@@ -78,11 +81,11 @@ public class GevoTestBase {
 	@Parameters(name = "{0} [{index}]")
 	public static Collection<Object[]> setUp(String excelFile, boolean worksheetAsTest)
 			throws Exception {
-		return GevoTestExcelLoader.loadTestData(excelFile, worksheetAsTest);
+		return ExcelLoader.loadTestData(excelFile, worksheetAsTest);
 	}
 
 	/**
-	 * This is the test-method for junit. Here the iteration through the {@link GevoTestCase}s and
+	 * This is the test-method for junit. Here the iteration through the {@link TestCase}s and
 	 * interpretation/implementation of the test-commands will run.
 	 */
 	@Test
@@ -92,18 +95,18 @@ public class GevoTestBase {
 		}
 
 		log.log(Level.INFO, "Running GevoTestCase: {0}", testCases.get(0).getSheet());
-		testCaseLoop: for (GevoTestCase testCase : testCases) {
+		testCaseLoop: for (TestCase testCase : testCases) {
 			boolean exceptionExpected = false;
 			try {
 				// each command has the ability to expect an exception. you can define this via the
 				// field EXCEPTION_EXPECTED.
-				GevoTestCell exceptionCell = testCase.getValues().get(EXCEPTION_EXCPECTED);
+				TestCell exceptionCell = testCase.getValues().get(DefaultCommands.EXCEPTION_EXCPECTED);
 				if (exceptionCell != null) {
 					exceptionExpected = Boolean.parseBoolean(exceptionCell.getValue());
 				}
 
-				if (GevoTestExcelLoader.DISABLED.equalsIgnoreCase(testCase.getTestCommand())) {
-					if (Boolean.parseBoolean(testCase.getValues().get(GevoTestExcelLoader.DISABLED)
+				if (DefaultCommands.DISABLED.equalsIgnoreCase(testCase.getTestCommand())) {
+					if (Boolean.parseBoolean(testCase.getValues().get(DefaultCommands.DISABLED)
 							.getValue())) {
 						log.info(String.format("Testcase disabled! (Worksheet: %s)",
 								testCase.getSheet()));
@@ -114,9 +117,9 @@ public class GevoTestBase {
 										testCase.getSheet()), true);
 						return;
 					}
-				} else if (GevoTestExcelLoader.REPORT.equalsIgnoreCase(testCase.getTestCommand())) {
+				} else if (DefaultCommands.REPORT.equalsIgnoreCase(testCase.getTestCommand())) {
 					// log all the report-"values"
-					for (GevoTestCell tc : testCase.getValues().values()) {
+					for (TestCell tc : testCase.getValues().values()) {
 						log.info(tc.getValue());
 					}
 					// continue: there is nothing else to do; you cannot expect an exception on a
@@ -183,7 +186,7 @@ public class GevoTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	private void runTestCommand(GevoTestCase testCase) throws Exception {
+	private void runTestCommand(TestCase testCase) throws Exception {
 		// check, which method to run for the current GevoTestCommand
 		Method method = TestCommandMethodScanner.getTestCommandMethod(testCase.getTestCommand()
 				.toLowerCase(), testType);
@@ -191,10 +194,10 @@ public class GevoTestBase {
 			// prepare the parameters
 			List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
 			for (Class<?> parameterType : method.getParameterTypes()) {
-				if (parameterType == GevoTestCase.class) {
+				if (parameterType == TestCase.class) {
 					parameters.add(testCase);
 				} else {
-					Object o = GevoTestObjectHelper.createObject(testCase, parameterType);
+					Object o = TestObjectHelper.createObject(testCase, parameterType);
 					parameters.add(o);
 				}
 			}
@@ -225,7 +228,7 @@ public class GevoTestBase {
 	}
 
 	/**
-	 * This method runs your specified Test-Command. In the {@link GevoTestCase} you will find all
+	 * This method runs your specified Test-Command. In the {@link TestCase} you will find all
 	 * information you need (read from the excel file/row) to run the command.<br>
 	 * You have to implement this method to run your specific tests.
 	 * 
@@ -234,7 +237,7 @@ public class GevoTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void runCommand(GevoTestCase testCase) throws Exception {
+	public void runCommand(TestCase testCase) throws Exception {
 		throw new NoSuchMethodError(
 				String.format(
 						"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",

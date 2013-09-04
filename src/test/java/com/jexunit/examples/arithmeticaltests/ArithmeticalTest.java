@@ -10,17 +10,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTestCase;
-import com.jexunit.core.GevoTester;
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.JExUnit;
 import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 
 /**
  * Simple Test for the framework.
  * <p>
- * This test doesn't extend the base-class ({@link GevoTestBase}). This test works with the
+ * This test doesn't extend the base-class ({@link JExUnitBase}). This test works with the
  * <code>@RunWith(GevoTester.class)</code>-Annotation as the integration point for the framework.
  * </p>
  * <p>
@@ -45,7 +45,7 @@ import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
  * @author fabian
  * 
  */
-@RunWith(GevoTester.class)
+@RunWith(JExUnit.class)
 public class ArithmeticalTest {
 
 	private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
@@ -59,14 +59,14 @@ public class ArithmeticalTest {
 	}
 
 	@TestCommand(value = "mul")
-	public static void runMulCommand(GevoTestCase testCase, ArithmeticalTestObject testObject)
+	public static void runMulCommand(TestCase testCase, ArithmeticalTestObject testObject)
 			throws Exception {
 		log.log(Level.INFO, "in test command: MUL!");
 		assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 
 	@TestCommand(value = "div")
-	public static void runDivCommand(GevoTestCase testCase, ArithmeticalTestObject testObject)
+	public static void runDivCommand(TestCase testCase, ArithmeticalTestObject testObject)
 			throws Exception {
 		log.log(Level.INFO, "in test command: DIV!");
 		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));

@@ -18,8 +18,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMethod;
 
+import com.jexunit.core.data.ExcelFile;
 import com.jexunit.core.junit.Parameterized;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
 
 /**
  * JUnit-Suite for running the tests with the <code>@RunWith</code>-Annotation.
@@ -27,19 +27,19 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * @author fabian
  * 
  */
-public class GevoTester extends Suite {
+public class JExUnit extends Suite {
 
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
 	// hold the information for multiple excel-files
 	private List<String> excelFileNames = new ArrayList<>();
 	private boolean worksheetAsTest = true;
 
-	public GevoTester(Class<?> klass) throws Throwable {
+	public JExUnit(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
 		readExcelFileNames();
 		// add the Parameterized GevoTestBase, initialized with the ExcelFileName
 		for (String excelFileName : excelFileNames) {
-			runners.add(new Parameterized(GevoTestBase.class, excelFileName, klass, worksheetAsTest));
+			runners.add(new Parameterized(JExUnitBase.class, excelFileName, klass, worksheetAsTest));
 		}
 
 		// if there are Test-methods defined in the test-class, this once will be execute too

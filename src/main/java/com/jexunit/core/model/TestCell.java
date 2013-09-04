@@ -1,4 +1,6 @@
-package com.jexunit.core;
+package com.jexunit.core.model;
+
+import com.jexunit.core.data.ExcelLoader;
 
 /**
  * The "entity" for a single cell. It consists of the value and the column (number).
@@ -6,7 +8,7 @@ package com.jexunit.core;
  * @author fabian
  * 
  */
-public class GevoTestCell {
+public class TestCell {
 
 	// Inhalt der Zelle
 	private String value;
@@ -27,7 +29,7 @@ public class GevoTestCell {
 	 * @return the name of the column (A, B, C, ...)
 	 */
 	public String getColumn() {
-		return GevoTestExcelLoader.getColumn(column);
+		return ExcelLoader.getColumn(column);
 	}
 
 	public void setColumn(int column) {

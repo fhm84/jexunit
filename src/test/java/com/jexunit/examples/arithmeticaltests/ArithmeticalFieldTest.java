@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTestCase;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 
 /**
@@ -25,14 +25,14 @@ import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
  * are multiple methods found for the test-command "DIV".
  * </p>
  * <p>
- * All the other test-commands will be handled by the overridden {@link #runCommand(GevoTestCase)}
+ * All the other test-commands will be handled by the overridden {@link #runCommand(TestCase)}
  * method.
  * </p>
  * 
  * @author fabian
  * 
  */
-public class ArithmeticalFieldTest extends GevoTestBase {
+public class ArithmeticalFieldTest extends JExUnitBase {
 
 	private static Logger log = Logger.getLogger(ArithmeticalFieldTest.class.getName());
 
@@ -50,12 +50,12 @@ public class ArithmeticalFieldTest extends GevoTestBase {
 	}
 
 	@Override
-	public void runCommand(GevoTestCase testCase) throws Exception {
+	public void runCommand(TestCase testCase) throws Exception {
 		ArithmeticalTestCommands.runCommand(testCase);
 	}
 
 	@TestCommand(value = "div")
-	public static void runDivCommand(GevoTestCase testCase, ArithmeticalTestObject testObject)
+	public static void runDivCommand(TestCase testCase, ArithmeticalTestObject testObject)
 			throws Exception {
 		log.info("in test command: DIV!");
 		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));

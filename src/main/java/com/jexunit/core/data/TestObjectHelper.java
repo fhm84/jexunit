@@ -1,4 +1,4 @@
-package com.jexunit.core;
+package com.jexunit.core.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
+
 /**
  * Hilfsklasse, um aus den Excel-Files generisch die Entity-Klassen zu generieren. Im Excel sind
  * lediglich die Attributnamen und die gewünschten Werte anzugeben.
@@ -19,9 +22,9 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author fabian
  * 
  */
-public class GevoTestObjectHelper {
+public class TestObjectHelper {
 
-	private static Logger log = Logger.getLogger(GevoTestObjectHelper.class.getName());
+	private static Logger log = Logger.getLogger(TestObjectHelper.class.getName());
 
 	private static final String PROP_DEL = ".";
 
@@ -36,10 +39,10 @@ public class GevoTestObjectHelper {
 	 * @return einen neue Instanz der angegebenen Klasse
 	 * @throws Exception
 	 */
-	public static <T> T createObject(GevoTestCase testCase, Class<T> clazz) throws Exception {
+	public static <T> T createObject(TestCase testCase, Class<T> clazz) throws Exception {
 		T obj = clazz.newInstance();
 
-		for (Map.Entry<String, GevoTestCell> entry : testCase.getValues().entrySet()) {
+		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			setPropertyToObject(obj, entry.getKey(), entry.getValue().getValue());
 		}
 		return obj;
@@ -55,8 +58,8 @@ public class GevoTestObjectHelper {
 	 * @return übergebenes Objekt mit geänderten Werten
 	 * @throws Exception
 	 */
-	public static <T> T createObject(GevoTestCase testCase, T object) throws Exception {
-		for (Map.Entry<String, GevoTestCell> entry : testCase.getValues().entrySet()) {
+	public static <T> T createObject(TestCase testCase, T object) throws Exception {
+		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			setPropertyToObject(object, entry.getKey(), entry.getValue().getValue());
 		}
 		return object;

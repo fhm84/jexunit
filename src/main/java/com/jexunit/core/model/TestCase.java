@@ -1,4 +1,4 @@
-package com.jexunit.core;
+package com.jexunit.core.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,12 +11,12 @@ import java.util.Map;
  * @author fabian
  * 
  */
-public class GevoTestCase {
+public class TestCase {
 
 	private String testCommand;
 	private String sheet;
 	private int row;
-	private Map<String, GevoTestCell> values = new LinkedHashMap<String, GevoTestCell>();
+	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
 	public String getTestCommand() {
 		return testCommand;
@@ -26,11 +26,11 @@ public class GevoTestCase {
 		this.testCommand = testCommand;
 	}
 
-	public Map<String, GevoTestCell> getValues() {
+	public Map<String, TestCell> getValues() {
 		return values;
 	}
 
-	public void setValues(Map<String, GevoTestCell> values) {
+	public void setValues(Map<String, TestCell> values) {
 		this.values = values;
 	}
 

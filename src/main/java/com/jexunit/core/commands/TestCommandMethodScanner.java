@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.GevoTester;
+import com.jexunit.core.JExUnit;
 
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 
@@ -53,7 +53,7 @@ public class TestCommandMethodScanner implements MethodReporter {
 			Class<?> type = null;
 			if (clazz.isAnnotationPresent(RunWith.class)) {
 				RunWith rwa = clazz.getAnnotation(RunWith.class);
-				if (rwa.value() == GevoTester.class) {
+				if (rwa.value() == JExUnit.class) {
 					type = clazz;
 				}
 			}

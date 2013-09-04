@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jexunit.core;
+package com.jexunit.core.data;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,20 +24,22 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.jexunit.core.commands.DefaultCommands;
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
+
 /**
  * Utility class for reading the excel file into the internal data representation.
  * 
  * @author fabian
  * 
  */
-public class GevoTestExcelLoader {
+public class ExcelLoader {
 
 	private static final String COMMAND = "command";
-	public static final String DISABLED = "disabled";
-	public static final String REPORT = "report";
 
 	// Utility class, only static access
-	private GevoTestExcelLoader() {
+	private ExcelLoader() {
 	}
 
 	/**
@@ -51,22 +53,22 @@ public class GevoTestExcelLoader {
 	 *            "group" all the test-commands of a worksheet to one test (true) or run each
 	 *            test-command as single test (false)
 	 * 
-	 * @return a list of the parsed {@link GevoTestCase}s
+	 * @return a list of the parsed {@link TestCase}s
 	 * @throws Exception
 	 */
 	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest)
 			throws Exception {
-		Map<String, List<GevoTestCase>> tests = readExcel(excelFile);
+		Map<String, List<TestCase>> tests = readExcel(excelFile);
 
 		Collection<Object[]> col = new ArrayList<Object[]>();
 		if (worksheetAsTest) {
-			for (Entry<String, List<GevoTestCase>> e : tests.entrySet()) {
+			for (Entry<String, List<TestCase>> e : tests.entrySet()) {
 				col.add(new Object[] { e.getValue() });
 			}
 		} else {
-			for (Entry<String, List<GevoTestCase>> e : tests.entrySet()) {
-				for (GevoTestCase gtc : e.getValue()) {
-					List<GevoTestCase> list = new ArrayList<>();
+			for (Entry<String, List<TestCase>> e : tests.entrySet()) {
+				for (TestCase gtc : e.getValue()) {
+					List<TestCase> list = new ArrayList<>();
 					list.add(gtc);
 					col.add(new Object[] { list });
 				}
@@ -80,12 +82,12 @@ public class GevoTestExcelLoader {
 	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list
 	 * of GevoTestCases. So each worksheet will run as separated testrun.
 	 * 
-	 * @return a map with the excel worksheet name as key and the list of {@link GevoTestCase}s as
+	 * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as
 	 *         value
 	 * @throws Exception
 	 */
-	public static Map<String, List<GevoTestCase>> readExcel(String excelFilePath) throws Exception {
-		Map<String, List<GevoTestCase>> tests = new LinkedHashMap<String, List<GevoTestCase>>();
+	public static Map<String, List<TestCase>> readExcel(String excelFilePath) throws Exception {
+		Map<String, List<TestCase>> tests = new LinkedHashMap<String, List<TestCase>>();
 
 		int i = 0;
 		int j = 0;
@@ -95,7 +97,7 @@ public class GevoTestExcelLoader {
 			// iterate over the worksheets
 			for (XSSFSheet worksheet : workbook) {
 				sheet = worksheet.getSheetName();
-				List<GevoTestCase> testCases = new ArrayList<GevoTestCase>();
+				List<TestCase> testCases = new ArrayList<TestCase>();
 
 				List<String> commandHeaders = null;
 
@@ -112,8 +114,8 @@ public class GevoTestExcelLoader {
 							for (int h = 0; h < row.getLastCellNum(); h++) {
 								commandHeaders.add(row.getCell(h).getStringCellValue());
 							}
-						} else if (DISABLED.equalsIgnoreCase(cellValue)) {
-							GevoTestCase testCase = new GevoTestCase();
+						} else if (DefaultCommands.DISABLED.equalsIgnoreCase(cellValue)) {
+							TestCase testCase = new TestCase();
 
 							// the first column is always the command
 							testCase.setTestCommand(cellValue);
@@ -121,18 +123,19 @@ public class GevoTestExcelLoader {
 							testCase.setRow(row.getRowNum() + 1);
 
 							if (row.getLastCellNum() >= 1) {
-								GevoTestCell testCell = new GevoTestCell();
+								TestCell testCell = new TestCell();
 								testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
 								testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
-								testCase.getValues().put(DISABLED, testCell);
+								testCase.getValues().put(DefaultCommands.DISABLED, testCell);
 							}
 							testCases.add(testCase);
 						} else if (cellValue == null || cellValue.isEmpty()) {
 							// if the first column is empty, this is a comment line and will be
 							// ignored
 							continue;
-						} else if (commandHeaders != null || REPORT.equalsIgnoreCase(cellValue)) {
-							GevoTestCase testCase = new GevoTestCase();
+						} else if (commandHeaders != null
+								|| DefaultCommands.REPORT.equalsIgnoreCase(cellValue)) {
+							TestCase testCase = new TestCase();
 
 							// the first column is always the command
 							testCase.setTestCommand(cellValue);
@@ -140,7 +143,7 @@ public class GevoTestExcelLoader {
 							testCase.setRow(row.getRowNum() + 1);
 
 							for (j = 1; j < row.getLastCellNum(); j++) {
-								GevoTestCell testCell = new GevoTestCell();
+								TestCell testCell = new TestCell();
 								testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
 								testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
 								// the "report"-command don't need a header-line
@@ -238,7 +241,7 @@ public class GevoTestExcelLoader {
 	 * 
 	 * @return the name of the column (A, B, C, ...)
 	 */
-	static String getColumn(int column) {
+	public static String getColumn(int column) {
 		column--;
 		if (column >= 0 && column < 26)
 			return Character.toString((char) ('A' + column));

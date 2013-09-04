@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTestCase;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.model.TestCase;
 
 /**
  * Simple Test for the framework.
@@ -19,13 +19,13 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * <p>
  * All the test-commands, that are not found in the classpath (methods annotated with the
  * <code>@TestCommand</code>-Annotation), will be handled by the overridden
- * {@link #runCommand(GevoTestCase)} method.
+ * {@link #runCommand(TestCase)} method.
  * </p>
  * 
  * @author fabian
  * 
  */
-public class ArithmeticalMethodTest extends GevoTestBase {
+public class ArithmeticalMethodTest extends JExUnitBase {
 
 	private static final Logger log = Logger.getLogger(ArithmeticalMethodTest.class.getName());
 
@@ -45,7 +45,7 @@ public class ArithmeticalMethodTest extends GevoTestBase {
 	}
 
 	@Override
-	public void runCommand(GevoTestCase testCase) throws Exception {
+	public void runCommand(TestCase testCase) throws Exception {
 		log.log(Level.INFO, "running test-command: {0}", testCase.getTestCommand());
 		ArithmeticalTestCommands.runCommand(testCase);
 	}

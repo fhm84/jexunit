@@ -5,14 +5,14 @@ import java.util.List;
 
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTester;
-import com.jexunit.core.junit.Parameterized.ExcelFile;
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.JExUnit;
+import com.jexunit.core.data.ExcelFile;
 
 /**
  * Simple Test for the framework.
  * <p>
- * This test doesn't extend the base-class ({@link GevoTestBase}). This test works with the
+ * This test doesn't extend the base-class ({@link JExUnitBase}). This test works with the
  * <code>@RunWith(GevoTester.class)</code>-Annotation as the integration point for the framework.
  * </p>
  * <p>
@@ -34,7 +34,7 @@ import com.jexunit.core.junit.Parameterized.ExcelFile;
  * @author fabian
  * 
  */
-@RunWith(GevoTester.class)
+@RunWith(JExUnit.class)
 public class MassListTest {
 
 	@ExcelFile(worksheetAsTest = false)

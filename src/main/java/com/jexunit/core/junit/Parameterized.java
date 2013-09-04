@@ -2,10 +2,6 @@ package com.jexunit.core.junit;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,9 +19,10 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import com.jexunit.core.GevoTestBase;
-import com.jexunit.core.GevoTestCase;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.commands.TestCommandMethodScanner;
+import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.model.TestCase;
 
 import eu.infomas.annotation.AnnotationDetector;
 
@@ -38,12 +35,6 @@ import eu.infomas.annotation.AnnotationDetector;
  * 
  */
 public class Parameterized extends Suite {
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.FIELD, ElementType.METHOD })
-	public static @interface ExcelFile {
-		boolean worksheetAsTest() default true;
-	}
 
 	/**
 	 * This is the same as the one in the {@code org.junit.runners.Parameterized}. It has to be
@@ -87,8 +78,8 @@ public class Parameterized extends Suite {
 								annotatedFieldsByParameter.size(), fParameters.length));
 			}
 			Object testClassInstance = getTestClass().getJavaClass().newInstance();
-			if (getTestClass().getJavaClass() == GevoTestBase.class) {
-				((GevoTestBase) testClassInstance).setTestType(testType);
+			if (getTestClass().getJavaClass() == JExUnitBase.class) {
+				((JExUnitBase) testClassInstance).setTestType(testType);
 			}
 			for (FrameworkField each : annotatedFieldsByParameter) {
 				Field field = each.getField();
@@ -312,7 +303,7 @@ public class Parameterized extends Suite {
 		String name;
 		if (parameters != null && parameters.length > 0 && parameters[0] instanceof List
 				&& !((List<?>) parameters[0]).isEmpty()
-				&& ((List<?>) parameters[0]).get(0) instanceof GevoTestCase) {
+				&& ((List<?>) parameters[0]).get(0) instanceof TestCase) {
 			name = MessageFormat.format(finalPattern, ((List<?>) parameters[0]).get(0));
 		} else {
 			name = MessageFormat.format(finalPattern, parameters);
