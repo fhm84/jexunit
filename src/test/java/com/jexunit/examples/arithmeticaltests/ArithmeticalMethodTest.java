@@ -14,7 +14,7 @@ import com.jexunit.core.model.TestCase;
  * Simple Test for the framework.
  * <p>
  * This test should provide the excel file via the static method {@link #getExcelFile()} annotated
- * with {@link @ExcelFile}.
+ * with <code>&#064;ExcelFile</code>.
  * </p>
  * <p>
  * All the test-commands, that are not found in the classpath (methods annotated with the

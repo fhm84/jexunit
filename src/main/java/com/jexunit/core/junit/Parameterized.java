@@ -136,7 +136,7 @@ public class Parameterized extends Suite {
 								String.format(
 										"Invalid @Parameter value: %s. @Parameter fields counted: %s. Please use an index between 0 and %s.",
 										index, annotatedFieldsByParameter.size(),
-										(annotatedFieldsByParameter.size() - 1))));
+										annotatedFieldsByParameter.size() - 1)));
 					} else {
 						usedIndices[index]++;
 					}

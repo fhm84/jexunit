@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.junit.runner.Runner;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -25,6 +26,8 @@ import com.jexunit.core.junit.Parameterized;
  * 
  */
 public class JExUnit extends Suite {
+
+	private static final Logger LOG = Logger.getLogger(JExUnit.class.getName());
 
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
 	// hold the information for multiple excel-files
@@ -45,6 +48,7 @@ public class JExUnit extends Suite {
 		} catch (Exception e) {
 			// ignore (if there is no method annotated with @Test in the class, an exception is
 			// thrown -> so we can ignore this here)
+			LOG.finer("No method found annotated with @Test; this will be ignored!");
 		}
 	}
 
@@ -99,8 +103,9 @@ public class JExUnit extends Suite {
 			throws IllegalArgumentException, IllegalAccessException {
 		if (frameworkField.isStatic()
 				&& (frameworkField.getType() == String.class
-						|| frameworkField.getType().isAssignableFrom(List.class) || (frameworkField
-						.getType().isArray() && frameworkField.getType().getComponentType() == String.class))) {
+						|| frameworkField.getType().isAssignableFrom(List.class) || frameworkField
+						.getType().isArray()
+						&& frameworkField.getType().getComponentType() == String.class)) {
 			Field field = frameworkField.getField();
 			Class<?> type = field.getType();
 
@@ -154,9 +159,9 @@ public class JExUnit extends Suite {
 		if (frameworkMethod.isStatic()
 				&& frameworkMethod.isPublic()
 				&& (frameworkMethod.getReturnType() == String.class
-						|| frameworkMethod.getReturnType().isAssignableFrom(List.class) || (frameworkMethod
-						.getReturnType().isArray() && frameworkMethod.getReturnType()
-						.getComponentType() == String.class))) {
+						|| frameworkMethod.getReturnType().isAssignableFrom(List.class) || frameworkMethod
+						.getReturnType().isArray()
+						&& frameworkMethod.getReturnType().getComponentType() == String.class)) {
 			Method method = frameworkMethod.getMethod();
 			Class<?> returnType = frameworkMethod.getReturnType();
 

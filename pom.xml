@@ -10,6 +10,35 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	<artifactId>jexunit</artifactId>
 	<version>0.2.1-SNAPSHOT</version>
 
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>fhm84</id>
+			<name>Fabian Halbmann</name>
+			<roles>
+				<role>Software Developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>scm:git@github.com:fhm84/jexunit.git</url>
+		<connection>scm:git@github.com:fhm84/jexunit.git</connection>
+		<developerConnection>scm:git@github.com:fhm84/jexunit.git</developerConnection>
+	</scm>
+
+	<properties>
+		<version.compiler>1.7</version.compiler>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -37,11 +66,6 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 			<version>3.0.1</version>
 		</dependency>
 	</dependencies>
-
-	<properties>
-		<version.compiler>1.7</version.compiler>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 	<build>
 		<plugins>
@@ -73,13 +97,6 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 		</plugins>
 	</build>
 
-	<developers>
-		<developer>
-			<id>fhm84</id>
-			<name>Fabian Halbmann</name>
-		</developer>
-	</developers>
-
 	<reporting>
 		<plugins>
 			<plugin>
@@ -96,6 +113,56 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-changes-plugin</artifactId>
+				<version>2.9</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.0.1</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.5.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<tagListOptions>
+						<tagClasses>
+							<tagClass>
+								<displayName>Todo Work</displayName>
+								<tags>
+									<tag>
+										<matchString>todo</matchString>
+										<matchType>ignoreCase</matchType>
+									</tag>
+									<tag>
+										<matchString>FIXME</matchString>
+										<matchType>ignorCase</matchType>
+									</tag>
+								</tags>
+							</tagClass>
+							<tagClass>
+								<displayName>Deprecations</displayName>
+								<tags>
+									<tag>
+										<matchString>@deprecated</matchString>
+										<matchType>ignoreCase</matchType>
+									</tag>
+								</tags>
+							</tagClass>
+						</tagClasses>
+					</tagListOptions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</reporting>
+
 </project>

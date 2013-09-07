@@ -3,10 +3,10 @@
  * <p>Running your tests using JExUnit:
  * <br>
  * <code>
- * @RunWith(JexUnit.class)
- * public class MyTest {
- *     @ExcelFile
- *     private static String myExcelFile = "path-to-my-excel-file.xlsx";
+ * &#064;RunWith(JexUnit.class)<br>
+ * public class MyTest {<br>
+ *     &#064;ExcelFile<br>
+ *     private static String myExcelFile = "path-to-my-excel-file.xlsx";<br>
  * }
  * </code>
  * </p>
