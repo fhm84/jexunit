@@ -16,6 +16,25 @@ public class TestCell {
 	private int column;
 
 	/**
+	 * Default constructor.
+	 */
+	public TestCell() {
+	}
+
+	/**
+	 * Constructor setting the column number and value.
+	 * 
+	 * @param column
+	 *            the number representing the column
+	 * @param value
+	 *            the cells value
+	 */
+	public TestCell(int column, String value) {
+		this.column = column;
+		this.value = value;
+	}
+
+	/**
 	 * Get the cells value.
 	 * 
 	 * @return the value of the cell

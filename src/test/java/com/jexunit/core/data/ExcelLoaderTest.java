@@ -1,4 +1,4 @@
-package com.jexunit.core;
+package com.jexunit.core.data;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.jexunit.core.data.ExcelLoader;
 
-public class GevoTestExcelLoaderTest {
+public class ExcelLoaderTest {
 
 	@Test
 	public void type() throws Exception {
