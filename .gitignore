@@ -1,2 +1,5 @@
 /target
 /.svn
+*.project
+*
+*.classpath
