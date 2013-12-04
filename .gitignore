@@ -2,3 +2,4 @@
 /.svn
 *.project
 *.classpath
+.settings
