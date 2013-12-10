@@ -1,5 +1,4 @@
-/target
-/.svn
-*.project
-*.classpath
 .settings
+.svn
+*.classpath
+*.project

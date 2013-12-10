@@ -2,6 +2,7 @@ package com.jexunit.core;
 
 import static org.junit.Assert.fail;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,6 +19,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandMethodScanner;
+import com.jexunit.core.context.Context;
+import com.jexunit.core.context.TestContext;
+import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.ExcelLoader;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.junit.Parameterized;
@@ -212,13 +216,34 @@ public class JExUnitBase {
 		if (method != null) {
 			// prepare the parameters
 			List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
+			Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+			int i = 0;
 			for (Class<?> parameterType : method.getParameterTypes()) {
 				if (parameterType == TestCase.class) {
 					parameters.add(testCase);
+				} else if (parameterType == TestContext.class) {
+					parameters.add(TestContextManager.getTestContext());
 				} else {
-					Object o = TestObjectHelper.createObject(testCase, parameterType);
-					parameters.add(o);
+					if (parameterAnnotations[i].length > 0) {
+						for (Annotation a : parameterAnnotations[i]) {
+							if (a instanceof Context) {
+								Context ctx = (Context) a;
+								String id = ctx.value();
+								if (id == null || id.isEmpty()) {
+									// lookup the instance out of the current TestContext
+									parameters.add(TestContextManager.get(parameterType));
+								} else {
+									parameters.add(TestContextManager.get(parameterType, id));
+								}
+								break;
+							}
+						}
+					} else {
+						Object o = TestObjectHelper.createObject(testCase, parameterType);
+						parameters.add(o);
+					}
 				}
+				i++;
 			}
 
 			// invoke the method with the parameters
