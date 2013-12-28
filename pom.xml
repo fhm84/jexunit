@@ -14,7 +14,8 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	<modules>
         <module>core</module>
         <module>examples-simple</module>
-    </modules>
+        <module>examples-complex</module>
+	</modules>
 	
 	<licenses>
 		<license>
