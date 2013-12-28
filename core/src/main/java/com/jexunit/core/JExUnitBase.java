@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Assume;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
@@ -52,6 +55,9 @@ import com.jexunit.core.model.TestCell;
 public class JExUnitBase {
 
 	private static Logger log = Logger.getLogger(JExUnitBase.class.getName());
+
+	@Rule
+	public ErrorCollector errorCollector = new ErrorCollector();
 
 	@Parameter
 	List<TestCase> testCases;
@@ -140,10 +146,12 @@ public class JExUnitBase {
 						runTestCommand(testCase);
 					} catch (AssertionError e) {
 						if (!exceptionExpected) {
-							fail(String
-									.format("Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
-											testCase.getTestCommand(), testCase.getSheet(),
-											testCase.getRow()));
+							errorCollector
+									.addError(new AssertionError(
+											String.format(
+													"No Exception expected in TestCommand: %s, worksheet: %s, row: %s",
+													testCase.getTestCommand(), testCase.getSheet(),
+													testCase.getRow()), e));
 						} else {
 							continue testCaseLoop;
 						}
@@ -152,10 +160,13 @@ public class JExUnitBase {
 						while ((t = t.getCause()) != null) {
 							if (t instanceof AssertionError) {
 								if (!exceptionExpected) {
-									fail(String
-											.format("Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
-													testCase.getTestCommand(), testCase.getSheet(),
-													testCase.getRow()));
+									errorCollector
+											.addError(new AssertionError(
+													String.format(
+															"No Exception expected in TestCommand: %s, worksheet: %s, row: %s",
+															testCase.getTestCommand(),
+															testCase.getSheet(), testCase.getRow()),
+													t));
 								} else {
 									continue testCaseLoop;
 								}
@@ -171,9 +182,12 @@ public class JExUnitBase {
 
 				// if an exception is expected, but no exception is thrown, the test will fail!
 				if (exceptionExpected) {
-					fail(String.format(
+					errorCollector.addError(new AssertionError(String.format(
 							"Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
-							testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()));
+							testCase.getTestCommand(), testCase.getSheet(), testCase.getRow())));
+					// fail(String.format(
+					// "Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
+					// testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()));
 				}
 			} catch (Exception e) {
 				log.log(Level.WARNING, "TestException", e);
@@ -250,8 +264,19 @@ public class JExUnitBase {
 			try {
 				if (method.getDeclaringClass() == this.getClass()) {
 					method.invoke(this, parameters.toArray());
-				} else {
+				} else if (Modifier.isStatic(method.getModifiers())) {
+					// invoke static
 					method.invoke(null, parameters.toArray());
+				} else {
+					// create new instance of the Command-Class and put it to the test-context
+					@SuppressWarnings("unchecked")
+					Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
+					Object instance = TestContextManager.get(clazz);
+					if (instance == null) {
+						instance = clazz.newInstance();
+						TestContextManager.add(clazz, instance);
+					}
+					method.invoke(instance, parameters.toArray());
 				}
 			} catch (IllegalAccessException | IllegalArgumentException e) {
 				e.printStackTrace();
@@ -282,9 +307,14 @@ public class JExUnitBase {
 	 * @throws Exception
 	 */
 	public void runCommand(TestCase testCase) throws Exception {
-		throw new NoSuchMethodError(
-				String.format(
-						"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
-						testCase.getTestCommand()));
+		errorCollector
+				.addError(new NoSuchMethodError(
+						String.format(
+								"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
+								testCase.getTestCommand())));
+		// throw new NoSuchMethodError(
+		// String.format(
+		// "No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
+		// testCase.getTestCommand()));
 	}
 }

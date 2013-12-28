@@ -1652,11 +1652,21 @@ class PropertyUtils {
 			NoSuchMethodException {
 		try {
 			if (clazz == Integer.class || clazz == int.class) {
-				return Integer.parseInt(value);
+				Double d = Double.parseDouble(value);
+				if (d != null) {
+					return d.intValue();
+				} else {
+					return null;
+				}
 			} else if (clazz == Double.class || clazz == double.class) {
 				return Double.parseDouble(value);
 			} else if (clazz == Long.class || clazz == long.class) {
-				return Long.parseLong(value);
+				Double d = Double.parseDouble(value);
+				if (d != null) {
+					return d.longValue();
+				} else {
+					return null;
+				}
 			} else if (clazz == Float.class || clazz == float.class) {
 				return Float.parseFloat(value);
 			} else if (clazz == Boolean.class || clazz == boolean.class) {
