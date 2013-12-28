@@ -6,6 +6,9 @@ import com.jexunit.core.JExUnit;
 import com.jexunit.core.data.ExcelFile;
 
 /**
+ * This is a more complex example for the JExUnit-Framework using as much features as possible! (see
+ * the TestCommand-Implementations).
+ * 
  * @author fabian
  * 
  */

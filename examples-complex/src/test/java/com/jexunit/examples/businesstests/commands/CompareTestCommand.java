@@ -11,6 +11,10 @@ import com.jexunit.core.context.Context;
 import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 
 /**
+ * Test-Command implementation. This implements the command: COMPARE. This command will get the
+ * current entity out of the TestContext and compare it with the properties out of the excel-file
+ * (TestCase). The JExUnit-Framework will be used to "inject" the objects needed.
+ * 
  * @author fabian
  * 
  */

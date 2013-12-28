@@ -5,6 +5,9 @@ import com.jexunit.examples.businesstests.boundary.MyComplexBusinessService;
 import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 
 /**
+ * Test-Command implementation. This implements the test-command: CREATE. This command creates a new
+ * entity out of the values set in the excel-file.
+ * 
  * @author fabian
  * 
  */
