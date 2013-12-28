@@ -37,7 +37,7 @@ public class JExUnit extends Suite {
 	public JExUnit(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
 		readExcelFileNames();
-		// add the Parameterized GevoTestBase, initialized with the ExcelFileName
+		// add the Parameterized JexUnitBase, initialized with the ExcelFileName
 		for (String excelFileName : excelFileNames) {
 			runners.add(new Parameterized(JExUnitBase.class, excelFileName, klass, worksheetAsTest));
 		}
@@ -80,7 +80,7 @@ public class JExUnit extends Suite {
 			}
 		}
 
-		throw new Exception(
+		throw new IllegalArgumentException(
 				"No excel-file definition found (static string-field or public static method annotated with @ExcelFile) in class "
 						+ getTestClass().getName());
 	}

@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.commands.TestCommand;
 import com.jexunit.core.data.ExcelFile;
 import com.jexunit.core.model.TestCase;
@@ -51,7 +51,8 @@ public class ArithmeticalTest {
 	private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
 
 	@ExcelFile
-	static String excelFile = "src/test/resources/ArithmeticalTests.xlsx";
+	static String[] excelFiles = new String[] { "src/test/resources/ArithmeticalTests.xlsx",
+			"src/test/resources/ArithmeticalTests2.xlsx" };
 
 	@Before
 	public void init() {
