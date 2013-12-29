@@ -1,5 +1,7 @@
 package com.jexunit.core.data;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.Map;
 
 import com.jexunit.core.model.TestCase;
@@ -62,6 +64,43 @@ public class TestObjectHelper {
 	private static void setPropertyToObject(Object obj, String propName, String propValue)
 			throws Exception {
 		new PropertyUtils().setProperty(obj, propName, propValue);
+	}
+
+	/**
+	 * Get the property identified by the given key out of the test-case.
+	 * 
+	 * @param testCase
+	 *            the test-case to get the property from
+	 * @param propertyKey
+	 *            the identifier for the property (like defined in the excel-file)
+	 * @return the property identified by the given propertyKey if found, else null
+	 */
+	public static String getPropertyByKey(TestCase testCase, String propertyKey) {
+		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
+			if (entry.getKey().equalsIgnoreCase(propertyKey)) {
+				return entry.getValue().getValue();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Convert the given (property-)value (a string) to the given type.
+	 * 
+	 * @param clazz
+	 *            the type of the property (to convert the property to)
+	 * @param value
+	 *            the property-value (as string)
+	 * @return the property-value (converted to the expected type)
+	 * @throws ParseException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 */
+	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
+			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+			ParseException {
+		return PropertyUtils.convertPropertyStringToObject(clazz, value);
 	}
 
 }

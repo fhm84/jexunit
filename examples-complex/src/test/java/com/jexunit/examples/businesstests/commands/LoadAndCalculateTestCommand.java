@@ -1,12 +1,9 @@
 package com.jexunit.examples.businesstests.commands;
 
-import java.util.Map;
-
 import com.jexunit.core.commands.TestCommand;
+import com.jexunit.core.commands.TestParam;
 import com.jexunit.core.context.Context;
 import com.jexunit.core.context.TestContext;
-import com.jexunit.core.model.TestCase;
-import com.jexunit.core.model.TestCell;
 import com.jexunit.examples.businesstests.boundary.MyComplexBusinessService;
 import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 
@@ -22,17 +19,14 @@ public class LoadAndCalculateTestCommand {
 	 * Command-Implementation for the command LOAD. This will load the Entity by given id (in the
 	 * Excel-File) and add it to the TestContext (to use it later in other commands).
 	 * 
-	 * @param testCase
-	 *            the TestCase (with the id of the entity to load)
+	 * @param id
+	 *            the id of the entity to load out of the test-context (this will be "injected" from
+	 *            the test-case)
 	 * @param context
 	 *            the TestContext to add the loaded entity to
 	 */
 	@TestCommand("load")
-	public void load(TestCase testCase, TestContext context) {
-		Map<String, TestCell> values = testCase.getValues();
-		TestCell idCell = values.get("id");
-		long id = ((Double) Double.parseDouble(idCell.getValue())).longValue();
-
+	public void load(@TestParam("id") long id, TestContext context) {
 		System.out.println("Load entity by id: " + id);
 
 		MyComplexBusinessService service = MyComplexBusinessService.getInstance();

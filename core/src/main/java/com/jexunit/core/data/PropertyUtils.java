@@ -1647,9 +1647,12 @@ class PropertyUtils {
 	 * @throws InvocationTargetException
 	 * @throws NoSuchMethodException
 	 */
-	private static Object convertPropertyStringToObject(Class<?> clazz, String value)
+	static Object convertPropertyStringToObject(Class<?> clazz, String value)
 			throws ParseException, IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException {
+		if (value == null) {
+			return null;
+		}
 		try {
 			if (clazz == Integer.class || clazz == int.class) {
 				Double d = Double.parseDouble(value);
