@@ -79,7 +79,6 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
   - @Context &lt;your-own-entity&gt;: you get the current instance of the given type out of the TestContext. If you want to put multiple instances of the same type into the TestContext you can do this by setting an id. If so, you can get the instance out of the TestContext by id with @Context("&lt;your-id&gt;").
 
 
-
 ## The Excel-File ##
 
   Test(s) will be defined in excel-file(s). Per default, each worksheet will be executed as a single test.
@@ -90,7 +89,6 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
   - _disabled_: if set to true (the value of the next column) this will disable the current worksheet
   - _report_: this command will write the content of the following columns to the log file
-
 
   If you leave the first column blank, the rest of the row will be ignored, so you can use this "space" for comments inside your excel-file.
 
@@ -103,7 +101,6 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
   Regardless of the keys used for your commands, there is the _exception_ keyword. If this parameter is set to _true_, the execution of the command will expect an exception (like @Test(expected = Exception.class) in JUnit) and will fail if there is no exception thrown!
 
   All the built-in commands and keywords are case-insensitive.
-
 
 ##### Example excel-file #####
 
@@ -121,7 +118,7 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
   The lines 11 - 19 work the same way as the columns 5 - 7.
 
-  In line 20 there is an exapmle for the built-in keyword _exception_. As you can see, the command named "SUB" will subtract 'param2' from 'param1' and check the 'result', which should fail (3-1 != 0). To get "a green bar" for this test, an AssertionError should be expected. The parameter 'exception' with value set to _true_ will arrange this behaviour.
+  In line 20 there is an exapmle for the built-in keyword _exception_. As you can see, the command named "SUB" will subtract 'param2' from 'param1' and check the 'result', which should fail (3-1 != 0)! To get "a green bar" for this test, an AssertionError should be expected. The parameter 'exception' with value set to _true_ will arrange this behaviour.
 
 
 ## The Test-Commands ##
