@@ -8,6 +8,7 @@ It provides simple mechanisms to define your own commands. The test-data will be
 
 
 ## First steps ##
+
 To use the JExUnit framework you have to do only three steps:
 
 1. Create a test class annotated with
@@ -50,7 +51,9 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
     }
 
 ---
+
 #### @ExcelFile
+
   The _@ExcelFile_-Annotation is used to define the excel-file(s) to run as test(s). This can be defined by a static attribute or a static method (without parameters). The return type of the method (and the type of the attribute) has to be _String_, _String[]_ or _List&lt;String>_.
 
   Per default the JExUnit-framework will run one excel-worksheet as a single test (like one testcase in JUnit). If you are going to run each command in the file as single test (like multiple testcases/-methods in JUnit), there is a flag available for the _@ExcelFile_-Annotation: _worksheetAsTest_. If this is set to false (default value is true), the framework will run each command as a single test!
@@ -64,6 +67,7 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 
 #### @TestCommand
+
   The _@TestCommand_-Annotation is the connector between your business logic and the JExUnit-framework. A test command is a method annotated with _@TestCommand_. There are multiple possibilities to define this method. First of all, it doesn't matter if the method is static or not. The framework will call the static methods as well as the non-static ones.
 
   You are mostly allowed defining the methods parameters. The JExUnit-framework will try to "inject" you the correct data. The possible parameters are the following:
@@ -77,6 +81,7 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 
 ## The Excel-File ##
+
   Test(s) will be defined in excel-file(s). Per default, each worksheet will be executed as a single test.
 
   For creating the excel-file(s) there are some things to notice:
@@ -101,6 +106,7 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 
 ##### Example excel-file #####
+
   ![Example excel-file](etc/documentation/screenshot_example_excelfile.png)
 
   This short and very simple example shows the way defining the tests.
@@ -119,8 +125,10 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 
 ## The Test-Commands ##
+
 TODO
 
 
 ## The TestContext ##
+
 TODO
