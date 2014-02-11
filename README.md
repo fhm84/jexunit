@@ -121,7 +121,7 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
   The lines 11 - 19 work the same way as the columns 5 - 7.
 
-  In line 20 there is an exapmle for the built-in keyword _exception_. As you can see, the command named "SUB" will subtract 'param2' from 'param1' and check the 'result', which should fail (3-1 != 0)! To get "a green bar" for this test, an AssertionError should be expected. The parameter 'exception' with value set to _true_ will arrange this behaviour.
+  In line 20 there is an exapmle for the built-in keyword _exception_. As you can see, the command named "SUB" will subtract 'param2' from 'param1' and check the 'result', which should fail (3-1 != 0). To get "a green bar" for this test, an AssertionError should be expected. The parameter 'exception' with value set to _true_ will arrange this behaviour.
 
 
 ## The Test-Commands ##
