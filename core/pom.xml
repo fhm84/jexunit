@@ -40,6 +40,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 			<artifactId>annotation-detector</artifactId>
 			<version>3.0.1</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

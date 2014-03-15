@@ -110,47 +110,69 @@ public class ExcelLoader {
 							for (int h = 0; h < row.getLastCellNum(); h++) {
 								commandHeaders.add(row.getCell(h).getStringCellValue());
 							}
-						} else if (DefaultCommands.DISABLED.getCommandName().equalsIgnoreCase(
-								cellValue)) {
-							TestCase testCase = new TestCase();
+						} else {
+							if (cellValue == null || cellValue.isEmpty()) {
+								// if the first column is empty, this is a comment line and will be
+								// ignored
+								continue;
+							} else if (DefaultCommands.DISABLED.getCommandName().equalsIgnoreCase(
+									cellValue)) {
+								TestCase testCase = new TestCase();
 
-							// the first column is always the command
-							testCase.setTestCommand(cellValue);
-							testCase.setSheet(worksheet.getSheetName());
-							testCase.setRow(row.getRowNum() + 1);
+								// the first column is always the command
+								testCase.setTestCommand(cellValue);
+								testCase.setSheet(worksheet.getSheetName());
+								testCase.setRow(row.getRowNum() + 1);
 
-							if (row.getLastCellNum() >= 1) {
-								TestCell testCell = new TestCell();
-								testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
-								testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
-								testCase.getValues().put(DefaultCommands.DISABLED.getCommandName(),
-										testCell);
+								if (row.getLastCellNum() >= 1) {
+									TestCell testCell = new TestCell();
+									testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
+									testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
+									testCase.getValues().put(
+											DefaultCommands.DISABLED.getCommandName(), testCell);
+									testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
+								}
+								testCases.add(testCase);
+							} else if (commandHeaders != null
+									|| DefaultCommands.REPORT.getCommandName().equalsIgnoreCase(
+											cellValue)) {
+								TestCase testCase = new TestCase();
+
+								// the first column is always the command
+								testCase.setTestCommand(cellValue);
+								testCase.setSheet(worksheet.getSheetName());
+								testCase.setRow(row.getRowNum() + 1);
+
+								for (j = 1; j < row.getLastCellNum(); j++) {
+									TestCell testCell = new TestCell();
+									testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
+									testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
+									// the "report"-command doesn't need a header-line
+									testCase.getValues()
+											.put(commandHeaders != null
+													&& commandHeaders.size() > j ? commandHeaders.get(j)
+													: "param" + j, testCell);
+
+									// read/parse the "default" commands/parameters
+									if (commandHeaders != null && commandHeaders.size() > j) {
+										if (DefaultCommands.BREAKPOINT.getCommandName()
+												.equalsIgnoreCase(commandHeaders.get(j))) {
+											// each command has the ability to set a breakpoint to
+											// debug the test more easily
+											testCase.setBreakpointEnabled(Boolean
+													.parseBoolean(testCell.getValue()));
+										} else if (DefaultCommands.EXCEPTION_EXCPECTED
+												.getCommandName().equalsIgnoreCase(
+														commandHeaders.get(j))) {
+											// each command has the ability to expect an exception.
+											// you can define this via the field EXCEPTION_EXPECTED.
+											testCase.setExceptionExpected(Boolean
+													.parseBoolean(testCell.getValue()));
+										}
+									}
+								}
+								testCases.add(testCase);
 							}
-							testCases.add(testCase);
-						} else if (cellValue == null || cellValue.isEmpty()) {
-							// if the first column is empty, this is a comment line and will be
-							// ignored
-							continue;
-						} else if (commandHeaders != null
-								|| DefaultCommands.REPORT.getCommandName().equalsIgnoreCase(
-										cellValue)) {
-							TestCase testCase = new TestCase();
-
-							// the first column is always the command
-							testCase.setTestCommand(cellValue);
-							testCase.setSheet(worksheet.getSheetName());
-							testCase.setRow(row.getRowNum() + 1);
-
-							for (j = 1; j < row.getLastCellNum(); j++) {
-								TestCell testCell = new TestCell();
-								testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
-								testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
-								// the "report"-command don't need a header-line
-								testCase.getValues()
-										.put(commandHeaders != null && commandHeaders.size() > j ? commandHeaders.get(j)
-												: "param" + j, testCell);
-							}
-							testCases.add(testCase);
 						}
 					}
 				}

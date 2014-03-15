@@ -18,6 +18,10 @@ public class TestCase {
 	private int row;
 	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
+	private boolean disabled = false;
+	private boolean exceptionExpected = false;
+	private boolean breakpointEnabled = false;
+
 	/**
 	 * Get the test-command for the test-case.
 	 * 
@@ -68,6 +72,46 @@ public class TestCase {
 
 	public void setRow(int row) {
 		this.row = row;
+	}
+
+	/**
+	 * Flag for disabling the test-case.
+	 * 
+	 * @return true, if the test-case should be disabled, else false (default)
+	 */
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	/**
+	 * Flag for expecting an exception.
+	 * 
+	 * @return true, if the test-case expects an exception, else false (default)
+	 */
+	public boolean isExceptionExpected() {
+		return exceptionExpected;
+	}
+
+	public void setExceptionExpected(boolean exceptionExpected) {
+		this.exceptionExpected = exceptionExpected;
+	}
+
+	/**
+	 * Flag for debugging. If this flag is set to true, you can debug your command using conditional
+	 * breakpoints.
+	 * 
+	 * @return true, if breakpoint should be enabled for the test-case, else false (default)
+	 */
+	public boolean isBreakpointEnabled() {
+		return breakpointEnabled;
+	}
+
+	public void setBreakpointEnabled(boolean breakpointEnabled) {
+		this.breakpointEnabled = breakpointEnabled;
 	}
 
 	/**
