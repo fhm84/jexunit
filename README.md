@@ -129,3 +129,15 @@ TODO
 ## The TestContext ##
 
 TODO
+
+
+---
+
+
+## How to debug? ##
+
+If we define our tests in excel files, there is no way to set a breakpoint "inside the excel-file". If you have big excel-test-files with a lot of test-commands inside,  there are posibly multiple uses of the same test-commands. This is very hard to debug if you can only set breakpoint into your test-commands. JExUnit allows you to set a parameter called _breakpoint_ in each of your test-commands inside the excel-file! You can find this flag in the _TestCase_-Instance put as parameter to your test-command-implementation. So it is possible to set a _**conditional breakpoint**_ inside your command-implementation.
+
+##### Example #####
+
+TODO
