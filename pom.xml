@@ -42,8 +42,8 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	</scm>
 
 	<properties>
-		<version.compiler>1.7</version.compiler>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.compiler>1.8</version.compiler>
 	</properties>
 
 	<build>
@@ -53,6 +53,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
+					<compilerVersion>${version.compiler}</compilerVersion>
 					<source>${version.compiler}</source>
 					<target>${version.compiler}</target>
 					<showDeprecation>true</showDeprecation>

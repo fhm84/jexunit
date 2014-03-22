@@ -8,9 +8,10 @@ import java.util.logging.Logger;
 
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.commands.TestCommand;
+import com.jexunit.core.commands.TestCommands;
 import com.jexunit.core.data.ExcelFile;
 import com.jexunit.examples.arithmeticaltests.model.CustomTestObject;
 
@@ -54,6 +55,7 @@ public class ArithmeticalBusinessEntityTest {
 				equalTo(testObject.getResult()));
 	}
 
+	@TestCommand(value = "multiply")
 	@TestCommand(value = "mul")
 	public static void runMulCommand(CustomTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: MUL!");
@@ -61,7 +63,7 @@ public class ArithmeticalBusinessEntityTest {
 				equalTo(testObject.getResult()));
 	}
 
-	@TestCommand(value = "div")
+	@TestCommands({ @TestCommand(value = "divide"), @TestCommand(value = "div") })
 	public static void runDivCommand(CustomTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: DIV!");
 		assertThat(testObject.getEntity().getParam1() / testObject.getEntity().getParam2(),

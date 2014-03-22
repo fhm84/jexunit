@@ -32,7 +32,7 @@ public class TestCommandMethodScanner implements MethodReporter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends Annotation>[] annotations() {
-		return new Class[] { TestCommand.class };
+		return new Class[] { TestCommand.class, TestCommands.class };
 	}
 
 	/*
@@ -54,18 +54,22 @@ public class TestCommandMethodScanner implements MethodReporter {
 					type = clazz;
 				}
 			}
-			if (annotation.isAnnotation() && annotation == TestCommand.class) {
+
+			if (annotation.isAnnotation()
+					&& (annotation == TestCommand.class || annotation == TestCommands.class)) {
 				for (Method m : clazz.getDeclaredMethods()) {
-					TestCommand tc = m.getAnnotation(TestCommand.class);
-					if (tc != null) {
-						for (String command : tc.value()) {
-							command = command.toLowerCase();
-							if (methods.containsKey(command)) {
-								methods.get(command).put(type, m);
-							} else {
-								Map<Class<?>, Method> map = new HashMap<>();
-								map.put(type, m);
-								methods.put(command, map);
+					TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
+					for (TestCommand tc : testCommands) {
+						if (tc != null) {
+							for (String command : tc.value()) {
+								command = command.toLowerCase();
+								if (methods.containsKey(command)) {
+									methods.get(command).put(type, m);
+								} else {
+									Map<Class<?>, Method> map = new HashMap<>();
+									map.put(type, m);
+									methods.put(command, map);
+								}
 							}
 						}
 					}
