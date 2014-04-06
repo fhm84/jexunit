@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +84,8 @@ public class TestCommandRunner {
 		List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 		int i = 0;
-		for (Class<?> parameterType : method.getParameterTypes()) {
+		for (Parameter parameter : method.getParameters()) {
+			Class<?> parameterType = parameter.getType();
 			if (parameterType == TestCase.class) {
 				parameters.add(testCase);
 			} else if (parameterType == TestContext.class) {
@@ -106,6 +108,13 @@ public class TestCommandRunner {
 							// add "single" test-param here
 							TestParam param = (TestParam) a;
 							String key = param.value();
+							// read out the parameters name if key is NOT set and parameter name is
+							// present (possible since jdk 1.8 if compiler argument '-parameters' is
+							// set!
+							if ((key == null || key.isEmpty()) && parameter.isNamePresent()) {
+								// try to get the parameters name as key
+								key = parameter.getName();
+							}
 							String stringValue = TestObjectHelper.getPropertyByKey(testCase, key);
 							Object value = TestObjectHelper.convertPropertyStringToObject(
 									parameterType, stringValue);

@@ -30,7 +30,7 @@ public @interface TestParam {
 	 * 
 	 * @return the name/id of the value to lookup
 	 */
-	String value();
+	String value() default "";
 
 	/**
 	 * Mark the parameter as required. If there is a parameter marked as required but is null, the

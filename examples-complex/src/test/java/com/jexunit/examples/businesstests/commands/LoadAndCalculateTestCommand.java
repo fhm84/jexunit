@@ -17,7 +17,10 @@ public class LoadAndCalculateTestCommand {
 
 	/**
 	 * Command-Implementation for the command LOAD. This will load the Entity by given id (in the
-	 * Excel-File) and add it to the TestContext (to use it later in other commands).
+	 * Excel-File) and add it to the TestContext (to use it later in other commands). This will also
+	 * test the new feature of java 8: get the parameter-names via reflection. The
+	 * @TestParam-Annotation has not set the value-attribute! The name of the test-parameter to
+	 * "inject" will be the same as the parameter-name.
 	 * 
 	 * @param id
 	 *            the id of the entity to load out of the test-context (this will be "injected" from
@@ -26,7 +29,7 @@ public class LoadAndCalculateTestCommand {
 	 *            the TestContext to add the loaded entity to
 	 */
 	@TestCommand("load")
-	public void load(@TestParam("id") long id, TestContext context) {
+	public void load(@TestParam long id, TestContext context) {
 		System.out.println("Load entity by id: " + id);
 
 		MyComplexBusinessService service = MyComplexBusinessService.getInstance();
