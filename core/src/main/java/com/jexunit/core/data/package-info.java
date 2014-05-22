@@ -1,6 +1,6 @@
 /**
  * Package for handling the data (read the excel file(s),
- * create the entity-objetcs, ...).
+ * create/modify the entity-objetcs, ...).
  * 
  * @author fabian
  *

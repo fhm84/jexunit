@@ -2,7 +2,11 @@ package com.jexunit.core.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
+
+import ognl.Ognl;
+import ognl.OgnlRuntime;
 
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
@@ -63,7 +67,15 @@ public class TestObjectHelper {
 	 */
 	private static void setPropertyToObject(Object obj, String propName, String propValue)
 			throws Exception {
-		new PropertyUtils().setProperty(obj, propName, propValue);
+		OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
+		OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
+		@SuppressWarnings("rawtypes")
+		Map context = Ognl.createDefaultContext(obj);
+		Ognl.setTypeConverter(context, new CustomTypeConverter());
+
+		Object expr = Ognl.parseExpression(propName);
+
+		Ognl.setValue(expr, context, obj, propValue);
 	}
 
 	/**
