@@ -21,6 +21,13 @@ public class MyComplexBusinessController {
 				RoundingMode.HALF_UP);
 		BigDecimal result3 = result1.multiply(myConst).add(result2);
 
+		if (entity.getAdditionalSettings() != null) {
+			String sex = entity.getAdditionalSettings().get("sex");
+			if (sex != null && "F".equalsIgnoreCase(sex)) {
+				result3 = result3.multiply(new BigDecimal("0.98"));
+			}
+		}
+
 		entity.setCalcField1(result1);
 		entity.setCalcField2(result2);
 		entity.setCalcField3(result3);
