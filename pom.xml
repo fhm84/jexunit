@@ -36,9 +36,9 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	</developers>
 
 	<scm>
-		<url>scm:git@github.com:fhm84/jexunit.git</url>
-		<connection>scm:git@github.com:fhm84/jexunit.git</connection>
-		<developerConnection>scm:git@github.com:fhm84/jexunit.git</developerConnection>
+		<url>https://github.com/fhm84/jexunit.git</url>
+		<connection>scm:git:ssh://github.com/fhm84/jexunit.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/fhm84/jexunit.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -46,7 +46,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 		<repository>
 			<id>internal.repo</id>
 			<name>Temporary Staging Repository</name>
-			<url>file://${project.build.directory}/mvn-repo</url>
+			<url>file://${project.basedir}/etc/mvn-repo</url>
 		</repository>
 	</distributionManagement>
 
