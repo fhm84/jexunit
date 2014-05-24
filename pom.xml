@@ -38,7 +38,7 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	<scm>
 		<url>https://github.com/fhm84/jexunit.git</url>
 		<connection>scm:git:ssh://github.com/fhm84/jexunit.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/fhm84/jexunit.git</developerConnection>
+		<developerConnection>scm:git:https://git@github.com/fhm84/jexunit.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
