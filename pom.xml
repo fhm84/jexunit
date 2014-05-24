@@ -12,11 +12,11 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 	<packaging>pom</packaging>
 
 	<modules>
-        <module>core</module>
-        <module>examples-simple</module>
-        <module>examples-complex</module>
+		<module>core</module>
+		<module>examples-simple</module>
+		<module>examples-complex</module>
 	</modules>
-	
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -39,7 +39,16 @@ Developers design a &quot;API&quot; for the department so these specialists can 
 		<url>scm:git@github.com:fhm84/jexunit.git</url>
 		<connection>scm:git@github.com:fhm84/jexunit.git</connection>
 		<developerConnection>scm:git@github.com:fhm84/jexunit.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${project.build.directory}/mvn-repo</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
