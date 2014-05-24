@@ -1,11 +1,15 @@
 package com.jexunit.core.data.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestModelSub {
 
 	private String stringAttr;
 	private int intAttr;
 	private boolean boolAttr;
 	private TestEnum enumAttr;
+	private List<TestModelSub> subListAttr = new ArrayList<>();
 
 	public String getStringAttr() {
 		return stringAttr;
@@ -37,6 +41,14 @@ public class TestModelSub {
 
 	public void setEnumAttr(TestEnum enumAttr) {
 		this.enumAttr = enumAttr;
+	}
+
+	public List<TestModelSub> getSubListAttr() {
+		return subListAttr;
+	}
+
+	public void setSubListAttr(List<TestModelSub> subListAttr) {
+		this.subListAttr = subListAttr;
 	}
 
 }

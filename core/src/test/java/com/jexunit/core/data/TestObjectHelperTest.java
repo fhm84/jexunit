@@ -154,12 +154,12 @@ public class TestObjectHelperTest {
 
 	/**
 	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "list-entity" (the list is NOT going to be created automatically!).
+	 * "list-entity" (the list is going to be created automatically!).
 	 * 
 	 * @throws Exception
 	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void testCreateObjectTestCaseClassOfT_listValues_notCreatingNewList() throws Exception {
+	@Test
+	public void testCreateObjectTestCaseClassOfT_listValues_creatingNewList() throws Exception {
 		// prepare
 		TestCase testCase = new TestCase();
 		testCase.getValues().putAll(testValuesList2);
@@ -214,6 +214,91 @@ public class TestObjectHelperTest {
 		assertThat(actual.getSubEntityListAttr().get(0).getIntAttr(), is(1));
 		assertThat(actual.getSubEntityListAttr().get(0).isBoolAttr(), is(true));
 		assertThat(actual.getSubEntityListAttr().get(1).getIntAttr(), is(2));
+	}
+
+	/**
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the
+	 * "list-entity" (the list is going to be created automatically!) and also of sub-lists, because
+	 * the "list-entity" also contains a list-attribute.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreateObjectTestCaseClassOfT_subListValues_creatingNewLists() throws Exception {
+		// prepare
+		TestCase testCase = new TestCase();
+		testCase.getValues().putAll(testValuesList2);
+
+		Map<String, TestCell> testValuesSubList = new HashMap<>();
+		testValuesSubList.put("subEntityListAttr2[0].subListAttr[0].intAttr", new TestCell(30,
+				"100"));
+		testValuesSubList.put("subEntityListAttr2[1].subListAttr[0].intAttr",
+				new TestCell(31, "99"));
+		testValuesSubList.put("subEntityListAttr2[0].subListAttr[1].boolAttr", new TestCell(32,
+				"true"));
+
+		testCase.getValues().putAll(testValuesSubList);
+
+		// act
+		TestModelBase actual = TestObjectHelper.createObject(testCase, TestModelBase.class);
+
+		// assert
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual.getSubEntityListAttr2(), is(notNullValue()));
+		assertThat(actual.getSubEntityListAttr2().size(), is(2));
+		assertThat(actual.getSubEntityListAttr2().get(0).getIntAttr(), is(1));
+		assertThat(actual.getSubEntityListAttr2().get(0).isBoolAttr(), is(true));
+		assertThat(actual.getSubEntityListAttr2().get(1).getIntAttr(), is(2));
+
+		// check the sub-lists
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr(), is(notNullValue()));
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().size(), is(2));
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(0).getIntAttr(),
+				is(100));
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(1).isBoolAttr(),
+				is(true));
+		assertThat(actual.getSubEntityListAttr2().get(1).getSubListAttr().size(), is(1));
+		assertThat(actual.getSubEntityListAttr2().get(1).getSubListAttr().get(0).getIntAttr(),
+				is(99));
+	}
+
+	/**
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the
+	 * "base-entity" and setting attributes into a map.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreateObjectTestCaseClassOfT_baseValuesAndMap() throws Exception {
+		// prepare
+		TestCase testCase = new TestCase();
+		testCase.getValues().putAll(testValuesBase);
+
+		Map<String, TestCell> testValuesMap = new HashMap<>();
+		testValuesMap.put("mapAttr[\"myKey\"]", new TestCell(30, "Hello"));
+		testValuesMap.put("mapAttr['yourKey']", new TestCell(31, "world"));
+		testValuesMap.put("mapAttr[\"ourKey\"]", new TestCell(32, "yeah!"));
+
+		testCase.getValues().putAll(testValuesMap);
+
+		// act
+		TestModelBase actual = TestObjectHelper.createObject(testCase, TestModelBase.class);
+
+		// assert
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual.getStringAttr(), is(equalTo("Test String")));
+		assertThat(actual.getIntAttr(), is(equalTo(5)));
+		assertThat(actual.getDoubleAttr(), is(equalTo(3.21)));
+		assertThat(actual.isBooleanAttr(), is(equalTo(true)));
+		assertThat(actual.getStringAttr2(), is(equalTo("second test string")));
+		assertThat(actual.getEnumAttr(), is(equalTo(TestEnum.TYPE_B)));
+
+		// check the map
+		assertThat(actual.getMapAttr(), is(notNullValue()));
+		assertThat(actual.getMapAttr().size(), is(3));
+		assertThat(actual.getMapAttr().get("myKey"), is(equalTo("Hello")));
+		assertThat(actual.getMapAttr().get("yourKey"), is(equalTo("world")));
+		assertThat(actual.getMapAttr().get("ourKey"), is(equalTo("yeah!")));
 	}
 
 }

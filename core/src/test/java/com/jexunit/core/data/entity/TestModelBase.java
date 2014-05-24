@@ -1,7 +1,9 @@
 package com.jexunit.core.data.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the base class of the entity-object-tree for testing the ObjectHelper setting the
@@ -22,6 +24,7 @@ public class TestModelBase {
 	private TestEnum enumAttr;
 	private TestModelSub subEntityAttr2;
 	private List<TestModelSub> subEntityListAttr2;
+	private Map<String, String> mapAttr = new HashMap<>();
 
 	public int getIntAttr() {
 		return intAttr;
@@ -101,6 +104,14 @@ public class TestModelBase {
 
 	public void setSubEntityListAttr2(List<TestModelSub> subEntityListAttr2) {
 		this.subEntityListAttr2 = subEntityListAttr2;
+	}
+
+	public Map<String, String> getMapAttr() {
+		return mapAttr;
+	}
+
+	public void setMapAttr(Map<String, String> mapAttr) {
+		this.mapAttr = mapAttr;
 	}
 
 }

@@ -45,7 +45,7 @@ public class InstantiatingNullHandler implements NullHandler {
 	@Override
 	public Object nullPropertyValue(@SuppressWarnings("rawtypes") Map context, Object target,
 			Object property) {
-		if ((target == null) || (property == null)) {
+		if (target == null || property == null) {
 			return null;
 		}
 

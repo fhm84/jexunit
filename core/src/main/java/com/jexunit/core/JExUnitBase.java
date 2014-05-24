@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -39,6 +40,7 @@ import com.jexunit.core.model.TestCell;
  *         TODO: check the file for valid commands while reading/parsing it?
  * 
  */
+@Ignore
 @RunWith(Parameterized.class)
 public class JExUnitBase {
 
