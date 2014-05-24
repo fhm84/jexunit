@@ -3,6 +3,8 @@ package com.jexunit.examples.businesstests.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This entity represents a "very complex" business entity ;).
@@ -27,6 +29,8 @@ public class MyComplexBusinessEntity implements Serializable {
 	private BigDecimal calcField1;
 	private BigDecimal calcField2;
 	private BigDecimal calcField3;
+
+	private Map<String, String> additionalSettings = new HashMap<>();
 
 	public long getId() {
 		return id;
@@ -106,6 +110,14 @@ public class MyComplexBusinessEntity implements Serializable {
 
 	public void setCalcField3(BigDecimal calcField3) {
 		this.calcField3 = calcField3;
+	}
+
+	public Map<String, String> getAdditionalSettings() {
+		return additionalSettings;
+	}
+
+	public void setAdditionalSettings(Map<String, String> additionalSettings) {
+		this.additionalSettings = additionalSettings;
 	}
 
 }
