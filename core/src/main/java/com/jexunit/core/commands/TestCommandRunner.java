@@ -37,6 +37,7 @@ public class TestCommandRunner {
 	 *            the current testCase to run
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public void runTestCommand(TestCase testCase) throws Exception {
 		// remove the parameters used by the framework
@@ -79,6 +80,7 @@ public class TestCommandRunner {
 	 *            the method representing the test-command implementation
 	 * @return the parameters-list to invoke the method with
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	private List<Object> prepareParameters(TestCase testCase, Method method) throws Exception {
 		List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
@@ -146,6 +148,7 @@ public class TestCommandRunner {
 	 * @param parameters
 	 *            the parameters for the method
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	private void invokeTestCommandMethod(Method method, Object[] parameters) throws Exception {
 		try {

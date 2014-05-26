@@ -28,8 +28,11 @@ public class TestObjectHelper {
 	 *            TestCase, containing the attributes (names) and values to set
 	 * @param clazz
 	 *            type of the object/instance to create
+	 * @param <T>
+	 *            generic type
 	 * @return a new instance of the given type with attributes set defined in the TestCase
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public static <T> T createObject(TestCase testCase, Class<T> clazz) throws Exception {
 		T obj = clazz.newInstance();
@@ -44,8 +47,11 @@ public class TestObjectHelper {
 	 *            TestCase containing the attributes (names) and values to change
 	 * @param object
 	 *            object instance to change the attributes values
+	 * @param <T>
+	 *            generic type
 	 * @return the given object instance with modified attribute-values
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public static <T> T createObject(TestCase testCase, T object) throws Exception {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
@@ -64,6 +70,7 @@ public class TestObjectHelper {
 	 * @param propValue
 	 *            property-value
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	private static void setPropertyToObject(Object obj, String propName, String propValue)
 			throws Exception {
@@ -105,9 +112,13 @@ public class TestObjectHelper {
 	 *            the property-value (as string)
 	 * @return the property-value (converted to the expected type)
 	 * @throws ParseException
+	 *             if the value cannot be converted
 	 * @throws IllegalAccessException
+	 *             if the value cannot be converted to an enum
 	 * @throws InvocationTargetException
+	 *             if the value cannot be converted to an enum
 	 * @throws NoSuchMethodException
+	 *             if the value cannot be converted to an enum
 	 */
 	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,

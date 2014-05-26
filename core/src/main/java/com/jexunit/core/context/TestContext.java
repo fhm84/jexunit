@@ -25,6 +25,8 @@ public class TestContext {
 	 *            the type of the value (used also as key)
 	 * @param value
 	 *            the value to add to the TestContext
+	 * @param <T>
+	 *            generic type
 	 * @return the TestContext itself (fluent API)
 	 */
 	public <T> TestContext add(Class<T> type, T value) {
@@ -58,6 +60,8 @@ public class TestContext {
 	 * 
 	 * @param type
 	 *            the type of the value to get from the TestContext (used as key)
+	 * @param <T>
+	 *            generic type
 	 * @return the value out of the context if found, else null
 	 */
 	public <T> T get(Class<T> type) {
@@ -76,6 +80,8 @@ public class TestContext {
 	 *            the type to cast the value to
 	 * @param id
 	 *            the id of the value added to the TestContext
+	 * @param <T>
+	 *            generic type
 	 * @return the value out of the TestContext if found identified by the given id, else null
 	 */
 	public <T> T get(Class<T> type, String id) {

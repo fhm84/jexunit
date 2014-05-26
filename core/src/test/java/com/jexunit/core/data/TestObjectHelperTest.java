@@ -59,6 +59,7 @@ public class TestObjectHelperTest {
 	 * "base-entity".
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_baseValues() throws Exception {
@@ -84,6 +85,7 @@ public class TestObjectHelperTest {
 	 * "sub-entity".
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_subElementValues() throws Exception {
@@ -107,6 +109,7 @@ public class TestObjectHelperTest {
 	 * "sub-entity" (this is going to be created automatically!).
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_subElementValues_creatingNewSubElement()
@@ -133,6 +136,7 @@ public class TestObjectHelperTest {
 	 * "list-entity".
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_listValues() throws Exception {
@@ -157,6 +161,7 @@ public class TestObjectHelperTest {
 	 * "list-entity" (the list is going to be created automatically!).
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_listValues_creatingNewList() throws Exception {
@@ -180,6 +185,7 @@ public class TestObjectHelperTest {
 	 * Test to set only a subset of an already existing instance of the test-object.
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseT() throws Exception {
@@ -222,6 +228,7 @@ public class TestObjectHelperTest {
 	 * the "list-entity" also contains a list-attribute.
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_subListValues_creatingNewLists() throws Exception {
@@ -267,6 +274,7 @@ public class TestObjectHelperTest {
 	 * "base-entity" and setting attributes into a map.
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Test
 	public void testCreateObjectTestCaseClassOfT_baseValuesAndMap() throws Exception {

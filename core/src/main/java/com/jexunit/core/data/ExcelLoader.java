@@ -52,6 +52,7 @@ public class ExcelLoader {
 	 * 
 	 * @return a list of the parsed {@link TestCase}s
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest)
 			throws Exception {
@@ -79,8 +80,12 @@ public class ExcelLoader {
 	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list
 	 * of GevoTestCases. So each worksheet will run as separated testrun.
 	 * 
+	 * @param excelFilePath
+	 *            the path to the excel-file to read
+	 * 
 	 * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as value
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public static Map<String, List<TestCase>> readExcel(String excelFilePath) throws Exception {
 		Map<String, List<TestCase>> tests = new LinkedHashMap<String, List<TestCase>>();

@@ -84,6 +84,8 @@ public class JExUnitBase {
 	 *            test-command as single test (false)
 	 * 
 	 * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
+	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	@Parameters(name = "{0} [{index}]")
 	public static Collection<Object[]> setUp(String excelFile, boolean worksheetAsTest)
@@ -193,6 +195,7 @@ public class JExUnitBase {
 	 *            the TestCase containing all information from the excel file/row
 	 * 
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	public void runCommand(TestCase testCase) throws Exception {
 		errorCollector

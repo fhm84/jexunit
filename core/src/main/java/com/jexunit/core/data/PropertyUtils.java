@@ -27,9 +27,13 @@ class PropertyUtils {
 	 *            the property-value (as string)
 	 * @return the property-value (converted to the expected type)
 	 * @throws ParseException
+	 *             if the value cannot be converted
 	 * @throws IllegalAccessException
+	 *             if the value cannot be converted to an enum
 	 * @throws InvocationTargetException
+	 *             if the value cannot be converted to an enum
 	 * @throws NoSuchMethodException
+	 *             if the value cannot be converted to an enum
 	 */
 	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
 			throws ParseException, IllegalAccessException, InvocationTargetException,

@@ -40,6 +40,8 @@ public class TestContextManager {
 	 *            the type of the instance to add
 	 * @param instance
 	 *            the instance to add to the context
+	 * @param <T>
+	 *            generic type
 	 * @return the TestContext
 	 */
 	public static <T> TestContext add(Class<T> type, T instance) {
@@ -65,6 +67,8 @@ public class TestContextManager {
 	 * 
 	 * @param type
 	 *            the type of the instance to get
+	 * @param <T>
+	 *            generic type
 	 * @return the instance identified by the given type if added into the context before, else null
 	 */
 	public static <T> T get(Class<T> type) {
@@ -78,6 +82,8 @@ public class TestContextManager {
 	 *            the type to cast the value to
 	 * @param id
 	 *            the id the value is identified by
+	 * @param <T>
+	 *            generic type
 	 * @return the instance identified by the given id casted into the given type if added into the
 	 *         context before, else null
 	 */

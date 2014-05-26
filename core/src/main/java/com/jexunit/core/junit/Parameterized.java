@@ -181,10 +181,15 @@ public class Parameterized extends Suite {
 	}
 
 	/**
-	 * Only called reflectively. Do not use programatically.
+	 * Only called reflectively. Do not use programmatically.
+	 * 
+	 * @param clazz
+	 *            the root class
+	 * @throws Throwable
+	 *             in case that something goes wrong
 	 */
-	public Parameterized(Class<?> klass) throws Throwable {
-		super(klass, NO_RUNNERS);
+	public Parameterized(Class<?> clazz) throws Throwable {
+		super(clazz, NO_RUNNERS);
 
 		String excelFile = getExcelFileName();
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
@@ -247,6 +252,7 @@ public class Parameterized extends Suite {
 	 * 
 	 * @return the name of the excel-file to use for the test
 	 * @throws Exception
+	 *             in case that something goes wrong
 	 */
 	private String getExcelFileName() throws Exception {
 		List<FrameworkField> fields = getTestClass().getAnnotatedFields(ExcelFile.class);

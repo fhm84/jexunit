@@ -12,11 +12,10 @@ import java.lang.annotation.Target;
  * <p>
  * Example: to "inject" the id parameter (set in the excel-file), you can do something like this:<br>
  * <code>
- * 
- * @TestCommand("myCommand")<br>public void runCommand(@TestParam("id") long id) { ... }</code>
- *                                     </p>
- *                                     In this case you don't have to "inject" the whole TestCase to
- *                                     get the id.
+ * &#64;TestCommand("myCommand")<br>public void runCommand(&#64;TestParam("id") long id) { ... }
+ * </code>
+ * </p>
+ * In this case you don't have to "inject" the whole TestCase to get the id.
  * 
  * @author fabian
  * 
