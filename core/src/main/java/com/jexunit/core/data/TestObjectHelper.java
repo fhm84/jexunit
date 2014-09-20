@@ -2,11 +2,7 @@ package com.jexunit.core.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
-
-import ognl.Ognl;
-import ognl.OgnlRuntime;
 
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
@@ -55,34 +51,13 @@ public class TestObjectHelper {
 	 */
 	public static <T> T createObject(TestCase testCase, T object) throws Exception {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
-			setPropertyToObject(object, entry.getKey(), entry.getValue().getValue());
+			OgnlUtils.setPropertyToObject(object, entry.getKey(), entry.getValue().getValue());
 		}
 		return object;
 	}
 
-	/**
-	 * Set the attribute/property of the given object to the given value.
-	 * 
-	 * @param obj
-	 *            object/instance
-	 * @param propName
-	 *            property-name
-	 * @param propValue
-	 *            property-value
-	 * @throws Exception
-	 *             in case that something goes wrong
-	 */
-	private static void setPropertyToObject(Object obj, String propName, String propValue)
-			throws Exception {
-		OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
-		OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
-		@SuppressWarnings("rawtypes")
-		Map context = Ognl.createDefaultContext(obj);
-		Ognl.setTypeConverter(context, new CustomTypeConverter());
-
-		Object expr = Ognl.parseExpression(propName);
-
-		Ognl.setValue(expr, context, obj, propValue);
+	public static Object getProperty(Object object, String propertyKey) throws Exception {
+		return OgnlUtils.getProperty(object, propertyKey);
 	}
 
 	/**

@@ -2,13 +2,10 @@ package com.jexunit.core.data;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ognl.DynamicSubscript;
 import ognl.ListPropertyAccessor;
-import ognl.NoSuchPropertyException;
 import ognl.Node;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -22,6 +19,7 @@ import ognl.OgnlException;
  */
 public class CustomListPropertyAccessor extends ListPropertyAccessor {
 
+	@Override
 	public Object getProperty(@SuppressWarnings("rawtypes") Map context, Object target, Object name)
 			throws OgnlException {
 		@SuppressWarnings("unchecked")
@@ -30,21 +28,22 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 		if (name instanceof String) {
 			Object result = null;
 
-			if (name.equals("size")) {
-				result = new Integer(list.size());
+			// check for a condition (to to things like: list[name=John].count)
+			String propertyName = (String) name;
+			if (CollectionPropertyHelper.matches(propertyName)) {
+				result = CollectionPropertyHelper.getProperty(context, list, propertyName);
 			} else {
-				if (name.equals("iterator")) {
-					result = list.iterator();
-				} else {
-					if (name.equals("isEmpty") || name.equals("empty")) {
-						result = list.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
-					} else {
-						result = super.getProperty(context, target, name);
-					}
-				}
+				result = super.getProperty(context, target, name);
 			}
 
-			return result;
+			if (result == null) {
+				OgnlContext ctx = (OgnlContext) context;
+				Node currentNode = ctx.getCurrentNode().jjtGetParent().jjtGetParent();
+				throw new NoSuchCollectionElementException(currentNode.jjtGetChild(0).toString(),
+						propertyName);
+			} else {
+				return result;
+			}
 		}
 
 		if (name instanceof Number) {
@@ -64,21 +63,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 			}
 		}
 
-		if (name instanceof DynamicSubscript) {
-			int len = list.size();
-			switch (((DynamicSubscript) name).getFlag()) {
-			case DynamicSubscript.FIRST:
-				return len > 0 ? list.get(0) : null;
-			case DynamicSubscript.MID:
-				return len > 0 ? list.get(len / 2) : null;
-			case DynamicSubscript.LAST:
-				return len > 0 ? list.get(len - 1) : null;
-			case DynamicSubscript.ALL:
-				return new ArrayList<Object>(list);
-			}
-		}
-
-		throw new NoSuchPropertyException(target, name);
+		return super.getProperty(context, target, name);
 	}
 
 	private Object createNewInstance(Class<?> type, String fieldname) {

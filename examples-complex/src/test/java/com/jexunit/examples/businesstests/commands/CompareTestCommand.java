@@ -4,10 +4,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.math.RoundingMode;
+import java.math.BigDecimal;
+import java.util.Map;
 
 import com.jexunit.core.commands.TestCommand;
 import com.jexunit.core.context.Context;
+import com.jexunit.core.data.TestObjectHelper;
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
 import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 
 /**
@@ -20,47 +24,28 @@ import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
  */
 public class CompareTestCommand {
 
+	/**
+	 * This is an example implementation for a reusable compare test-command checking all the values
+	 * set in the test (excel-file).
+	 * 
+	 * @param testCase
+	 *            the current testCase
+	 * @param actual
+	 *            the current business entity
+	 * @throws Exception
+	 */
 	@TestCommand("compare")
-	public void compare(@Context MyComplexBusinessEntity actual, MyComplexBusinessEntity expected) {
-		if (expected.getId() != 0) {
-			assertThat(actual.getId(), is(equalTo(expected.getId())));
-		}
-
-		if (expected.getName() != null) {
-			assertThat(actual.getName(), is(equalTo(expected.getName())));
-		}
-
-		if (expected.getCity() != null) {
-			assertThat(actual.getCity(), is(equalTo(expected.getCity())));
-		}
-
-		if (expected.getBirthday() != null) {
-			assertThat(actual.getBirthday(), is(equalTo(expected.getBirthday())));
-		}
-
-		if (expected.getCount() != 0) {
-			assertThat(actual.getCount(), is(equalTo(expected.getCount())));
-		}
-
-		if (expected.getRate() != 0) {
-			assertThat(actual.getRate(), is(equalTo(expected.getRate())));
-		}
-
-		if (expected.getPercentage() != 0) {
-			assertThat(actual.getPercentage(), is(equalTo(expected.getPercentage())));
-		}
-
-		if (expected.getCalcField1() != null) {
-			assertThat(actual.getCalcField1().setScale(2, RoundingMode.HALF_UP), is(expected
-					.getCalcField1().setScale(2, RoundingMode.HALF_UP)));
-		}
-
-		if (expected.getCalcField2() != null) {
-			assertThat(actual.getCalcField2(), is(expected.getCalcField2()));
-		}
-
-		if (expected.getCalcField3() != null) {
-			assertThat(actual.getCalcField3(), is(expected.getCalcField3()));
+	public void compare(@Context TestCase testCase, @Context MyComplexBusinessEntity actual)
+			throws Exception {
+		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
+			Object obj = TestObjectHelper.getProperty(actual, entry.getKey());
+			Object expected = TestObjectHelper.convertPropertyStringToObject(obj.getClass(), entry
+					.getValue().getValue());
+			if (obj instanceof BigDecimal && expected instanceof BigDecimal) {
+				assertThat(((BigDecimal) obj).compareTo((BigDecimal) expected), is(0));
+			} else {
+				assertThat(obj, is(equalTo(expected)));
+			}
 		}
 	}
 }

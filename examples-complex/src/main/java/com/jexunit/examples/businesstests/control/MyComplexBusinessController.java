@@ -31,5 +31,17 @@ public class MyComplexBusinessController {
 		entity.setCalcField1(result1);
 		entity.setCalcField2(result2);
 		entity.setCalcField3(result3);
+
+		MyComplexBusinessEntity mcbe1 = new MyComplexBusinessEntity();
+		mcbe1.setId(25);
+		mcbe1.setName("John");
+		mcbe1.setCount(13);
+		entity.getList().add(mcbe1);
+
+		MyComplexBusinessEntity mcbe2 = new MyComplexBusinessEntity();
+		mcbe2.setId(28);
+		mcbe2.setName("Doe");
+		mcbe2.setCount(100);
+		entity.getList().add(mcbe2);
 	}
 }

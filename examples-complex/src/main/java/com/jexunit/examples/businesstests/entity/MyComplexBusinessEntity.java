@@ -2,8 +2,10 @@ package com.jexunit.examples.businesstests.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +33,8 @@ public class MyComplexBusinessEntity implements Serializable {
 	private BigDecimal calcField3;
 
 	private Map<String, String> additionalSettings = new HashMap<>();
+
+	private List<MyComplexBusinessEntity> list = new ArrayList<>();
 
 	public long getId() {
 		return id;
@@ -118,6 +122,20 @@ public class MyComplexBusinessEntity implements Serializable {
 
 	public void setAdditionalSettings(Map<String, String> additionalSettings) {
 		this.additionalSettings = additionalSettings;
+	}
+
+	/**
+	 * @return the list
+	 */
+	public List<MyComplexBusinessEntity> getList() {
+		return list;
+	}
+
+	/**
+	 * @param list the list to set
+	 */
+	public void setList(List<MyComplexBusinessEntity> list) {
+		this.list = list;
 	}
 
 }
