@@ -18,6 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandRunner;
+import com.jexunit.core.configuration.Configurations;
 import com.jexunit.core.data.ExcelLoader;
 import com.jexunit.core.junit.Parameterized;
 import com.jexunit.core.model.TestCase;
@@ -63,6 +64,7 @@ public class JExUnitBase {
 	private TestCommandRunner testCommandRunner;
 
 	public JExUnitBase() {
+		Configurations.init();
 		testCommandRunner = new TestCommandRunner(this);
 	}
 

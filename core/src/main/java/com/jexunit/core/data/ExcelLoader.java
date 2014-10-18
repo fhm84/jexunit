@@ -22,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jexunit.core.commands.DefaultCommands;
+import com.jexunit.core.configuration.Configurations;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 
@@ -213,9 +214,9 @@ public class ExcelLoader {
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				// TODO: configure the pattern from outside! (BUT: convention over configuration!)
-				SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-				return sdf.format(cell.getDateCellValue());
+				return new SimpleDateFormat(
+						Configurations.getStringProperty(Configurations.DATE_PATTERN)).format(cell
+						.getDateCellValue());
 			} else {
 				return String.valueOf(cell.getNumericCellValue());
 			}
