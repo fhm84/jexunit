@@ -1,4 +1,4 @@
-package com.jexunit.core.configuration;
+package com.jexunit.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  * @author fabian
  *
  */
-public class Configurations {
+public class JExUnitConfig {
 
 	public static String DATE_PATTERN = "jexunit.datePattern";
 	// TODO: add ability to override the default command-names?
@@ -25,7 +25,7 @@ public class Configurations {
 	/**
 	 * Private constructor -> only static access.
 	 */
-	private Configurations() {
+	private JExUnitConfig() {
 	}
 
 	private static Configuration getDefaultConfiguration() {
@@ -37,7 +37,7 @@ public class Configurations {
 	}
 
 	public static void init() {
-		// this is only the get initial access to the configuration.
+		// initialize the configuration.
 		if (config == null) {
 			config = new CompositeConfiguration(getDefaultConfiguration());
 			try {

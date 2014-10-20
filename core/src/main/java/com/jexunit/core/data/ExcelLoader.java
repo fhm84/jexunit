@@ -21,8 +21,8 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
-import com.jexunit.core.configuration.Configurations;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 
@@ -215,7 +215,7 @@ public class ExcelLoader {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
 				return new SimpleDateFormat(
-						Configurations.getStringProperty(Configurations.DATE_PATTERN)).format(cell
+						JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).format(cell
 						.getDateCellValue());
 			} else {
 				return String.valueOf(cell.getNumericCellValue());

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jexunit.core.configuration.Configurations;
+import com.jexunit.core.JExUnitConfig;
 
 /**
  * This class will provide useful utility methods for properties handling.
@@ -68,7 +68,7 @@ class PropertyUtils {
 				return new BigDecimal(value);
 			} else if (clazz == Date.class) {
 				return new SimpleDateFormat(
-						Configurations.getStringProperty(Configurations.DATE_PATTERN)).parse(value);
+						JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).parse(value);
 			} else if (clazz.isEnum()) {
 				return clazz.getMethod("valueOf", String.class).invoke(clazz, value);
 			}

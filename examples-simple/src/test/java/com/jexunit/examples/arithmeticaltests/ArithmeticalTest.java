@@ -12,8 +12,8 @@ import org.junit.runner.RunWith;
 
 import com.jexunit.core.JExUnit;
 import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.configuration.Configurations;
 import com.jexunit.core.data.ExcelFile;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
@@ -64,7 +64,7 @@ public class ArithmeticalTest {
 	public void testConfiguration() {
 		assertThat(
 				"Default configuration should be overridden by the properties of the jexunit.properties",
-				Configurations.getStringProperty(Configurations.DATE_PATTERN),
+				JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN),
 				equalTo("MM/dd/yyyy"));
 	}
 
