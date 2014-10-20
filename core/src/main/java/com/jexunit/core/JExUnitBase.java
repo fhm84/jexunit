@@ -35,8 +35,6 @@ import com.jexunit.core.model.TestCell;
  * 
  * @author fabian
  * 
- *         TODO: add possibility to override the default commands?
- * 
  *         TODO: check the file for valid commands while reading/parsing it?
  * 
  */
@@ -108,8 +106,8 @@ public class JExUnitBase {
 		testCaseLoop: for (TestCase testCase : testCases) {
 			boolean exceptionExpected = testCase.isExceptionExpected();
 			try {
-				if (DefaultCommands.DISABLED.getCommandName().equalsIgnoreCase(
-						testCase.getTestCommand())) {
+				if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
+						.equalsIgnoreCase(testCase.getTestCommand())) {
 					if (testCase.isDisabled()) {
 						log.info(String.format("Testcase disabled! (Worksheet: %s)",
 								testCase.getSheet()));
@@ -120,8 +118,8 @@ public class JExUnitBase {
 										testCase.getSheet()), true);
 						return;
 					}
-				} else if (DefaultCommands.REPORT.getCommandName().equalsIgnoreCase(
-						testCase.getTestCommand())) {
+				} else if (JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
+						.equalsIgnoreCase(testCase.getTestCommand())) {
 					// log all the report-"values"
 					for (TestCell tc : testCase.getValues().values()) {
 						log.info(tc.getValue());

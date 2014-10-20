@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,6 +56,11 @@ public class ArithmeticalTest {
 	static String[] excelFiles = new String[] { "src/test/resources/ArithmeticalTests.xlsx",
 			"src/test/resources/ArithmeticalTests2.xlsx" };
 
+	@BeforeClass
+	public static void configure() {
+		JExUnitConfig.setConfigProperty("mytest.configkey", "test-value");
+	}
+
 	@Before
 	public void init() {
 		log.log(Level.INFO, "BeforeClass - ArithmeticTests");
@@ -64,8 +70,10 @@ public class ArithmeticalTest {
 	public void testConfiguration() {
 		assertThat(
 				"Default configuration should be overridden by the properties of the jexunit.properties",
-				JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN),
-				equalTo("MM/dd/yyyy"));
+				JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN), equalTo("MM/dd/yyyy"));
+
+		assertThat("Properties set in the @BeforeClass should be accessible via the JExUnitConfig",
+				JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
 	}
 
 	@TestCommand(value = "mul")

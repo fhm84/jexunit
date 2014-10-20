@@ -12,29 +12,29 @@ public enum DefaultCommands {
 	/**
 	 * Default command for disabling a "test"-worksheet.
 	 */
-	DISABLED("disabled"),
+	DISABLED("jexunit.defaultcommand.disabled"),
 	/**
 	 * Default command for reporting (log something from the excel-file).
 	 */
-	REPORT("report"),
+	REPORT("jexunit.defaultcommand.report"),
 	/**
 	 * Default command/parameter for expecting an exception.
 	 */
-	EXCEPTION_EXCPECTED("exception"),
+	EXCEPTION_EXCPECTED("jexunit.defaultcommand.exception_expected"),
 	/**
 	 * Default command/parameter for "setting a breakpoint inside the excel-file" to be able to
 	 * debug the test more easily.
 	 */
-	BREAKPOINT("breakpoint");
+	BREAKPOINT("jexunit.defaultcommand.breakpoint");
 
-	private String commandName;
+	private String configKey;
 
-	private DefaultCommands(String commandName) {
-		this.commandName = commandName;
+	private DefaultCommands(String configKey) {
+		this.configKey = configKey;
 	}
 
-	public String getCommandName() {
-		return commandName;
+	public String getConfigKey() {
+		return configKey;
 	}
 
 }

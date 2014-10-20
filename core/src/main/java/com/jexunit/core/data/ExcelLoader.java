@@ -29,12 +29,12 @@ import com.jexunit.core.model.TestCell;
 /**
  * Utility class for reading the excel file into the internal data representation.
  * 
+ * TODO: add possibility to change the "test-direction" from horizontal to vertical?
+ * 
  * @author fabian
  * 
  */
 public class ExcelLoader {
-
-	private static final String COMMAND = "command";
 
 	// Utility class, only static access
 	private ExcelLoader() {
@@ -96,23 +96,24 @@ public class ExcelLoader {
 		String sheet = null;
 		try (OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
 			XSSFWorkbook workbook = new XSSFWorkbook(pkg);
-			// iterate over the worksheets
+			// iterate through the worksheets
 			for (XSSFSheet worksheet : workbook) {
 				sheet = worksheet.getSheetName();
 				List<TestCase> testCases = new ArrayList<TestCase>();
 
 				List<String> commandHeaders = null;
 
-				// iterate over the rows
+				// iterate through the rows
 				for (i = 0; i <= worksheet.getLastRowNum(); i++) {
 					XSSFRow row = worksheet.getRow(i);
 
 					if (row != null) {
 						String cellValue = cellValues2String(workbook, row.getCell(0));
-						if (COMMAND.equalsIgnoreCase(cellValue)) {
+						if (JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_STATEMENT)
+								.equalsIgnoreCase(cellValue)) {
 							commandHeaders = new ArrayList<String>();
 
-							// iterate over the columns
+							// iterate through the columns
 							for (int h = 0; h < row.getLastCellNum(); h++) {
 								commandHeaders.add(row.getCell(h).getStringCellValue());
 							}
@@ -121,7 +122,8 @@ public class ExcelLoader {
 								// if the first column is empty, this is a comment line and will be
 								// ignored
 								continue;
-							} else if (DefaultCommands.DISABLED.getCommandName().equalsIgnoreCase(
+							} else if (JExUnitConfig.getStringProperty(
+									DefaultCommands.DISABLED.getConfigKey()).equalsIgnoreCase(
 									cellValue)) {
 								TestCase testCase = new TestCase();
 
@@ -134,14 +136,16 @@ public class ExcelLoader {
 									TestCell testCell = new TestCell();
 									testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
 									testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
-									testCase.getValues().put(
-											DefaultCommands.DISABLED.getCommandName(), testCell);
+									testCase.getValues()
+											.put(JExUnitConfig.getStringProperty(DefaultCommands.DISABLED
+													.getConfigKey()), testCell);
 									testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
 								}
 								testCases.add(testCase);
 							} else if (commandHeaders != null
-									|| DefaultCommands.REPORT.getCommandName().equalsIgnoreCase(
-											cellValue)) {
+									|| JExUnitConfig.getStringProperty(
+											DefaultCommands.REPORT.getConfigKey())
+											.equalsIgnoreCase(cellValue)) {
 								TestCase testCase = new TestCase();
 
 								// the first column is always the command
@@ -161,15 +165,16 @@ public class ExcelLoader {
 
 									// read/parse the "default" commands/parameters
 									if (commandHeaders != null && commandHeaders.size() > j) {
-										if (DefaultCommands.BREAKPOINT.getCommandName()
+										if (JExUnitConfig.getStringProperty(
+												DefaultCommands.BREAKPOINT.getConfigKey())
 												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to set a breakpoint to
 											// debug the test more easily
 											testCase.setBreakpointEnabled(Boolean
 													.parseBoolean(testCell.getValue()));
-										} else if (DefaultCommands.EXCEPTION_EXCPECTED
-												.getCommandName().equalsIgnoreCase(
-														commandHeaders.get(j))) {
+										} else if (JExUnitConfig.getStringProperty(
+												DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey())
+												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.
 											testCase.setExceptionExpected(Boolean

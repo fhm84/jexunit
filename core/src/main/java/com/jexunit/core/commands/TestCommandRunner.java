@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.context.Context;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
@@ -66,7 +67,7 @@ public class TestCommandRunner {
 	 */
 	private void removeFrameworkParameters(TestCase testCase) {
 		for (DefaultCommands dc : DefaultCommands.values()) {
-			testCase.getValues().remove(dc.getCommandName());
+			testCase.getValues().remove(JExUnitConfig.getStringProperty(dc.getConfigKey()));
 		}
 	}
 
