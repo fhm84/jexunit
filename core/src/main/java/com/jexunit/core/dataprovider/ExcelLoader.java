@@ -1,4 +1,4 @@
-package com.jexunit.core.data;
+package com.jexunit.core.dataprovider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -191,9 +191,11 @@ public class ExcelLoader {
 				tests.put(worksheet.getSheetName(), testCases);
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new Exception(String.format("Excel-file '%s' not found!", excelFilePath), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new Exception(String.format(
+					"Error while reading the excel-file! - worksheet: %s row: %s column: %s",
+					sheet, i + 1, getColumn(j + 1)), e);
 		} catch (Exception e) {
 			throw new Exception(String.format(
 					"Error while reading the excel-file! - worksheet: %s row: %s column: %s",

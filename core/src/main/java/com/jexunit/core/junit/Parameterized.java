@@ -21,8 +21,11 @@ import org.junit.runners.model.Statement;
 
 import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.commands.TestCommandMethodScanner;
-import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.context.TestContextManager;
+import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
+import com.jexunit.core.spi.ServiceRegistry;
+import com.jexunit.core.spi.data.DataProvider;
 
 import eu.infomas.annotation.AnnotationDetector;
 
@@ -191,19 +194,37 @@ public class Parameterized extends Suite {
 	public Parameterized(Class<?> clazz) throws Throwable {
 		super(clazz, NO_RUNNERS);
 
-		String excelFile = getExcelFileName();
+		ServiceRegistry.initialize();
+
+		DataProvider dataprovider = null;
+
+		List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(
+				DataProvider.class);
+		if (dataproviders != null) {
+			for (DataProvider dp : dataproviders) {
+				if (dp.canProvide(clazz)) {
+					dataprovider = dp;
+				}
+			}
+		}
+
+		if (dataprovider == null) {
+			throw new IllegalArgumentException();
+		}
+
+		TestContextManager.add(DataProvider.class, dataprovider);
+		dataprovider.initialize(clazz);
+
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile, true), parameters.name());
+		createRunnersForParameters(allParameters(0), parameters.name());
 	}
 
-	public Parameterized(Class<?> klass, String excelFile, Class<?> testType,
-			boolean worksheetAsTest) throws Throwable {
-		super(klass, NO_RUNNERS);
+	public Parameterized(Class<?> clazz, Class<?> testType, int testNumber) throws Throwable {
+		super(clazz, NO_RUNNERS);
 		this.testType = testType;
-		this.excelFile = excelFile;
 
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-		createRunnersForParameters(allParameters(excelFile, worksheetAsTest), parameters.name());
+		createRunnersForParameters(allParameters(testNumber), parameters.name());
 	}
 
 	@Override
@@ -223,10 +244,8 @@ public class Parameterized extends Suite {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Iterable<Object[]> allParameters(String excelFile, boolean worksheetAsTest)
-			throws Throwable {
-		Object parameters = getParametersMethod().invokeExplosively(null, excelFile,
-				worksheetAsTest);
+	private Iterable<Object[]> allParameters(int testNumber) throws Throwable {
+		Object parameters = getParametersMethod().invokeExplosively(null, testNumber);
 		if (parameters instanceof Iterable) {
 			return (Iterable<Object[]>) parameters;
 		} else {
@@ -244,43 +263,6 @@ public class Parameterized extends Suite {
 
 		throw new Exception("No public static parameters method on class "
 				+ getTestClass().getName());
-	}
-
-	/**
-	 * Get the excel-file-name from the test-class. It should be read from a static field or a
-	 * static method returning a string, both annotated with {@code @ExcelFile}.
-	 * 
-	 * @return the name of the excel-file to use for the test
-	 * @throws Exception
-	 *             in case that something goes wrong
-	 */
-	private String getExcelFileName() throws Exception {
-		List<FrameworkField> fields = getTestClass().getAnnotatedFields(ExcelFile.class);
-		for (FrameworkField each : fields) {
-			if (each.isStatic() && each.getType() == String.class) {
-				Field field = each.getField();
-				if (field.isAccessible()) {
-					return (String) field.get(getTestClass());
-				} else {
-					field.setAccessible(true);
-					String retVal = (String) field.get(getTestClass());
-					field.setAccessible(false);
-					return retVal;
-				}
-			}
-		}
-
-		// check, if there is a method annotated with @ExcelFile
-		List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(ExcelFile.class);
-		for (FrameworkMethod each : methods) {
-			if (each.isStatic() && each.isPublic() && each.getReturnType() == String.class) {
-				return (String) each.getMethod().invoke(null);
-			}
-		}
-
-		throw new Exception(
-				"No excel-file definition found (static string-field or public static method annotated with @ExcelFile) in class "
-						+ getTestClass().getName());
 	}
 
 	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern)

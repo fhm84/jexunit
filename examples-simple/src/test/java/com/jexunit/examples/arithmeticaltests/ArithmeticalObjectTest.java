@@ -1,7 +1,7 @@
 package com.jexunit.examples.arithmeticaltests;
 
 import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
 
 /**

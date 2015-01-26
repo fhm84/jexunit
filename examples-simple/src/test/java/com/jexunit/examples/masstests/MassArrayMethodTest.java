@@ -4,7 +4,7 @@ import org.junit.runner.RunWith;
 
 import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnit;
-import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.dataprovider.ExcelFile;
 
 /**
  * Simple Test for the framework.

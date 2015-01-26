@@ -18,10 +18,11 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandRunner;
-import com.jexunit.core.data.ExcelLoader;
+import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.junit.Parameterized;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import com.jexunit.core.spi.data.DataProvider;
 
 /**
  * BaseClass for the Tests (BusinessTransactionTests or simple unit-tests).<br>
@@ -87,9 +88,9 @@ public class JExUnitBase {
 	 *             in case that something goes wrong
 	 */
 	@Parameters(name = "{0} [{index}]")
-	public static Collection<Object[]> setUp(String excelFile, boolean worksheetAsTest)
-			throws Exception {
-		return ExcelLoader.loadTestData(excelFile, worksheetAsTest);
+	public static Collection<Object[]> setUp(int testNumber) throws Exception {
+		DataProvider dataProvider = TestContextManager.get(DataProvider.class);
+		return dataProvider.loadTestData(testNumber);
 	}
 
 	/**

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.jexunit.core.data.ExcelLoader;
+import com.jexunit.core.dataprovider.ExcelLoader;
 
 public class ExcelLoaderTest {
 

@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
  * annotated with {@code @TestCommand} will be run as the implementation of the command(s) set as
  * value.
  * 
+ * TODO: add possibility to define a class as testcommand
+ * 
  * @author fabian
  * 
  */

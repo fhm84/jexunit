@@ -132,4 +132,5 @@ public class JExUnitConfig {
 	public static Object getProperty(String key) {
 		return config.getProperty(key);
 	}
+
 }

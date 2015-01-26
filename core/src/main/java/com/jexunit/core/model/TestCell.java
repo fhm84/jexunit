@@ -1,6 +1,6 @@
 package com.jexunit.core.model;
 
-import com.jexunit.core.data.ExcelLoader;
+import com.jexunit.core.dataprovider.ExcelLoader;
 
 /**
  * The "entity" for a single cell. It consists of the value and the column (number).
