@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.jexunit.core.commands.TestCommand;
+import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.context.Context;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.model.TestCase;

@@ -52,7 +52,8 @@ public class JExUnit extends Suite {
 
 		// add the Parameterized JExUnitBase, initialized with the ExcelFileName
 		for (int i = 0; i < dataprovider.numberOfTests(); i++) {
-			runners.add(new Parameterized(JExUnitBase.class, klass, i));
+			runners.add(new Parameterized(JExUnitBase.class, klass, i, dataprovider
+					.getIdentifier(i)));
 		}
 
 		// if there are Test-methods defined in the test-class, this once will be execute too

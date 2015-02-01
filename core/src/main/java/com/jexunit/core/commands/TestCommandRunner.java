@@ -10,6 +10,8 @@ import java.util.List;
 
 import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnitConfig;
+import com.jexunit.core.commands.Command.Type;
+import com.jexunit.core.commands.annotation.TestParam;
 import com.jexunit.core.context.Context;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
@@ -45,14 +47,18 @@ public class TestCommandRunner {
 		removeFrameworkParameters(testCase);
 
 		// check, which method to run for the current TestCommand
-		Method method = TestCommandMethodScanner.getTestCommandMethod(testCase.getTestCommand()
+		// Method method = TestCommandScanner.getTestCommandMethod(testCase.getTestCommand()
+		// .toLowerCase(), testBase.getTestType());
+		Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand()
 				.toLowerCase(), testBase.getTestType());
-		if (method != null) {
-			// prepare the parameters
-			List<Object> parameters = prepareParameters(testCase, method);
+		if (testCommand != null) {
+			if (testCommand.getType() == Type.METHOD) {
+				// prepare the parameters
+				List<Object> parameters = prepareParameters(testCase, testCommand.getMethod());
 
-			// invoke the method with the parameters
-			invokeTestCommandMethod(method, parameters.toArray());
+				// invoke the method with the parameters
+				invokeTestCommandMethod(testCommand.getMethod(), parameters.toArray());
+			}
 		} else {
 			testBase.runCommand(testCase);
 		}
@@ -153,7 +159,7 @@ public class TestCommandRunner {
 	 */
 	private void invokeTestCommandMethod(Method method, Object[] parameters) throws Exception {
 		try {
-			if (method.getDeclaringClass() == this.getClass()) {
+			if (method.getDeclaringClass() == testBase.getClass()) {
 				method.invoke(this, parameters);
 			} else if (Modifier.isStatic(method.getModifiers())) {
 				// invoke static

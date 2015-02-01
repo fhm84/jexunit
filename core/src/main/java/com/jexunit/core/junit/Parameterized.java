@@ -20,7 +20,7 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.commands.TestCommandMethodScanner;
+import com.jexunit.core.commands.TestCommandScanner;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
@@ -171,11 +171,11 @@ public class Parameterized extends Suite {
 	private static final List<Runner> NO_RUNNERS = Collections.<Runner> emptyList();
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
 	private Class<?> testType;
-	private String excelFile;
+	private String identifier;
 
 	static {
 		// scan classes for test commands
-		final AnnotationDetector detector = new AnnotationDetector(new TestCommandMethodScanner());
+		final AnnotationDetector detector = new AnnotationDetector(new TestCommandScanner());
 		try {
 			detector.detect();
 		} catch (IOException e) {
@@ -219,9 +219,11 @@ public class Parameterized extends Suite {
 		createRunnersForParameters(allParameters(0), parameters.name());
 	}
 
-	public Parameterized(Class<?> clazz, Class<?> testType, int testNumber) throws Throwable {
+	public Parameterized(Class<?> clazz, Class<?> testType, int testNumber, String identifier)
+			throws Throwable {
 		super(clazz, NO_RUNNERS);
 		this.testType = testType;
+		this.identifier = identifier;
 
 		Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
 		createRunnersForParameters(allParameters(testNumber), parameters.name());
@@ -235,7 +237,7 @@ public class Parameterized extends Suite {
 	@Override
 	protected String getName() {
 		StringBuilder sb = new StringBuilder();
-		if (excelFile != null) {
+		if (identifier != null) {
 			sb.append(getSimpleExcelFileName());
 		} else {
 			sb.append(super.getName());
@@ -305,8 +307,8 @@ public class Parameterized extends Suite {
 	 * @return the simple name of the excel file
 	 */
 	private String getSimpleExcelFileName() {
-		if (excelFile != null) {
-			return excelFile.substring(excelFile.lastIndexOf("/") + 1);
+		if (identifier != null) {
+			return identifier.substring(identifier.lastIndexOf("/") + 1);
 		} else {
 			return null;
 		}

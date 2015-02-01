@@ -1,4 +1,4 @@
-package com.jexunit.core.commands;
+package com.jexunit.core.commands.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

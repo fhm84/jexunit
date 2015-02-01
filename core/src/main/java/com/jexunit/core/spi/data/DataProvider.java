@@ -41,6 +41,15 @@ public interface DataProvider {
 	int numberOfTests();
 
 	/**
+	 * Get the identifier (i.e. the filename) of the test with the given number.
+	 * 
+	 * @param number
+	 *            number of the test
+	 * @return
+	 */
+	String getIdentifier(int number);
+
+	/**
 	 * Load the test data and transform it into the JExUnit internal representation.<br>
 	 * Each object has to be a list of type {@link TestCase}.
 	 * 

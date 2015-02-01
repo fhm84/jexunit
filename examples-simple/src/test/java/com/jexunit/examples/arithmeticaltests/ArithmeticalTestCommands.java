@@ -9,7 +9,7 @@ import static org.junit.Assert.assertThat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jexunit.core.commands.TestCommand;
+import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;

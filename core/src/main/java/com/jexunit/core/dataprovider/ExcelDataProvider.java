@@ -79,6 +79,16 @@ public class ExcelDataProvider implements DataProvider {
 	}
 
 	@Override
+	public String getIdentifier(int number) {
+		if (excelFileNames == null || number >= excelFileNames.size() || number < 0) {
+			throw new IllegalArgumentException(
+					"The ExcelDataProvider cannot provide test data for test number " + number
+							+ "!");
+		}
+		return excelFileNames.get(number);
+	}
+
+	@Override
 	public Collection<Object[]> loadTestData(int test) throws Exception {
 		if (excelFileNames == null || test >= excelFileNames.size() || test < 0) {
 			throw new IllegalArgumentException(
