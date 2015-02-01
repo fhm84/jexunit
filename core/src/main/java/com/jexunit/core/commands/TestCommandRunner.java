@@ -59,6 +59,7 @@ public class TestCommandRunner {
 				// invoke the method with the parameters
 				invokeTestCommandMethod(testCommand.getMethod(), parameters.toArray());
 			}
+			// TODO: prepare and run testcommand defined by a class
 		} else {
 			testBase.runCommand(testCase);
 		}

@@ -21,14 +21,11 @@ import eu.infomas.annotation.AnnotationDetector.TypeReporter;
  * 
  * TODO: "override" command-methods (what about different parameter-types?)
  * 
- * TODO: add possibility to define a class as testcommand
- * 
  * @author fabian
  * 
  */
 public class TestCommandScanner implements TypeReporter, MethodReporter {
 
-	private static final Map<String, Map<Class<?>, Method>> methods = new HashMap<>();
 	private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
 
 	/*
@@ -67,11 +64,6 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 									commands.put(command, new HashMap<Class<?>, Command>());
 								}
 								commands.get(command).put(type, new Command(command, type, m));
-
-								if (!methods.containsKey(command)) {
-									methods.put(command, new HashMap<Class<?>, Method>());
-								}
-								methods.get(command).put(type, m);
 							}
 						}
 					}
