@@ -2,6 +2,7 @@ package com.jexunit.core.commands;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,8 +82,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 
 			if (annotation.isAnnotation()
 					&& (annotation == TestCommand.class || annotation == TestCommands.class)) {
-				// TODO: check class for TestCommand-Annotation and for single public method
-				// returning void!
+				if (!checkTestCommandClass(clazz)) {
+					throw new IllegalArgumentException(
+							"Test-Command implementation not valid. A class defined as test-command has to provide one single public method!");
+				}
 
 				TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
 				for (TestCommand tc : testCommands) {
@@ -100,6 +103,23 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private boolean checkTestCommandClass(Class<?> clazz) {
+		// check number of public methods
+		Method[] methods = clazz.getDeclaredMethods();
+		int numberOfPublicMethods = 0;
+		for (Method m : methods) {
+			if (Modifier.isPublic(m.getModifiers())) {
+				numberOfPublicMethods++;
+			}
+		}
+
+		if (numberOfPublicMethods != 1) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
