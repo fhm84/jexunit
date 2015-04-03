@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 

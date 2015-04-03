@@ -10,9 +10,9 @@ import org.junit.runner.RunWith;
 
 import com.jexunit.core.JExUnit;
 import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.commands.TestCommands;
-import com.jexunit.core.data.ExcelFile;
+import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
+import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.examples.arithmeticaltests.model.CustomTestObject;
 
 /**

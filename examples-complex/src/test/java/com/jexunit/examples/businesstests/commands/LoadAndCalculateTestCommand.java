@@ -1,7 +1,7 @@
 package com.jexunit.examples.businesstests.commands;
 
-import com.jexunit.core.commands.TestCommand;
-import com.jexunit.core.commands.TestParam;
+import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.commands.annotation.TestParam;
 import com.jexunit.core.context.Context;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.examples.businesstests.boundary.MyComplexBusinessService;
