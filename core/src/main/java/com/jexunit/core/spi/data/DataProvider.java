@@ -5,8 +5,7 @@ import java.util.Collection;
 import com.jexunit.core.model.TestCase;
 
 /**
- * DataProvider to read the data from file or anywhere and transform it to the internal
- * representation.
+ * DataProvider to read the data from file or anywhere and transform it to the internal representation.
  * 
  * @author fabian
  *
@@ -14,18 +13,17 @@ import com.jexunit.core.model.TestCase;
 public interface DataProvider {
 
 	/**
-	 * Check the test to identify whether the data provider is able to load the test data with the
-	 * given information. Place to check the preconditions for the data provider.
+	 * Check the test to identify whether the data provider is able to load the test data with the given information.
+	 * Place to check the preconditions for the data provider.
 	 * 
 	 * @param testInstance
-	 * @return true, if the data provider could get enough information to load the test data, else
-	 *         false
+	 * @return true, if the data provider could get enough information to load the test data, else false
 	 */
 	boolean canProvide(Class<?> testClass);
 
 	/**
-	 * Initialize the DataProvider for a test. This method should be used to load enough data to
-	 * calculate the number of tests that will be provided.
+	 * Initialize the DataProvider for a test. This method should be used to load enough data to calculate the number of
+	 * tests that will be provided.
 	 * 
 	 * @param testClass
 	 * @throws Exception
@@ -33,8 +31,8 @@ public interface DataProvider {
 	void initialize(Class<?> testClass) throws Exception;
 
 	/**
-	 * It could be possible a test defines multiple files providing some test data. This method
-	 * returns the number of tests (files) found.
+	 * It could be possible a test defines multiple files providing some test data. This method returns the number of
+	 * tests (files) found.
 	 * 
 	 * @return
 	 */

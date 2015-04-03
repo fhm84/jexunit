@@ -2,7 +2,6 @@ package com.jexunit.core.spi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -30,11 +29,7 @@ public class ServiceRegistry {
 
 	private <T> void loadExtensions(Class<T> type) {
 		ServiceLoader<T> loader = ServiceLoader.load(type);
-
-		Iterator<T> it = loader.iterator();
-		while (it.hasNext()) {
-			register(type, it.next());
-		}
+		loader.forEach(e -> register(type, e));
 	}
 
 	public static ServiceRegistry getInstance() {

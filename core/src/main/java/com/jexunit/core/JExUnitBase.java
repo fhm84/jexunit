@@ -122,7 +122,8 @@ public class JExUnitBase {
 					for (TestCell tc : testCase.getValues().values()) {
 						log.info(tc.getValue());
 					}
-					// continue: there is nothing else to do; you cannot expect an exception on a "report"-command
+					// continue: there is nothing else to do; you cannot expect an exception on a
+					// "report"-command
 					continue testCaseLoop;
 				} else {
 					try {

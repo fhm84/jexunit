@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a method parameter to lookup out of the current test-case. This allows you to
- * "inject" a parameter out of the excel-file by name/id directly into your test-command
- * implementation.
+ * Annotation to mark a method parameter to lookup out of the current test-case. This allows you to "inject" a parameter
+ * out of the excel-file by name/id directly into your test-command implementation.
  * <p>
  * Example: to "inject" the id parameter (set in the excel-file), you can do something like this:<br>
  * <code>
@@ -32,8 +31,8 @@ public @interface TestParam {
 	String value() default "";
 
 	/**
-	 * Mark the parameter as required. If there is a parameter marked as required but is null, the
-	 * framework will not invoke the method and the test will fail!<br>
+	 * Mark the parameter as required. If there is a parameter marked as required but is null, the framework will not
+	 * invoke the method and the test will fail!<br>
 	 * Default value is true.
 	 * 
 	 * @return true, if the parameter is required (default), else false

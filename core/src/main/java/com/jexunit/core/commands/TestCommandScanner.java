@@ -17,8 +17,8 @@ import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
 
 /**
- * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan"
- * will run once, so we can hold the methods found in the static methods-Map.
+ * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan" will run once, so we
+ * can hold the methods found in the static methods-Map.
  * 
  * TODO: "override" command-methods (what about different parameter-types?)
  * 
@@ -41,8 +41,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 	}
 
 	@Override
-	public void reportMethodAnnotation(Class<? extends Annotation> annotation, String className,
-			String methodName) {
+	public void reportMethodAnnotation(Class<? extends Annotation> annotation, String className, String methodName) {
 		try {
 			Class<?> clazz = getClass().getClassLoader().loadClass(className);
 			Class<?> type = null;
@@ -53,8 +52,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 				}
 			}
 
-			if (annotation.isAnnotation()
-					&& (annotation == TestCommand.class || annotation == TestCommands.class)) {
+			if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
 				for (Method m : clazz.getDeclaredMethods()) {
 					TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
 					for (TestCommand tc : testCommands) {
@@ -80,8 +78,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		try {
 			Class<?> clazz = getClass().getClassLoader().loadClass(className);
 
-			if (annotation.isAnnotation()
-					&& (annotation == TestCommand.class || annotation == TestCommands.class)) {
+			if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
 				if (!checkTestCommandClass(clazz)) {
 					throw new IllegalArgumentException(
 							"Test-Command implementation not valid. A class defined as test-command has to provide one single public method!");

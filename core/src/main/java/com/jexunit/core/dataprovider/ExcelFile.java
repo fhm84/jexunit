@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to define the variable/method that provides the filename(s) for the excel-file(s) for
- * the test.
+ * Annotation to define the variable/method that provides the filename(s) for the excel-file(s) for the test.
  * 
  * @author fabian
  * 

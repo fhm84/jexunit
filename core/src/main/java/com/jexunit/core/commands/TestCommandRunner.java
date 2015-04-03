@@ -34,8 +34,7 @@ public class TestCommandRunner {
 	}
 
 	/**
-	 * Get the method for the current testCommand (via the {@code @TestCommand}-Annotation) and call
-	 * it.
+	 * Get the method for the current testCommand (via the {@code @TestCommand}-Annotation) and call it.
 	 * 
 	 * @param testCase
 	 *            the current testCase to run
@@ -51,8 +50,8 @@ public class TestCommandRunner {
 		// check, which method to run for the current TestCommand
 		// Method method = TestCommandScanner.getTestCommandMethod(testCase.getTestCommand()
 		// .toLowerCase(), testBase.getTestType());
-		Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand()
-				.toLowerCase(), testBase.getTestType());
+		Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(),
+				testBase.getTestType());
 		if (testCommand != null) {
 			if (testCommand.getType() == Type.METHOD) {
 				// prepare the parameters
@@ -63,8 +62,7 @@ public class TestCommandRunner {
 			} else if (testCommand.getType() == Type.CLASS) {
 				// prepare and run test-command defined by a class
 				Object testCommandInstance = testCommand.getImplementation().newInstance();
-				TestContextManager.add((Class<Object>) testCommand.getImplementation(),
-						testCommandInstance);
+				TestContextManager.add((Class<Object>) testCommand.getImplementation(), testCommandInstance);
 
 				// inject Test-Parameters (and -Context) to the class
 				injectTestParams(testCase, testCommandInstance);
@@ -83,8 +81,7 @@ public class TestCommandRunner {
 	}
 
 	/**
-	 * Remove the parameters used by the framework to only pass the "users" parameters to the
-	 * commands.
+	 * Remove the parameters used by the framework to only pass the "users" parameters to the commands.
 	 * 
 	 * @param testCase
 	 *            current TestCase
@@ -96,8 +93,8 @@ public class TestCommandRunner {
 	}
 
 	/**
-	 * Prepare the parameters for the given method (representing the test-command implementation)
-	 * out of the given test-case.
+	 * Prepare the parameters for the given method (representing the test-command implementation) out of the given
+	 * test-case.
 	 * 
 	 * @param testCase
 	 *            the test-case to prepare the parameters from
@@ -143,11 +140,9 @@ public class TestCommandRunner {
 								key = parameter.getName();
 							}
 							String stringValue = TestObjectHelper.getPropertyByKey(testCase, key);
-							Object value = TestObjectHelper.convertPropertyStringToObject(
-									parameterType, stringValue);
+							Object value = TestObjectHelper.convertPropertyStringToObject(parameterType, stringValue);
 							if (param.required() && value == null) {
-								throw new IllegalArgumentException("Required parameter not found: "
-										+ key);
+								throw new IllegalArgumentException("Required parameter not found: " + key);
 							}
 							parameters.add(value);
 						}
@@ -163,8 +158,9 @@ public class TestCommandRunner {
 	}
 
 	/**
-	 * Prepare the attributes for the given test-command class. This will "inject" the attributes
-	 * annotated with @TestParam.
+	 * Prepare the attributes for the given test-command class. This will "inject" the attributes annotated with
+	 * 
+	 * @TestParam.
 	 * 
 	 * @param testCase
 	 *            the test-case to prepare the parameters from
@@ -206,8 +202,7 @@ public class TestCommandRunner {
 						key = field.getName();
 					}
 					String stringValue = TestObjectHelper.getPropertyByKey(testCase, key);
-					Object value = TestObjectHelper.convertPropertyStringToObject(field.getType(),
-							stringValue);
+					Object value = TestObjectHelper.convertPropertyStringToObject(field.getType(), stringValue);
 					if (param.required() && value == null) {
 						throw new IllegalArgumentException("Required parameter not found: " + key);
 					}
@@ -224,10 +219,9 @@ public class TestCommandRunner {
 	}
 
 	/**
-	 * Invoke the given method (representing the implementation of the test-command) with the given
-	 * parameters. This will invoke the method static, on the current test-class or on the instance
-	 * out of the test-context. If there is no instance in the test-context, a new instance will be
-	 * created an put to the test-context.
+	 * Invoke the given method (representing the implementation of the test-command) with the given parameters. This
+	 * will invoke the method static, on the current test-class or on the instance out of the test-context. If there is
+	 * no instance in the test-context, a new instance will be created an put to the test-context.
 	 * 
 	 * @param method
 	 *            the method to invoke

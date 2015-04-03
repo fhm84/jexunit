@@ -37,9 +37,8 @@ class PropertyUtils {
 	 * @throws NoSuchMethodException
 	 *             if the value cannot be converted to an enum
 	 */
-	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
-			throws ParseException, IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException {
+	public static Object convertPropertyStringToObject(Class<?> clazz, String value) throws ParseException,
+			IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		if (value == null) {
 			return null;
 		}
@@ -67,24 +66,19 @@ class PropertyUtils {
 			} else if (clazz == BigDecimal.class) {
 				return new BigDecimal(value);
 			} else if (clazz == Date.class) {
-				return new SimpleDateFormat(
-						JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).parse(value);
+				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).parse(value);
 			} else if (clazz.isEnum()) {
 				return clazz.getMethod("valueOf", String.class).invoke(clazz, value);
 			}
-			return value; // value of
+			return value;
 		} catch (NumberFormatException | ParseException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz,
-					value });
+			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
 			throw e;
 		} catch (IllegalArgumentException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz,
-					value });
+			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
 			throw e;
-		} catch (SecurityException | IllegalAccessException | InvocationTargetException
-				| NoSuchMethodException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz,
-					value });
+		} catch (SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
 			throw e;
 		}
 	}

@@ -7,9 +7,8 @@ import ognl.OgnlException;
 import ognl.SetPropertyAccessor;
 
 /**
- * Custom extension to ListPropertyAccessor that uses numbers and dynamic subscripts as properties
- * to index into Lists. This will add new element(s) to a list doesn't contain the element at the
- * requested index.
+ * Custom extension to ListPropertyAccessor that uses numbers and dynamic subscripts as properties to index into Lists.
+ * This will add new element(s) to a list doesn't contain the element at the requested index.
  *
  * @author fabian
  */

@@ -30,9 +30,9 @@ import com.jexunit.core.spi.data.DataProvider;
 import eu.infomas.annotation.AnnotationDetector;
 
 /**
- * This is an "extension" of the {@link org.junit.runners.Parameterized} JUnit-Runner to run each
- * excel-worksheet as a single unit-test. Additionally there is a new annotation ({@link ExcelFile}
- * to define the name of the excel-file in the test-class.
+ * This is an "extension" of the {@link org.junit.runners.Parameterized} JUnit-Runner to run each excel-worksheet as a
+ * single unit-test. Additionally there is a new annotation ({@link ExcelFile} to define the name of the excel-file in
+ * the test-class.
  * 
  * @author fabian
  * 
@@ -40,8 +40,8 @@ import eu.infomas.annotation.AnnotationDetector;
 public class Parameterized extends Suite {
 
 	/**
-	 * This is the same as the one in the {@code org.junit.runners.Parameterized}. It has to be
-	 * copied because it's a private class.
+	 * This is the same as the one in the {@code org.junit.runners.Parameterized}. It has to be copied because it's a
+	 * private class.
 	 * 
 	 * @see org.junit.runners.Parameterized
 	 */
@@ -51,8 +51,8 @@ public class Parameterized extends Suite {
 		private final String fName;
 		private final Class<?> testType;
 
-		TestClassRunnerForParameters(Class<?> type, Object[] parameters, String name,
-				Class<?> testType) throws InitializationError {
+		TestClassRunnerForParameters(Class<?> type, Object[] parameters, String name, Class<?> testType)
+				throws InitializationError {
 			super(type);
 			fParameters = parameters;
 			fName = name;
@@ -97,12 +97,10 @@ public class Parameterized extends Suite {
 						field.setAccessible(false);
 					}
 				} catch (IllegalArgumentException iare) {
-					throw new Exception(
-							String.format(
-									"%s: Trying to set %s with the value %s that is not the right type (%s instead of %s).",
-									getTestClass().getName(), field.getName(), fParameters[index],
-									fParameters[index].getClass().getSimpleName(), field.getType()
-											.getSimpleName()), iare);
+					throw new Exception(String.format(
+							"%s: Trying to set %s with the value %s that is not the right type (%s instead of %s).",
+							getTestClass().getName(), field.getName(), fParameters[index], fParameters[index]
+									.getClass().getSimpleName(), field.getType().getSimpleName()), iare);
 				}
 			}
 			return testClassInstance;
@@ -138,8 +136,7 @@ public class Parameterized extends Suite {
 						errors.add(new Exception(
 								String.format(
 										"Invalid @Parameter value: %s. @Parameter fields counted: %s. Please use an index between 0 and %s.",
-										index, annotatedFieldsByParameter.size(),
-										annotatedFieldsByParameter.size() - 1)));
+										index, annotatedFieldsByParameter.size(), annotatedFieldsByParameter.size() - 1)));
 					} else {
 						usedIndices[index]++;
 					}
@@ -147,11 +144,10 @@ public class Parameterized extends Suite {
 				for (int index = 0; index < usedIndices.length; index++) {
 					int numberOfUse = usedIndices[index];
 					if (numberOfUse == 0) {
-						errors.add(new Exception(String.format("@Parameter(%s) is never used.",
-								index)));
+						errors.add(new Exception(String.format("@Parameter(%s) is never used.", index)));
 					} else if (numberOfUse > 1) {
-						errors.add(new Exception(String.format(
-								"@Parameter(%s) is used more than once (%s).", index, numberOfUse)));
+						errors.add(new Exception(String.format("@Parameter(%s) is used more than once (%s).", index,
+								numberOfUse)));
 					}
 				}
 			}
@@ -198,8 +194,7 @@ public class Parameterized extends Suite {
 
 		DataProvider dataprovider = null;
 
-		List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(
-				DataProvider.class);
+		List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
 		if (dataproviders != null) {
 			for (DataProvider dp : dataproviders) {
 				if (dp.canProvide(clazz)) {
@@ -219,8 +214,7 @@ public class Parameterized extends Suite {
 		createRunnersForParameters(allParameters(0), parameters.name());
 	}
 
-	public Parameterized(Class<?> clazz, Class<?> testType, int testNumber, String identifier)
-			throws Throwable {
+	public Parameterized(Class<?> clazz, Class<?> testType, int testNumber, String identifier) throws Throwable {
 		super(clazz, NO_RUNNERS);
 		this.testType = testType;
 		this.identifier = identifier;
@@ -263,8 +257,7 @@ public class Parameterized extends Suite {
 			}
 		}
 
-		throw new Exception("No public static parameters method on class "
-				+ getTestClass().getName());
+		throw new Exception("No public static parameters method on class " + getTestClass().getName());
 	}
 
 	private void createRunnersForParameters(Iterable<Object[]> allParameters, String namePattern)
@@ -273,8 +266,8 @@ public class Parameterized extends Suite {
 			int i = 0;
 			for (Object[] parametersOfSingleTest : allParameters) {
 				String name = nameFor(namePattern, i, parametersOfSingleTest);
-				TestClassRunnerForParameters runner = new TestClassRunnerForParameters(
-						getTestClass().getJavaClass(), parametersOfSingleTest, name, testType);
+				TestClassRunnerForParameters runner = new TestClassRunnerForParameters(getTestClass().getJavaClass(),
+						parametersOfSingleTest, name, testType);
 				runners.add(runner);
 				++i;
 			}
@@ -292,8 +285,7 @@ public class Parameterized extends Suite {
 		}
 		String name;
 		if (parameters != null && parameters.length > 0 && parameters[0] instanceof List
-				&& !((List<?>) parameters[0]).isEmpty()
-				&& ((List<?>) parameters[0]).get(0) instanceof TestCase) {
+				&& !((List<?>) parameters[0]).isEmpty() && ((List<?>) parameters[0]).get(0) instanceof TestCase) {
 			name = MessageFormat.format(finalPattern, ((List<?>) parameters[0]).get(0));
 		} else {
 			name = MessageFormat.format(finalPattern, parameters);
@@ -317,8 +309,7 @@ public class Parameterized extends Suite {
 	private Exception parametersMethodReturnedWrongType() throws Exception {
 		String className = getTestClass().getName();
 		String methodName = getParametersMethod().getName();
-		String message = MessageFormat.format("{0}.{1}() must return an Iterable of arrays.",
-				className, methodName);
+		String message = MessageFormat.format("{0}.{1}() must return an Iterable of arrays.", className, methodName);
 		return new Exception(message);
 	}
 

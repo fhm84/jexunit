@@ -1,12 +1,12 @@
 package com.jexunit.core.context;
 
 /**
- * The TestContextManager will "manage" the contexts for the tests. The TestContext will be put into
- * a ThreadLocal variable to be available in all commands for the current thread.<br>
- * The TestContext itself is "a simple" map. You can put a value identified by its type or by an id
- * (string) into the TestContext and get it out the same way.<br>
- * <u>Attention:</u> if you put a value into the context by its type, you can only put ONE instance
- * because it will by mapped by its classname!
+ * The TestContextManager will "manage" the contexts for the tests. The TestContext will be put into a ThreadLocal
+ * variable to be available in all commands for the current thread.<br>
+ * The TestContext itself is "a simple" map. You can put a value identified by its type or by an id (string) into the
+ * TestContext and get it out the same way.<br>
+ * <u>Attention:</u> if you put a value into the context by its type, you can only put ONE instance because it will by
+ * mapped by its classname!
  * 
  * @author fabian
  * 
@@ -33,8 +33,7 @@ public class TestContextManager {
 	}
 
 	/**
-	 * Add an instance of type T to the context. An already existing instance of this type will be
-	 * overridden!
+	 * Add an instance of type T to the context. An already existing instance of this type will be overridden!
 	 * 
 	 * @param type
 	 *            the type of the instance to add
@@ -49,8 +48,8 @@ public class TestContextManager {
 	}
 
 	/**
-	 * Add a value identified by the given id to the context. An already existing instance for this
-	 * id will be overridden!
+	 * Add a value identified by the given id to the context. An already existing instance for this id will be
+	 * overridden!
 	 * 
 	 * @param id
 	 *            the id for the value (to get it out of the TestContext again)
@@ -84,8 +83,8 @@ public class TestContextManager {
 	 *            the id the value is identified by
 	 * @param <T>
 	 *            generic type
-	 * @return the instance identified by the given id casted into the given type if added into the
-	 *         context before, else null
+	 * @return the instance identified by the given id casted into the given type if added into the context before, else
+	 *         null
 	 */
 	public static <T> T get(Class<T> type, String id) {
 		return getTestContext().get(type, id);

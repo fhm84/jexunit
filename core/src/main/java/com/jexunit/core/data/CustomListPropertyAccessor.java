@@ -11,9 +11,8 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 
 /**
- * Custom extension to ListPropertyAccessor that uses numbers and dynamic subscripts as properties
- * to index into Lists. This will add new element(s) to a list doesn't contain the element at the
- * requested index.
+ * Custom extension to ListPropertyAccessor that uses numbers and dynamic subscripts as properties to index into Lists.
+ * This will add new element(s) to a list doesn't contain the element at the requested index.
  *
  * @author fabian
  */
@@ -39,8 +38,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 			if (result == null) {
 				OgnlContext ctx = (OgnlContext) context;
 				Node currentNode = ctx.getCurrentNode().jjtGetParent().jjtGetParent();
-				throw new NoSuchCollectionElementException(currentNode.jjtGetChild(0).toString(),
-						propertyName);
+				throw new NoSuchCollectionElementException(currentNode.jjtGetChild(0).toString(), propertyName);
 			} else {
 				return result;
 			}
@@ -55,8 +53,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 				OgnlContext ctx = (OgnlContext) context;
 				Node currentNode = ctx.getCurrentNode().jjtGetParent().jjtGetParent();
 				for (int i = list.size(); i <= index; i++) {
-					Object instance = createNewInstance(ctx.getCurrentType(), currentNode
-							.jjtGetChild(0).toString());
+					Object instance = createNewInstance(ctx.getCurrentType(), currentNode.jjtGetChild(0).toString());
 					list.add(instance);
 				}
 				return list.get(index);
@@ -72,8 +69,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 			ParameterizedType listType = (ParameterizedType) listField.getGenericType();
 			Class<?> clazz = (Class<?>) listType.getActualTypeArguments()[0];
 			return clazz.newInstance();
-		} catch (NoSuchFieldException | SecurityException | InstantiationException
-				| IllegalAccessException e) {
+		} catch (NoSuchFieldException | SecurityException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		return null;

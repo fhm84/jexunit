@@ -4,9 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This is the "entity" for a single test instruction. A row consists of a command (for the API) and
- * a number of values for this command. Additionally there is the name of the worksheet and the
- * rownumber of the command for information while debugging and test failures.
+ * This is the "entity" for a single test instruction. A row consists of a command (for the API) and a number of values
+ * for this command. Additionally there is the name of the worksheet and the rownumber of the command for information
+ * while debugging and test failures.
  * 
  * @author fabian
  * 
@@ -101,8 +101,7 @@ public class TestCase {
 	}
 
 	/**
-	 * Flag for debugging. If this flag is set to true, you can debug your command using conditional
-	 * breakpoints.
+	 * Flag for debugging. If this flag is set to true, you can debug your command using conditional breakpoints.
 	 * 
 	 * @return true, if breakpoint should be enabled for the test-case, else false (default)
 	 */
@@ -115,8 +114,8 @@ public class TestCase {
 	}
 
 	/**
-	 * Get the String-representation for the test-case. This will return the sheet-name, because
-	 * it's used for structured "description" of the JUnit test results.
+	 * Get the String-representation for the test-case. This will return the sheet-name, because it's used for
+	 * structured "description" of the JUnit test results.
 	 */
 	@Override
 	public String toString() {

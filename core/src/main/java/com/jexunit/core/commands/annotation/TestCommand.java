@@ -9,9 +9,8 @@ import java.lang.annotation.Target;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
 
 /**
- * Annotation for representing a method as the implementation for a test-command. A static method
- * annotated with {@code @TestCommand} will be run as the implementation of the command(s) set as
- * value.
+ * Annotation for representing a method as the implementation for a test-command. A static method annotated with
+ * {@code @TestCommand} will be run as the implementation of the command(s) set as value.
  * 
  * @author fabian
  * 

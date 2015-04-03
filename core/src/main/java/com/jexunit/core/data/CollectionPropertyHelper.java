@@ -9,8 +9,8 @@ import ognl.Ognl;
 import ognl.OgnlException;
 
 /**
- * Helper class for finding entities inside a collection using a condition. So you can access an
- * entity out of a collection by one of its attributes.
+ * Helper class for finding entities inside a collection using a condition. So you can access an entity out of a
+ * collection by one of its attributes.
  * 
  * @author fabian
  *
@@ -23,8 +23,8 @@ public class CollectionPropertyHelper {
 		return Pattern.matches(REGEX_CONDITION, propertyName);
 	}
 
-	public static Object getProperty(@SuppressWarnings("rawtypes") Map context,
-			Collection<?> target, String propertyCondition) throws OgnlException {
+	public static Object getProperty(@SuppressWarnings("rawtypes") Map context, Collection<?> target,
+			String propertyCondition) throws OgnlException {
 		Pattern pattern = Pattern.compile(REGEX_CONDITION);
 		Matcher m = pattern.matcher(propertyCondition);
 

@@ -74,16 +74,14 @@ public class ExcelDataProvider implements DataProvider {
 			return excelFileNames.size();
 		}
 
-		throw new IllegalArgumentException(
-				"Sorry, but the ExcelDataProvider seems not to be initialized yet!");
+		throw new IllegalArgumentException("Sorry, but the ExcelDataProvider seems not to be initialized yet!");
 	}
 
 	@Override
 	public String getIdentifier(int number) {
 		if (excelFileNames == null || number >= excelFileNames.size() || number < 0) {
-			throw new IllegalArgumentException(
-					"The ExcelDataProvider cannot provide test data for test number " + number
-							+ "!");
+			throw new IllegalArgumentException("The ExcelDataProvider cannot provide test data for test number "
+					+ number + "!");
 		}
 		return excelFileNames.get(number);
 	}
@@ -91,8 +89,8 @@ public class ExcelDataProvider implements DataProvider {
 	@Override
 	public Collection<Object[]> loadTestData(int test) throws Exception {
 		if (excelFileNames == null || test >= excelFileNames.size() || test < 0) {
-			throw new IllegalArgumentException(
-					"The ExcelDataProvider cannot provide test data for test number " + test + "!");
+			throw new IllegalArgumentException("The ExcelDataProvider cannot provide test data for test number " + test
+					+ "!");
 		}
 		return ExcelLoader.loadTestData(excelFileNames.get(test), worksheetAsTest);
 	}
@@ -106,8 +104,8 @@ public class ExcelDataProvider implements DataProvider {
 	 */
 	private boolean isAcceptable(Field field) {
 		return Modifier.isStatic(field.getModifiers())
-				&& (field.getType() == String.class || field.getType().isAssignableFrom(List.class) || field
-						.getType().isArray() && field.getType().getComponentType() == String.class);
+				&& (field.getType() == String.class || field.getType().isAssignableFrom(List.class) || field.getType()
+						.isArray() && field.getType().getComponentType() == String.class);
 	}
 
 	/**
@@ -120,16 +118,13 @@ public class ExcelDataProvider implements DataProvider {
 	private boolean isAcceptable(Method method) {
 		return Modifier.isStatic(method.getModifiers())
 				&& Modifier.isPublic(method.getModifiers())
-				&& (method.getReturnType() == String.class
-						|| method.getReturnType().isAssignableFrom(List.class) || method
-						.getReturnType().isArray()
-						&& method.getReturnType().getComponentType() == String.class);
+				&& (method.getReturnType() == String.class || method.getReturnType().isAssignableFrom(List.class) || method
+						.getReturnType().isArray() && method.getReturnType().getComponentType() == String.class);
 	}
 
 	/**
-	 * Get the excel-file-name(s) from the test-class. It should be read from a static field or a
-	 * static method returning a string, array or list of strings, both annotated with
-	 * {@code @ExcelFile}.
+	 * Get the excel-file-name(s) from the test-class. It should be read from a static field or a static method
+	 * returning a string, array or list of strings, both annotated with {@code @ExcelFile}.
 	 * 
 	 * @throws Exception
 	 */
@@ -159,14 +154,13 @@ public class ExcelDataProvider implements DataProvider {
 	}
 
 	/**
-	 * Check the given FrameworkField if @ExcelFile-Annotation is present. If so, read the settings
-	 * and excel files and return true.
+	 * Check the given FrameworkField if @ExcelFile-Annotation is present. If so, read the settings and excel files and
+	 * return true.
 	 * 
 	 * @param field
 	 *            the FrameworkField to check for the @ExcelFile-Annotation
 	 * 
-	 * @return true, if the Annotation is present and the settings and values could be read, else
-	 *         false
+	 * @return true, if the Annotation is present and the settings and values could be read, else false
 	 * 
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
@@ -193,9 +187,8 @@ public class ExcelDataProvider implements DataProvider {
 					&& ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0] == String.class) {
 				excelFileNames.addAll((List<String>) field.get(testClass));
 			} else {
-				throw new IllegalArgumentException("The annotated static field '" + field.getName()
-						+ "' in class '" + testClass.getName()
-						+ "' as either to be of type String, String[] or List<String>!");
+				throw new IllegalArgumentException("The annotated static field '" + field.getName() + "' in class '"
+						+ testClass.getName() + "' as either to be of type String, String[] or List<String>!");
 			}
 
 			if (!isFieldAccessible) {
@@ -208,14 +201,13 @@ public class ExcelDataProvider implements DataProvider {
 	}
 
 	/**
-	 * Check the given FrameworkMethod if @ExcelFile-Annotation is present. If so, read the settings
-	 * and excel files and return true.
+	 * Check the given FrameworkMethod if @ExcelFile-Annotation is present. If so, read the settings and excel files and
+	 * return true.
 	 * 
 	 * @param method
 	 *            the FrameworkMethod to check for the @ExcelFile-Annotation
 	 * 
-	 * @return true, if the Annotation is present and the settings and values could be read, else
-	 *         false
+	 * @return true, if the Annotation is present and the settings and values could be read, else false
 	 * 
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
@@ -238,9 +230,8 @@ public class ExcelDataProvider implements DataProvider {
 					&& ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0] == String.class) {
 				excelFileNames.addAll((List<String>) method.invoke(null));
 			} else {
-				throw new IllegalArgumentException("The annotated static field '"
-						+ method.getName() + "' in class '" + testClass.getName()
-						+ "' as either to be of type String, String[] or List<String>!");
+				throw new IllegalArgumentException("The annotated static field '" + method.getName() + "' in class '"
+						+ testClass.getName() + "' as either to be of type String, String[] or List<String>!");
 			}
 			return true;
 		}

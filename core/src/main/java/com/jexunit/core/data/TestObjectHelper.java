@@ -8,8 +8,8 @@ import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 
 /**
- * Helper-class for generating entities out of the data of the excel-files. In the excel-file the
- * attributes names and values can be set.
+ * Helper-class for generating entities out of the data of the excel-files. In the excel-file the attributes names and
+ * values can be set.
  * 
  * @author fabian
  * 
@@ -17,8 +17,8 @@ import com.jexunit.core.model.TestCell;
 public class TestObjectHelper {
 
 	/**
-	 * Create a new instance of the given type with attributes set out of the TestCase. The TestCase
-	 * contains the attributes names and values to set.
+	 * Create a new instance of the given type with attributes set out of the TestCase. The TestCase contains the
+	 * attributes names and values to set.
 	 * 
 	 * @param testCase
 	 *            TestCase, containing the attributes (names) and values to set
@@ -36,8 +36,8 @@ public class TestObjectHelper {
 	}
 
 	/**
-	 * Change the values of the given object set in the TestCase. So you can override the objects
-	 * values set in a first command with (some) values set in a l
+	 * Change the values of the given object set in the TestCase. So you can override the objects values set in a first
+	 * command with (some) values set in a l
 	 * 
 	 * @param testCase
 	 *            TestCase containing the attributes (names) and values to change
@@ -95,9 +95,8 @@ public class TestObjectHelper {
 	 * @throws NoSuchMethodException
 	 *             if the value cannot be converted to an enum
 	 */
-	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
-			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-			ParseException {
+	public static Object convertPropertyStringToObject(Class<?> clazz, String value) throws IllegalAccessException,
+			InvocationTargetException, NoSuchMethodException, ParseException {
 		return PropertyUtils.convertPropertyStringToObject(clazz, value);
 	}
 

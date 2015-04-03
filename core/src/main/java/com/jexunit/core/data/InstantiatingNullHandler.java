@@ -13,10 +13,9 @@ import ognl.Ognl;
 import ognl.OgnlRuntime;
 
 /**
- * Custom NullHandler implementation for ognl. In JExUnit we do not know anything of the users model
- * to test, so we have to create new sub-entities if there should be set an attribute of these
- * sub-entities. In the excel-test-file we do not know if the sub-entities are already instantiated,
- * so this NullHandler implementation will do this.
+ * Custom NullHandler implementation for ognl. In JExUnit we do not know anything of the users model to test, so we have
+ * to create new sub-entities if there should be set an attribute of these sub-entities. In the excel-test-file we do
+ * not know if the sub-entities are already instantiated, so this NullHandler implementation will do this.
  * 
  * @author fabian
  *
@@ -28,12 +27,11 @@ public class InstantiatingNullHandler implements NullHandler {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ognl.NullHandler#nullMethodResult(java.util.Map, java.lang.Object, java.lang.String,
-	 * java.lang.Object[])
+	 * @see ognl.NullHandler#nullMethodResult(java.util.Map, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public Object nullMethodResult(@SuppressWarnings("rawtypes") Map context, Object target,
-			String methodName, Object[] args) {
+	public Object nullMethodResult(@SuppressWarnings("rawtypes") Map context, Object target, String methodName,
+			Object[] args) {
 		return null;
 	}
 
@@ -43,8 +41,7 @@ public class InstantiatingNullHandler implements NullHandler {
 	 * @see ognl.NullHandler#nullPropertyValue(java.util.Map, java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public Object nullPropertyValue(@SuppressWarnings("rawtypes") Map context, Object target,
-			Object property) {
+	public Object nullPropertyValue(@SuppressWarnings("rawtypes") Map context, Object target, Object property) {
 		if (target == null || property == null) {
 			return null;
 		}
@@ -54,8 +51,7 @@ public class InstantiatingNullHandler implements NullHandler {
 			Class<?> clazz = null;
 
 			if (target != null) {
-				PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(target.getClass(),
-						propName);
+				PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(target.getClass(), propName);
 				if (pd == null) {
 					return null;
 				}

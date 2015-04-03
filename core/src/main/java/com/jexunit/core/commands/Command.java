@@ -7,8 +7,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Container object representing a test command containing the command name, the class it is defined
- * in, the type of the command (class or method), ...
+ * Container object representing a test command containing the command name, the class it is defined in, the type of the
+ * command (class or method), ...
  * 
  * @author fabian
  *
@@ -19,8 +19,7 @@ public class Command {
 	private Type type;
 
 	/**
-	 * the method implementing the test command (if type METHOD) or null if the implementation is of
-	 * type CLASS.
+	 * the method implementing the test command (if type METHOD) or null if the implementation is of type CLASS.
 	 */
 	private Method method;
 	/**
@@ -29,8 +28,8 @@ public class Command {
 	private Class<?> implType;
 
 	/**
-	 * the type, the test command is defined in (if type METHOD and method is not null) or the type
-	 * implementing the test command
+	 * the type, the test command is defined in (if type METHOD and method is not null) or the type implementing the
+	 * test command
 	 */
 	private Class<?> implementation;
 
@@ -104,15 +103,14 @@ public class Command {
 			return false;
 		}
 		Command c = (Command) o;
-		return new EqualsBuilder().append(name, c.name).append(type, c.type)
-				.append(method, c.method).append(implType, c.implType)
-				.append(implementation, c.implementation).isEquals();
+		return new EqualsBuilder().append(name, c.name).append(type, c.type).append(method, c.method)
+				.append(implType, c.implType).append(implementation, c.implementation).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(name).append(type).append(method).append(implType)
-				.append(implementation).hashCode();
+		return new HashCodeBuilder().append(name).append(type).append(method).append(implType).append(implementation)
+				.hashCode();
 	}
 
 	// TODO: add "mapping" details to set the method parameters, "inject" the test params, ...

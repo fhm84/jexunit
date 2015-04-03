@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -41,45 +40,39 @@ public class ExcelLoader {
 	}
 
 	/**
-	 * Load the excel-file and prepare the data (TestCommands). Each worksheet will run as separated
-	 * Unit-Test.
+	 * Load the excel-file and prepare the data (TestCommands). Each worksheet will run as separated Unit-Test.
 	 * 
 	 * @param excelFile
-	 *            the name of the excel file (to be loaded). It has to be the filename incl. path to
-	 *            be loaded (for example: src/test/resources/myExcelFile.xls)
+	 *            the name of the excel file (to be loaded). It has to be the filename incl. path to be loaded (for
+	 *            example: src/test/resources/myExcelFile.xls)
 	 * @param worksheetAsTest
-	 *            "group" all the test-commands of a worksheet to one test (true) or run each
-	 *            test-command as single test (false)
+	 *            "group" all the test-commands of a worksheet to one test (true) or run each test-command as single
+	 *            test (false)
 	 * 
 	 * @return a list of the parsed {@link TestCase}s
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest)
-			throws Exception {
+	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest) throws Exception {
 		Map<String, List<TestCase>> tests = readExcel(excelFile);
 
 		Collection<Object[]> col = new ArrayList<Object[]>();
 		if (worksheetAsTest) {
-			for (Entry<String, List<TestCase>> e : tests.entrySet()) {
-				col.add(new Object[] { e.getValue() });
-			}
+			tests.forEach((k, v) -> col.add(new Object[] { v }));
 		} else {
-			for (Entry<String, List<TestCase>> e : tests.entrySet()) {
-				for (TestCase gtc : e.getValue()) {
-					List<TestCase> list = new ArrayList<>();
-					list.add(gtc);
-					col.add(new Object[] { list });
-				}
-			}
+			tests.forEach((s, l) -> l.forEach(gtc -> {
+				List<TestCase> list = new ArrayList<>();
+				list.add(gtc);
+				col.add(new Object[] { list });
+			}));
 		}
 
 		return col;
 	}
 
 	/**
-	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list
-	 * of GevoTestCases. So each worksheet will run as separated testrun.
+	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list of GevoTestCases. So
+	 * each worksheet will run as separated testrun.
 	 * 
 	 * @param excelFilePath
 	 *            the path to the excel-file to read
@@ -122,9 +115,8 @@ public class ExcelLoader {
 								// if the first column is empty, this is a comment line and will be
 								// ignored
 								continue;
-							} else if (JExUnitConfig.getStringProperty(
-									DefaultCommands.DISABLED.getConfigKey()).equalsIgnoreCase(
-									cellValue)) {
+							} else if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
+									.equalsIgnoreCase(cellValue)) {
 								TestCase testCase = new TestCase();
 
 								// the first column is always the command
@@ -136,15 +128,14 @@ public class ExcelLoader {
 									TestCell testCell = new TestCell();
 									testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
 									testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
-									testCase.getValues()
-											.put(JExUnitConfig.getStringProperty(DefaultCommands.DISABLED
-													.getConfigKey()), testCell);
+									testCase.getValues().put(
+											JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey()),
+											testCell);
 									testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
 								}
 								testCases.add(testCase);
 							} else if (commandHeaders != null
-									|| JExUnitConfig.getStringProperty(
-											DefaultCommands.REPORT.getConfigKey())
+									|| JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
 											.equalsIgnoreCase(cellValue)) {
 								TestCase testCase = new TestCase();
 
@@ -158,27 +149,23 @@ public class ExcelLoader {
 									testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
 									testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
 									// the "report"-command doesn't need a header-line
-									testCase.getValues()
-											.put(commandHeaders != null
-													&& commandHeaders.size() > j ? commandHeaders.get(j)
+									testCase.getValues().put(
+											commandHeaders != null && commandHeaders.size() > j ? commandHeaders.get(j)
 													: "param" + j, testCell);
 
 									// read/parse the "default" commands/parameters
 									if (commandHeaders != null && commandHeaders.size() > j) {
-										if (JExUnitConfig.getStringProperty(
-												DefaultCommands.BREAKPOINT.getConfigKey())
+										if (JExUnitConfig.getStringProperty(DefaultCommands.BREAKPOINT.getConfigKey())
 												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to set a breakpoint to
 											// debug the test more easily
-											testCase.setBreakpointEnabled(Boolean
-													.parseBoolean(testCell.getValue()));
+											testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
 										} else if (JExUnitConfig.getStringProperty(
-												DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey())
-												.equalsIgnoreCase(commandHeaders.get(j))) {
+												DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey()).equalsIgnoreCase(
+												commandHeaders.get(j))) {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.
-											testCase.setExceptionExpected(Boolean
-													.parseBoolean(testCell.getValue()));
+											testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
 										}
 									}
 								}
@@ -193,12 +180,10 @@ public class ExcelLoader {
 		} catch (FileNotFoundException e) {
 			throw new Exception(String.format("Excel-file '%s' not found!", excelFilePath), e);
 		} catch (IOException e) {
-			throw new Exception(String.format(
-					"Error while reading the excel-file! - worksheet: %s row: %s column: %s",
+			throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s row: %s column: %s",
 					sheet, i + 1, getColumn(j + 1)), e);
 		} catch (Exception e) {
-			throw new Exception(String.format(
-					"Error while reading the excel-file! - worksheet: %s row: %s column: %s",
+			throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s row: %s column: %s",
 					sheet, i + 1, getColumn(j + 1)), e);
 		}
 		return tests;
@@ -221,8 +206,7 @@ public class ExcelLoader {
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat(
-						JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).format(cell
+				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).format(cell
 						.getDateCellValue());
 			} else {
 				return String.valueOf(cell.getNumericCellValue());
@@ -277,12 +261,12 @@ public class ExcelLoader {
 	 */
 	public static String getColumn(int column) {
 		column--;
-		if (column >= 0 && column < 26)
+		if (column >= 0 && column < 26) {
 			return Character.toString((char) ('A' + column));
-		else if (column > 25)
+		} else if (column > 25) {
 			return getColumn(column / 26) + getColumn(column % 26 + 1);
-		else
-			throw new IllegalArgumentException("Invalid Column #"
-					+ Character.toString((char) (column + 1)));
+		} else {
+			throw new IllegalArgumentException("Invalid Column #" + Character.toString((char) (column + 1)));
+		}
 	}
 }

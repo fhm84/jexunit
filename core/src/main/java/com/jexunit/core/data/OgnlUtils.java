@@ -55,8 +55,7 @@ public class OgnlUtils {
 	 * @throws OgnlException
 	 *             in case that something goes wrong
 	 */
-	public static void setPropertyToObject(Object obj, String propName, String propValue)
-			throws OgnlException {
+	public static void setPropertyToObject(Object obj, String propName, String propValue) throws OgnlException {
 		OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
 		OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
 		OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
