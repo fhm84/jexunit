@@ -10,8 +10,6 @@ package com.jexunit.core.context;
  * 
  * @author fabian
  * 
- *         TODO: "inject" the TestContext into a "Command-Provider"/TestClass, ...
- * 
  */
 public class TestContextManager {
 

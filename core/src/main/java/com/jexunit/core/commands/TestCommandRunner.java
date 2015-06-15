@@ -48,8 +48,6 @@ public class TestCommandRunner {
 		removeFrameworkParameters(testCase);
 
 		// check, which method to run for the current TestCommand
-		// Method method = TestCommandScanner.getTestCommandMethod(testCase.getTestCommand()
-		// .toLowerCase(), testBase.getTestType());
 		Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(),
 				testBase.getTestType());
 		if (testCommand != null) {

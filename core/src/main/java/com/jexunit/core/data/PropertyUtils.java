@@ -37,8 +37,8 @@ class PropertyUtils {
 	 * @throws NoSuchMethodException
 	 *             if the value cannot be converted to an enum
 	 */
-	public static Object convertPropertyStringToObject(Class<?> clazz, String value) throws ParseException,
-			IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
+			throws ParseException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		if (value == null) {
 			return null;
 		}
@@ -47,8 +47,6 @@ class PropertyUtils {
 				Double d = Double.parseDouble(value);
 				if (d != null) {
 					return d.intValue();
-				} else {
-					return null;
 				}
 			} else if (clazz == Double.class || clazz == double.class) {
 				return Double.parseDouble(value);
@@ -56,8 +54,6 @@ class PropertyUtils {
 				Double d = Double.parseDouble(value);
 				if (d != null) {
 					return d.longValue();
-				} else {
-					return null;
 				}
 			} else if (clazz == Float.class || clazz == float.class) {
 				return Float.parseFloat(value);

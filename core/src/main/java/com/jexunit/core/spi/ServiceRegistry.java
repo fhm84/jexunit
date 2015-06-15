@@ -17,9 +17,6 @@ public class ServiceRegistry {
 	private ServiceRegistry() {
 	}
 
-	/**
-	 * TODO: perhaps this should be placed into a separate class?
-	 */
 	public static void initialize() {
 		if (instace == null) {
 			instace = new ServiceRegistry();
@@ -34,7 +31,7 @@ public class ServiceRegistry {
 
 	public static ServiceRegistry getInstance() {
 		if (instace == null) {
-			instace = new ServiceRegistry();
+			initialize();
 		}
 		return instace;
 	}
