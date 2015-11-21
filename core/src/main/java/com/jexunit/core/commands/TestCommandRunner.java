@@ -43,7 +43,7 @@ public class TestCommandRunner {
 	 *             in case that something goes wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public void runTestCommand(TestCase testCase) throws Exception {
+	public void runTestCommand(TestCase<?> testCase) throws Exception {
 		// remove the parameters used by the framework
 		removeFrameworkParameters(testCase);
 
@@ -84,7 +84,7 @@ public class TestCommandRunner {
 	 * @param testCase
 	 *            current TestCase
 	 */
-	private void removeFrameworkParameters(TestCase testCase) {
+	private void removeFrameworkParameters(TestCase<?> testCase) {
 		for (DefaultCommands dc : DefaultCommands.values()) {
 			testCase.getValues().remove(JExUnitConfig.getStringProperty(dc.getConfigKey()));
 		}
@@ -102,7 +102,7 @@ public class TestCommandRunner {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	private List<Object> prepareParameters(TestCase testCase, Method method) throws Exception {
+	private List<Object> prepareParameters(TestCase<?> testCase, Method method) throws Exception {
 		List<Object> parameters = new ArrayList<>(method.getParameterTypes().length);
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 		int i = 0;
@@ -167,7 +167,7 @@ public class TestCommandRunner {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	private void injectTestParams(TestCase testCase, Object instance) throws Exception {
+	private void injectTestParams(TestCase<?> testCase, Object instance) throws Exception {
 		for (Field field : instance.getClass().getDeclaredFields()) {
 			Annotation[] attributeAnnotations = field.getAnnotationsByType(TestParam.class);
 			for (Annotation a : attributeAnnotations) {

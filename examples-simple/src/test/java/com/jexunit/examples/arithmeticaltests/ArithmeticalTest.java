@@ -26,22 +26,20 @@ import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
  * <code>@RunWith(GevoTester.class)</code>-Annotation as the integration point for the framework.
  * </p>
  * <p>
- * This test should provide the arithmetical operations MUL and DIV. In this version the automatic
- * object-creation / -matching mechanism is tested. The test-command-methods get the testCase and a
- * model-object as parameters. The model-objects will automatically be created by the framework.
- * Therefore the parameter-names in the excel-file will be matched to the attribute-names of the
- * model-class.
+ * This test should provide the arithmetical operations MUL and DIV. In this version the automatic object-creation /
+ * -matching mechanism is tested. The test-command-methods get the testCase and a model-object as parameters. The
+ * model-objects will automatically be created by the framework. Therefore the parameter-names in the excel-file will be
+ * matched to the attribute-names of the model-class.
  * </p>
  * <p>
- * The test-command DIV will also be found in another class (that works as an ExcelCommandProvider),
- * but in this test, the method/test-command defined in the class itself should be used!
+ * The test-command DIV will also be found in another class (that works as an ExcelCommandProvider), but in this test,
+ * the method/test-command defined in the class itself should be used!
  * </p>
  * <p>
  * The operations ADD and SUB will be provided by another ExcelCommandProvider.
  * </p>
  * <p>
- * As add-on, there is an additional "normal" JUnit-Test(-Method), to test, if this method won't be
- * ignored!
+ * As add-on, there is an additional "normal" JUnit-Test(-Method), to test, if this method won't be ignored!
  * </p>
  * 
  * @author fabian
@@ -68,8 +66,7 @@ public class ArithmeticalTest {
 
 	@Test
 	public void testConfiguration() {
-		assertThat(
-				"Default configuration should be overridden by the properties of the jexunit.properties",
+		assertThat("Default configuration should be overridden by the properties of the jexunit.properties",
 				JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN), equalTo("MM/dd/yyyy"));
 
 		assertThat("Properties set in the @BeforeClass should be accessible via the JExUnitConfig",
@@ -77,15 +74,13 @@ public class ArithmeticalTest {
 	}
 
 	@TestCommand(value = "mul")
-	public static void runMulCommand(TestCase testCase, ArithmeticalTestObject testObject)
-			throws Exception {
+	public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: MUL!");
 		assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 
 	@TestCommand(value = "div")
-	public static void runDivCommand(TestCase testCase, ArithmeticalTestObject testObject)
-			throws Exception {
+	public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: DIV!");
 		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
 	}

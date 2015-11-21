@@ -15,9 +15,9 @@ import com.jexunit.core.model.TestCell;
 import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 
 /**
- * Test-Command implementation. This implements the command: COMPARE. This command will get the
- * current entity out of the TestContext and compare it with the properties out of the excel-file
- * (TestCase). The JExUnit-Framework will be used to "inject" the objects needed.
+ * Test-Command implementation. This implements the command: COMPARE. This command will get the current entity out of
+ * the TestContext and compare it with the properties out of the excel-file (TestCase). The JExUnit-Framework will be
+ * used to "inject" the objects needed.
  * 
  * @author fabian
  * 
@@ -25,8 +25,8 @@ import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 public class CompareTestCommand {
 
 	/**
-	 * This is an example implementation for a reusable compare test-command checking all the values
-	 * set in the test (excel-file).
+	 * This is an example implementation for a reusable compare test-command checking all the values set in the test
+	 * (excel-file).
 	 * 
 	 * @param testCase
 	 *            the current testCase
@@ -35,12 +35,11 @@ public class CompareTestCommand {
 	 * @throws Exception
 	 */
 	@TestCommand("compare")
-	public void compare(@Context TestCase testCase, @Context MyComplexBusinessEntity actual)
-			throws Exception {
+	public void compare(@Context TestCase<?> testCase, @Context MyComplexBusinessEntity actual) throws Exception {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			Object obj = TestObjectHelper.getProperty(actual, entry.getKey());
-			Object expected = TestObjectHelper.convertPropertyStringToObject(obj.getClass(), entry
-					.getValue().getValue());
+			Object expected = TestObjectHelper.convertPropertyStringToObject(obj.getClass(),
+					entry.getValue().getValue());
 			if (obj instanceof BigDecimal && expected instanceof BigDecimal) {
 				assertThat(((BigDecimal) obj).compareTo((BigDecimal) expected), is(0));
 			} else {

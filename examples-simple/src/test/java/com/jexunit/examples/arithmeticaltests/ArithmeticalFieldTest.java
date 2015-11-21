@@ -17,16 +17,15 @@ import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
 /**
  * Simple Test for the framework.<br>
  * <p>
- * In this test, the excel file will be provided via the static String attribute "excelFile"
- * annotated with <code>@ExcelFile</code>.
+ * In this test, the excel file will be provided via the static String attribute "excelFile" annotated with
+ * <code>@ExcelFile</code>.
  * </p>
  * <p>
- * This test should provide the arithmetical operation DIV. This method should be preferred if there
- * are multiple methods found for the test-command "DIV".
+ * This test should provide the arithmetical operation DIV. This method should be preferred if there are multiple
+ * methods found for the test-command "DIV".
  * </p>
  * <p>
- * All the other test-commands will be handled by the overridden {@link #runCommand(TestCase)}
- * method.
+ * All the other test-commands will be handled by the overridden {@link #runCommand(TestCase)} method.
  * </p>
  * 
  * @author fabian
@@ -50,13 +49,12 @@ public class ArithmeticalFieldTest extends JExUnitBase {
 	}
 
 	@Override
-	public void runCommand(TestCase testCase) throws Exception {
+	public void runCommand(TestCase<?> testCase) throws Exception {
 		ArithmeticalTestCommands.runCommand(testCase);
 	}
 
 	@TestCommand(value = "div")
-	public static void runDivCommand(TestCase testCase, ArithmeticalTestObject testObject)
-			throws Exception {
+	public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.info("in test command: DIV!");
 		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
 	}

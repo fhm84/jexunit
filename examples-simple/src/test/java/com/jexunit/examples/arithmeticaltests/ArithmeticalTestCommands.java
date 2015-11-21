@@ -24,7 +24,7 @@ public class ArithmeticalTestCommands {
 
 	private static final Logger log = Logger.getLogger(ArithmeticalTestCommands.class.getName());
 
-	public static void runCommand(TestCase testCase) throws Exception {
+	public static void runCommand(TestCase<?> testCase) throws Exception {
 		Double val1, val2, result;
 		val1 = Double.parseDouble(testCase.getValues().get("param1").getValue());
 		val2 = Double.parseDouble(testCase.getValues().get("param2").getValue());
@@ -46,9 +46,8 @@ public class ArithmeticalTestCommands {
 		}
 	}
 
-	public static void runCommandWithObject(TestCase testCase) throws Exception {
-		ArithmeticalTestObject obj = TestObjectHelper.createObject(testCase,
-				ArithmeticalTestObject.class);
+	public static void runCommandWithObject(TestCase<?> testCase) throws Exception {
+		ArithmeticalTestObject obj = TestObjectHelper.createObject(testCase, ArithmeticalTestObject.class);
 		log.log(Level.INFO, "run comand with object (testCase: {0})", testCase);
 		switch (testCase.getTestCommand()) {
 		case "ADD":
@@ -67,16 +66,14 @@ public class ArithmeticalTestCommands {
 	}
 
 	@TestCommand("add")
-	public static void runAddCommand(TestCase testCase) throws Exception {
+	public static void runAddCommand(TestCase<?> testCase) throws Exception {
 		log.info("in test command: ADD!");
-		ArithmeticalTestObject obj = TestObjectHelper.createObject(testCase,
-				ArithmeticalTestObject.class);
+		ArithmeticalTestObject obj = TestObjectHelper.createObject(testCase, ArithmeticalTestObject.class);
 		assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
 	}
 
 	@TestCommand(value = "sub")
-	public static void runSubCommand(TestCase testCase, ArithmeticalTestObject testObject)
-			throws Exception {
+	public static void runSubCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.info("in test command: SUB!");
 		assertThat(testObject.getParam1() - testObject.getParam2(), equalTo(testObject.getResult()));
 	}

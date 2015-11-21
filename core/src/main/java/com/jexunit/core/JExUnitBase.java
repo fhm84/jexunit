@@ -48,7 +48,7 @@ public class JExUnitBase {
 	public ErrorCollector errorCollector = new ErrorCollector();
 
 	@Parameter
-	List<TestCase> testCases;
+	List<TestCase<?>> testCases;
 
 	/**
 	 * Get the type of the running test-class to identify, if a test-command is provided by the test-class itself or by
@@ -102,22 +102,23 @@ public class JExUnitBase {
 			return;
 		}
 
-		log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getSheet());
-		testCaseLoop: for (TestCase testCase : testCases) {
+		log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getMetadata().getTestGroup());
+		testCaseLoop: for (TestCase<?> testCase : testCases) {
 			boolean exceptionExpected = testCase.isExceptionExpected();
 			try {
-				if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey()).equalsIgnoreCase(
-						testCase.getTestCommand())) {
+				if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
+						.equalsIgnoreCase(testCase.getTestCommand())) {
 					if (testCase.isDisabled()) {
-						log.info(String.format("Testcase disabled! (Worksheet: %s)", testCase.getSheet()));
+						log.info(String.format("Testcase disabled! (%s)",
+								testCase.getMetadata().getDetailedIdentifier()));
 						// if the test is disabled, ignore the junit-test (assume will pass the
 						// test)
-						Assume.assumeTrue(String.format("Testcase disabled! (Worksheet: %s)", testCase.getSheet()),
-								true);
+						Assume.assumeTrue(String.format("Testcase disabled! (%s)",
+								testCase.getMetadata().getDetailedIdentifier()), true);
 						return;
 					}
-				} else if (JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey()).equalsIgnoreCase(
-						testCase.getTestCommand())) {
+				} else if (JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
+						.equalsIgnoreCase(testCase.getTestCommand())) {
 					// log all the report-"values"
 					for (TestCell tc : testCase.getValues().values()) {
 						log.info(tc.getValue());
@@ -131,9 +132,10 @@ public class JExUnitBase {
 						testCommandRunner.runTestCommand(testCase);
 					} catch (AssertionError e) {
 						if (!exceptionExpected) {
-							errorCollector.addError(new AssertionError(String.format(
-									"No Exception expected in TestCommand: %s, worksheet: %s, row: %s",
-									testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()), e));
+							errorCollector.addError(new AssertionError(
+									String.format("No Exception expected in TestCommand: %s, %s",
+											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()),
+									e));
 						} else {
 							continue testCaseLoop;
 						}
@@ -143,31 +145,30 @@ public class JExUnitBase {
 							if (t instanceof AssertionError) {
 								if (!exceptionExpected) {
 									errorCollector.addError(new AssertionError(String.format(
-											"No Exception expected in TestCommand: %s, worksheet: %s, row: %s",
-											testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()), t));
+											"No Exception expected in TestCommand: %s, %s", testCase.getTestCommand(),
+											testCase.getMetadata().getDetailedIdentifier()), t));
 								} else {
 									continue testCaseLoop;
 								}
 							}
 						}
 						e.printStackTrace();
-						fail(String
-								.format("Unexpected Exception thrown in TestCommand: %s, worksheet: %s, row: %s. (Exception: %s)",
-										testCase.getTestCommand(), testCase.getSheet(), testCase.getRow(), e));
+						fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s)",
+								testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e));
 					}
 				}
 
 				// if an exception is expected, but no exception is thrown, the test will fail!
 				if (exceptionExpected) {
-					errorCollector.addError(new AssertionError(String.format(
-							"Exception expected! in TestCommand: %s, worksheet: %s, row: %s",
-							testCase.getTestCommand(), testCase.getSheet(), testCase.getRow())));
+					errorCollector
+							.addError(new AssertionError(String.format("Exception expected! in TestCommand: %s, %s",
+									testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier())));
 				}
 			} catch (Exception e) {
 				log.log(Level.WARNING, "TestException", e);
 				if (!exceptionExpected) {
-					fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, worksheet: %s, row: %s",
-							e, testCase.getTestCommand(), testCase.getSheet(), testCase.getRow()));
+					fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s", e,
+							testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()));
 				}
 			}
 		}
@@ -184,11 +185,9 @@ public class JExUnitBase {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public void runCommand(TestCase testCase) throws Exception {
-		errorCollector
-				.addError(new NoSuchMethodError(
-						String.format(
-								"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
-								testCase.getTestCommand())));
+	public void runCommand(TestCase<?> testCase) throws Exception {
+		errorCollector.addError(new NoSuchMethodError(String.format(
+				"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
+				testCase.getTestCommand())));
 	}
 }

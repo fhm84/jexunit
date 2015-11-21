@@ -30,7 +30,7 @@ public class TestObjectHelper {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public static <T> T createObject(TestCase testCase, Class<T> clazz) throws Exception {
+	public static <T> T createObject(TestCase<?> testCase, Class<T> clazz) throws Exception {
 		T obj = clazz.newInstance();
 		return createObject(testCase, obj);
 	}
@@ -49,7 +49,7 @@ public class TestObjectHelper {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public static <T> T createObject(TestCase testCase, T object) throws Exception {
+	public static <T> T createObject(TestCase<?> testCase, T object) throws Exception {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			OgnlUtils.setPropertyToObject(object, entry.getKey(), entry.getValue().getValue());
 		}
@@ -69,7 +69,7 @@ public class TestObjectHelper {
 	 *            the identifier for the property (like defined in the excel-file)
 	 * @return the property identified by the given propertyKey if found, else null
 	 */
-	public static String getPropertyByKey(TestCase testCase, String propertyKey) {
+	public static String getPropertyByKey(TestCase<?> testCase, String propertyKey) {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			if (entry.getKey().equalsIgnoreCase(propertyKey)) {
 				return entry.getValue().getValue();
@@ -95,8 +95,8 @@ public class TestObjectHelper {
 	 * @throws NoSuchMethodException
 	 *             if the value cannot be converted to an enum
 	 */
-	public static Object convertPropertyStringToObject(Class<?> clazz, String value) throws IllegalAccessException,
-			InvocationTargetException, NoSuchMethodException, ParseException {
+	public static Object convertPropertyStringToObject(Class<?> clazz, String value)
+			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ParseException {
 		return PropertyUtils.convertPropertyStringToObject(clazz, value);
 	}
 

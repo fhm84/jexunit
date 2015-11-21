@@ -16,7 +16,7 @@ public class ArithmeticalObjectTest extends JExUnitBase {
 	static String excelFile = "src/test/resources/ArithmeticalTests.xlsx";
 
 	@Override
-	public void runCommand(TestCase testCase) throws Exception {
+	public void runCommand(TestCase<?> testCase) throws Exception {
 		ArithmeticalTestCommands.runCommandWithObject(testCase);
 	}
 }

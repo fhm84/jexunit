@@ -11,16 +11,22 @@ import java.util.Map;
  * @author fabian
  * 
  */
-public class TestCase {
+public class TestCase<T extends Metadata> {
 
 	private String testCommand;
-	private String sheet;
-	private int row;
+	private T metadata;
 	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
 	private boolean disabled = false;
 	private boolean exceptionExpected = false;
 	private boolean breakpointEnabled = false;
+
+	public TestCase() {
+	}
+
+	public TestCase(T metadata) {
+		this.metadata = metadata;
+	}
 
 	/**
 	 * Get the test-command for the test-case.
@@ -36,6 +42,20 @@ public class TestCase {
 	}
 
 	/**
+	 * Get the metadata to the test-case. This will include the test-group, the identifier (inside the test-group) and
+	 * possibly other things.
+	 * 
+	 * @return the metadata of the test-case
+	 */
+	public T getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(T metadata) {
+		this.metadata = metadata;
+	}
+
+	/**
 	 * Get the values (found/read from the excel file) for the test-case.
 	 * 
 	 * @return the values for the test-case
@@ -46,32 +66,6 @@ public class TestCase {
 
 	public void setValues(Map<String, TestCell> values) {
 		this.values = values;
-	}
-
-	/**
-	 * Get the name of the sheet the test-case was defined in.
-	 * 
-	 * @return the name of the sheet of the test-case
-	 */
-	public String getSheet() {
-		return sheet;
-	}
-
-	public void setSheet(String sheet) {
-		this.sheet = sheet;
-	}
-
-	/**
-	 * Get the row-number of the test-case.
-	 * 
-	 * @return the row-number of the test-case
-	 */
-	public int getRow() {
-		return row;
-	}
-
-	public void setRow(int row) {
-		this.row = row;
 	}
 
 	/**
@@ -114,11 +108,14 @@ public class TestCase {
 	}
 
 	/**
-	 * Get the String-representation for the test-case. This will return the sheet-name, because it's used for
-	 * structured "description" of the JUnit test results.
+	 * Get the String-representation for the test-case. This will return the test-group (for example the sheet-name),
+	 * because it's used for structured "description" of the JUnit test results.
 	 */
 	@Override
 	public String toString() {
-		return sheet;
+		if (metadata != null) {
+			return metadata.getTestGroup();
+		}
+		return super.toString();
 	}
 }

@@ -54,14 +54,14 @@ public class ExcelLoader {
 	 *             in case that something goes wrong
 	 */
 	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest) throws Exception {
-		Map<String, List<TestCase>> tests = readExcel(excelFile);
+		Map<String, List<TestCase<?>>> tests = readExcel(excelFile);
 
 		Collection<Object[]> col = new ArrayList<Object[]>();
 		if (worksheetAsTest) {
 			tests.forEach((k, v) -> col.add(new Object[] { v }));
 		} else {
 			tests.forEach((s, l) -> l.forEach(gtc -> {
-				List<TestCase> list = new ArrayList<>();
+				List<TestCase<?>> list = new ArrayList<>();
 				list.add(gtc);
 				col.add(new Object[] { list });
 			}));
@@ -81,8 +81,8 @@ public class ExcelLoader {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public static Map<String, List<TestCase>> readExcel(String excelFilePath) throws Exception {
-		Map<String, List<TestCase>> tests = new LinkedHashMap<String, List<TestCase>>();
+	public static Map<String, List<TestCase<?>>> readExcel(String excelFilePath) throws Exception {
+		Map<String, List<TestCase<?>>> tests = new LinkedHashMap<>();
 
 		int i = 0;
 		int j = 0;
@@ -92,7 +92,7 @@ public class ExcelLoader {
 			// iterate through the worksheets
 			for (XSSFSheet worksheet : workbook) {
 				sheet = worksheet.getSheetName();
-				List<TestCase> testCases = new ArrayList<TestCase>();
+				List<TestCase<?>> testCases = new ArrayList<>();
 
 				List<String> commandHeaders = null;
 
@@ -117,12 +117,12 @@ public class ExcelLoader {
 								continue;
 							} else if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
 									.equalsIgnoreCase(cellValue)) {
-								TestCase testCase = new TestCase();
+								TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
 
 								// the first column is always the command
 								testCase.setTestCommand(cellValue);
-								testCase.setSheet(worksheet.getSheetName());
-								testCase.setRow(row.getRowNum() + 1);
+								testCase.getMetadata().setSheet(worksheet.getSheetName());
+								testCase.getMetadata().setRow(row.getRowNum() + 1);
 
 								if (row.getLastCellNum() >= 1) {
 									TestCell testCell = new TestCell();
@@ -137,21 +137,20 @@ public class ExcelLoader {
 							} else if (commandHeaders != null
 									|| JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
 											.equalsIgnoreCase(cellValue)) {
-								TestCase testCase = new TestCase();
+								TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
 
 								// the first column is always the command
 								testCase.setTestCommand(cellValue);
-								testCase.setSheet(worksheet.getSheetName());
-								testCase.setRow(row.getRowNum() + 1);
+								testCase.getMetadata().setSheet(worksheet.getSheetName());
+								testCase.getMetadata().setRow(row.getRowNum() + 1);
 
 								for (j = 1; j < row.getLastCellNum(); j++) {
 									TestCell testCell = new TestCell();
 									testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
 									testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
 									// the "report"-command doesn't need a header-line
-									testCase.getValues().put(
-											commandHeaders != null && commandHeaders.size() > j ? commandHeaders.get(j)
-													: "param" + j, testCell);
+									testCase.getValues().put(commandHeaders != null && commandHeaders.size() > j
+											? commandHeaders.get(j) : "param" + j, testCell);
 
 									// read/parse the "default" commands/parameters
 									if (commandHeaders != null && commandHeaders.size() > j) {
@@ -160,9 +159,9 @@ public class ExcelLoader {
 											// each command has the ability to set a breakpoint to
 											// debug the test more easily
 											testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
-										} else if (JExUnitConfig.getStringProperty(
-												DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey()).equalsIgnoreCase(
-												commandHeaders.get(j))) {
+										} else if (JExUnitConfig
+												.getStringProperty(DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey())
+												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.
 											testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
@@ -206,8 +205,8 @@ public class ExcelLoader {
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).format(cell
-						.getDateCellValue());
+				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN))
+						.format(cell.getDateCellValue());
 			} else {
 				return String.valueOf(cell.getNumericCellValue());
 			}

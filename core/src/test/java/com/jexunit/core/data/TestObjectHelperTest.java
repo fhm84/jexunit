@@ -33,8 +33,7 @@ public class TestObjectHelperTest {
 		testValuesBase.put("stringAttr2", new TestCell(5, "second test string"));
 		testValuesBase.put("enumAttr", new TestCell(6, "TYPE_B"));
 
-		testValuesSubElement.put("subEntityAttr.stringAttr", new TestCell(7,
-				"sub entity test string"));
+		testValuesSubElement.put("subEntityAttr.stringAttr", new TestCell(7, "sub entity test string"));
 		testValuesSubElement.put("subEntityAttr.intAttr", new TestCell(8, "38"));
 		testValuesSubElement.put("subEntityAttr.boolAttr", new TestCell(9, "true"));
 		testValuesSubElement.put("subEntityAttr.enumAttr", new TestCell(10, "TYPE_C"));
@@ -43,8 +42,7 @@ public class TestObjectHelperTest {
 		testValuesList.put("subEntityListAttr[1].intAttr", new TestCell(12, "2"));
 		testValuesList.put("subEntityListAttr[0].boolAttr", new TestCell(13, "true"));
 
-		testValuesSubElement2.put("subEntityAttr2.stringAttr", new TestCell(20,
-				"sub entity test string"));
+		testValuesSubElement2.put("subEntityAttr2.stringAttr", new TestCell(20, "sub entity test string"));
 		testValuesSubElement2.put("subEntityAttr2.intAttr", new TestCell(21, "38"));
 		testValuesSubElement2.put("subEntityAttr2.boolAttr", new TestCell(22, "true"));
 		testValuesSubElement2.put("subEntityAttr2.enumAttr", new TestCell(23, "TYPE_C"));
@@ -55,8 +53,7 @@ public class TestObjectHelperTest {
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "base-entity".
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "base-entity".
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -64,7 +61,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_baseValues() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesBase);
 
 		// act
@@ -81,8 +78,7 @@ public class TestObjectHelperTest {
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "sub-entity".
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "sub-entity".
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -90,7 +86,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_subElementValues() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesSubElement);
 
 		// act
@@ -105,17 +101,16 @@ public class TestObjectHelperTest {
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "sub-entity" (this is going to be created automatically!).
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "sub-entity" (this
+	 * is going to be created automatically!).
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
 	@Test
-	public void testCreateObjectTestCaseClassOfT_subElementValues_creatingNewSubElement()
-			throws Exception {
+	public void testCreateObjectTestCaseClassOfT_subElementValues_creatingNewSubElement() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesSubElement2);
 
 		// act
@@ -126,14 +121,12 @@ public class TestObjectHelperTest {
 		assertThat(actual.getSubEntityAttr2(), is(notNullValue()));
 		assertThat(actual.getSubEntityAttr2().isBoolAttr(), is(true));
 		assertThat(actual.getSubEntityAttr2().getIntAttr(), is(38));
-		assertThat(actual.getSubEntityAttr2().getStringAttr(),
-				is(equalTo("sub entity test string")));
+		assertThat(actual.getSubEntityAttr2().getStringAttr(), is(equalTo("sub entity test string")));
 		assertThat(actual.getSubEntityAttr2().getEnumAttr(), is(equalTo(TestEnum.TYPE_C)));
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "list-entity".
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "list-entity".
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -141,7 +134,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_listValues() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesList);
 
 		// act
@@ -157,8 +150,8 @@ public class TestObjectHelperTest {
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "list-entity" (the list is going to be created automatically!).
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "list-entity" (the
+	 * list is going to be created automatically!).
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -166,7 +159,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_listValues_creatingNewList() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesList2);
 
 		// act
@@ -190,7 +183,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseT() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesBase);
 		testCase.getValues().putAll(testValuesSubElement);
 		testCase.getValues().putAll(testValuesList);
@@ -223,9 +216,9 @@ public class TestObjectHelperTest {
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "list-entity" (the list is going to be created automatically!) and also of sub-lists, because
-	 * the "list-entity" also contains a list-attribute.
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "list-entity" (the
+	 * list is going to be created automatically!) and also of sub-lists, because the "list-entity" also contains a
+	 * list-attribute.
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -233,16 +226,13 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_subListValues_creatingNewLists() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesList2);
 
 		Map<String, TestCell> testValuesSubList = new HashMap<>();
-		testValuesSubList.put("subEntityListAttr2[0].subListAttr[0].intAttr", new TestCell(30,
-				"100"));
-		testValuesSubList.put("subEntityListAttr2[1].subListAttr[0].intAttr",
-				new TestCell(31, "99"));
-		testValuesSubList.put("subEntityListAttr2[0].subListAttr[1].boolAttr", new TestCell(32,
-				"true"));
+		testValuesSubList.put("subEntityListAttr2[0].subListAttr[0].intAttr", new TestCell(30, "100"));
+		testValuesSubList.put("subEntityListAttr2[1].subListAttr[0].intAttr", new TestCell(31, "99"));
+		testValuesSubList.put("subEntityListAttr2[0].subListAttr[1].boolAttr", new TestCell(32, "true"));
 
 		testCase.getValues().putAll(testValuesSubList);
 
@@ -260,18 +250,15 @@ public class TestObjectHelperTest {
 		// check the sub-lists
 		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr(), is(notNullValue()));
 		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().size(), is(2));
-		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(0).getIntAttr(),
-				is(100));
-		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(1).isBoolAttr(),
-				is(true));
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(0).getIntAttr(), is(100));
+		assertThat(actual.getSubEntityListAttr2().get(0).getSubListAttr().get(1).isBoolAttr(), is(true));
 		assertThat(actual.getSubEntityListAttr2().get(1).getSubListAttr().size(), is(1));
-		assertThat(actual.getSubEntityListAttr2().get(1).getSubListAttr().get(0).getIntAttr(),
-				is(99));
+		assertThat(actual.getSubEntityListAttr2().get(1).getSubListAttr().get(0).getIntAttr(), is(99));
 	}
 
 	/**
-	 * Test creating a new instance of the test-object. This will test setting the attributes of the
-	 * "base-entity" and setting attributes into a map.
+	 * Test creating a new instance of the test-object. This will test setting the attributes of the "base-entity" and
+	 * setting attributes into a map.
 	 * 
 	 * @throws Exception
 	 *             in case that something goes wrong
@@ -279,7 +266,7 @@ public class TestObjectHelperTest {
 	@Test
 	public void testCreateObjectTestCaseClassOfT_baseValuesAndMap() throws Exception {
 		// prepare
-		TestCase testCase = new TestCase();
+		TestCase<?> testCase = new TestCase<>();
 		testCase.getValues().putAll(testValuesBase);
 
 		Map<String, TestCell> testValuesMap = new HashMap<>();
