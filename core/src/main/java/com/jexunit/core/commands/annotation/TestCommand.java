@@ -25,7 +25,7 @@ public @interface TestCommand {
 	 * 
 	 * @return the name(s) of the command(s) the annotated method implements
 	 */
-	String[]value();
+	String[] value() default {};
 
 	/**
 	 * Annotation for representing a method as the implementation for multiple test-commands.
@@ -42,6 +42,6 @@ public @interface TestCommand {
 		 * 
 		 * @return the list of the commands the annotated method implements
 		 */
-		TestCommand[]value();
+		TestCommand[] value();
 	}
 }

@@ -23,11 +23,6 @@ public class Command {
 	 */
 	private Method method;
 	/**
-	 * the type the method is implemented in (can be null, if its a static method).
-	 */
-	private Class<?> implType;
-
-	/**
 	 * the type, the test command is defined in (if type METHOD and method is not null) or the type implementing the
 	 * test command
 	 */
@@ -38,16 +33,18 @@ public class Command {
 	}
 
 	public Command(String name, Class<?> implementation) {
-		this.name = name;
-		this.implementation = implementation;
-		this.type = Type.CLASS;
+		this(name, implementation, null);
 	}
 
-	public Command(String name, Class<?> implType, Method method) {
+	public Command(String name, Class<?> implementation, Method method) {
 		this.name = name;
-		this.implType = implType;
+		this.implementation = implementation;
 		this.method = method;
-		this.type = Type.METHOD;
+		if (method == null) {
+			this.type = Type.CLASS;
+		} else {
+			this.type = Type.METHOD;
+		}
 	}
 
 	public String getName() {
@@ -74,14 +71,6 @@ public class Command {
 		this.method = method;
 	}
 
-	public Class<?> getImplType() {
-		return implType;
-	}
-
-	public void setImplType(Class<?> implType) {
-		this.implType = implType;
-	}
-
 	public boolean isStaticMethod() {
 		if (method != null) {
 			return Modifier.isStatic(method.getModifiers());
@@ -104,13 +93,12 @@ public class Command {
 		}
 		Command c = (Command) o;
 		return new EqualsBuilder().append(name, c.name).append(type, c.type).append(method, c.method)
-				.append(implType, c.implType).append(implementation, c.implementation).isEquals();
+				.append(implementation, c.implementation).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(name).append(type).append(method).append(implType).append(implementation)
-				.hashCode();
+		return new HashCodeBuilder().append(name).append(type).append(method).append(implementation).hashCode();
 	}
 
 	// TODO: add "mapping" details to set the method parameters, "inject" the test params, ...

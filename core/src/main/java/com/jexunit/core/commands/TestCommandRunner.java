@@ -66,6 +66,7 @@ public class TestCommandRunner {
 				injectTestParams(testCase, testCommandInstance);
 
 				// invoke the test-command
+				// FIXME: we should get the only PUBLIC method here!!!
 				Method m = testCommand.getImplementation().getDeclaredMethods()[0];
 				// prepare the parameters
 				List<Object> parameters = prepareParameters(testCase, m);
@@ -86,7 +87,7 @@ public class TestCommandRunner {
 	 */
 	private void removeFrameworkParameters(TestCase<?> testCase) {
 		for (DefaultCommands dc : DefaultCommands.values()) {
-			testCase.getValues().remove(JExUnitConfig.getStringProperty(dc.getConfigKey()));
+			testCase.getValues().remove(JExUnitConfig.getDefaultCommandProperty(dc));
 		}
 	}
 

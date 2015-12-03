@@ -35,6 +35,7 @@ public class ArithmeticalTestCommands {
 			assertThat(val1 + val2, equalTo(result));
 			break;
 		case "SUB":
+		case "SUBTRACT":
 			assertThat(val1 - val2, equalTo(result));
 			break;
 		case "MUL":
@@ -54,6 +55,7 @@ public class ArithmeticalTestCommands {
 			assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
 			break;
 		case "SUB":
+		case "SUBTRACT":
 			assertThat(obj.getParam1() - obj.getParam2(), equalTo(obj.getResult()));
 			break;
 		case "MUL":
@@ -72,9 +74,9 @@ public class ArithmeticalTestCommands {
 		assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
 	}
 
-	@TestCommand(value = "sub")
+	@TestCommand({ "sub", "subtract" })
 	public static void runSubCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
-		log.info("in test command: SUB!");
+		log.info("in test command: " + testCase.getTestCommand() + "!");
 		assertThat(testObject.getParam1() - testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 }

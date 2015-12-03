@@ -55,17 +55,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 			if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
 				for (Method m : clazz.getDeclaredMethods()) {
 					TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
-					for (TestCommand tc : testCommands) {
-						if (tc != null) {
-							for (String command : tc.value()) {
-								command = command.toLowerCase();
-								if (!commands.containsKey(command)) {
-									commands.put(command, new HashMap<Class<?>, Command>());
-								}
-								commands.get(command).put(type, new Command(command, type, m));
-							}
-						}
-					}
+					addCommands(testCommands, type, m);
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -85,21 +75,52 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 				}
 
 				TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
-				for (TestCommand tc : testCommands) {
-					if (tc != null) {
-						for (String command : tc.value()) {
-							command = command.toLowerCase();
-							if (!commands.containsKey(command)) {
-								commands.put(command, new HashMap<Class<?>, Command>());
-							}
-							commands.get(command).put(null, new Command(command, clazz));
-						}
-					}
-				}
+				addCommands(testCommands, clazz, null);
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void addCommands(TestCommand[] testCommands, Class<?> type, Method method) {
+		for (TestCommand tc : testCommands) {
+			if (tc != null) {
+				String[] commandNames = tc.value();
+				if (commandNames == null || commandNames.length == 0) {
+					// calculate command-name out of the method-name/class-name
+					if (method == null) {
+						commandNames = new String[] { calculateCommandName(type) };
+					} else {
+						commandNames = new String[] { calculateCommandName(method) };
+					}
+				}
+				for (String command : commandNames) {
+					command = command.toLowerCase();
+					if (!commands.containsKey(command)) {
+						commands.put(command, new HashMap<Class<?>, Command>());
+					}
+					if (method == null) {
+						// test-command is implemented in a class
+						commands.get(command).put(null, new Command(command, type));
+					} else {
+						// test-command is a method
+						commands.get(command).put(type, new Command(command, type, method));
+					}
+				}
+			}
+		}
+	}
+
+	private String calculateCommandName(Class<?> type) {
+		String name = type.getSimpleName();
+		// TODO: check for configured prefix and postfix to remove from the name
+		return name;
+	}
+
+	private String calculateCommandName(Method m) {
+		String name = m.getName();
+		// TODO: check for configured prefix and postfix to remove from the name
+		return name;
 	}
 
 	private boolean checkTestCommandClass(Class<?> clazz) {
@@ -120,7 +141,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 	}
 
 	/**
-	 * Get the command-method for the given command and type.
+	 * Get the Command for the given command-name and type.
 	 * 
 	 * @param command
 	 *            the excel-command
@@ -144,7 +165,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 					do {
 						if (cmds.containsKey(cls)) {
 							Command c = cmds.get(cls);
-							if (c.getType() == Type.CLASS || c.getImplType() == cls) {
+							if (c.getType() == Type.CLASS || c.getImplementation() == cls) {
 								return c;
 							}
 						}

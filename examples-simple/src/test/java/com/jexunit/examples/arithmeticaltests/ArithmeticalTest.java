@@ -73,13 +73,13 @@ public class ArithmeticalTest {
 				JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
 	}
 
-	@TestCommand(value = "mul")
+	@TestCommand("mul")
 	public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: MUL!");
 		assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
 	}
 
-	@TestCommand(value = "div")
+	@TestCommand("div")
 	public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.log(Level.INFO, "in test command: DIV!");
 		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));

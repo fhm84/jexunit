@@ -115,7 +115,7 @@ public class ExcelLoader {
 								// if the first column is empty, this is a comment line and will be
 								// ignored
 								continue;
-							} else if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
+							} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
 									.equalsIgnoreCase(cellValue)) {
 								TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
 
@@ -129,14 +129,13 @@ public class ExcelLoader {
 									testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
 									testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
 									testCase.getValues().put(
-											JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey()),
+											JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED),
 											testCell);
 									testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
 								}
 								testCases.add(testCase);
-							} else if (commandHeaders != null
-									|| JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
-											.equalsIgnoreCase(cellValue)) {
+							} else if (commandHeaders != null || JExUnitConfig
+									.getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
 								TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
 
 								// the first column is always the command
@@ -154,13 +153,13 @@ public class ExcelLoader {
 
 									// read/parse the "default" commands/parameters
 									if (commandHeaders != null && commandHeaders.size() > j) {
-										if (JExUnitConfig.getStringProperty(DefaultCommands.BREAKPOINT.getConfigKey())
+										if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
 												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to set a breakpoint to
 											// debug the test more easily
 											testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
 										} else if (JExUnitConfig
-												.getStringProperty(DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey())
+												.getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
 												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.

@@ -106,7 +106,7 @@ public class JExUnitBase {
 		testCaseLoop: for (TestCase<?> testCase : testCases) {
 			boolean exceptionExpected = testCase.isExceptionExpected();
 			try {
-				if (JExUnitConfig.getStringProperty(DefaultCommands.DISABLED.getConfigKey())
+				if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
 						.equalsIgnoreCase(testCase.getTestCommand())) {
 					if (testCase.isDisabled()) {
 						log.info(String.format("Testcase disabled! (%s)",
@@ -117,7 +117,7 @@ public class JExUnitBase {
 								testCase.getMetadata().getDetailedIdentifier()), true);
 						return;
 					}
-				} else if (JExUnitConfig.getStringProperty(DefaultCommands.REPORT.getConfigKey())
+				} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
 						.equalsIgnoreCase(testCase.getTestCommand())) {
 					// log all the report-"values"
 					for (TestCell tc : testCase.getValues().values()) {

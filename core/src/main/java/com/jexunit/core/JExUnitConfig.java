@@ -31,7 +31,32 @@ public class JExUnitConfig {
 
 	public static final String DATE_PATTERN = "jexunit.datePattern";
 
+	/**
+	 * keyword for identifying a command
+	 */
 	public static final String COMMAND_STATEMENT = "jexunit.command_statement";
+	/**
+	 * prefix for the default commands (i.e. Testcase.ignore instead of ignore)
+	 */
+	public static final String DEFAULTCOMMAND_PREFIX = "jexunit.defaultcommand_prefix";
+
+	/**
+	 * prefix for test-command-classes
+	 */
+	public static final String COMMAND_CLASS_PREFIX = "jexunit.command.class_prefix";
+	/**
+	 * postfix for test-command-classes
+	 */
+	public static final String COMMAND_CLASS_POSTFIX = "jexunit.command.class_postfix";
+
+	/**
+	 * prefix for test-command-methods
+	 */
+	public static final String COMMAND_METHOD_PREFIX = "jexunit.command.method_prefix";
+	/**
+	 * postfix for test-command-methods
+	 */
+	public static final String COMMAND_METHOD_POSTFIX = "jexunit.command.method_postfix";
 
 	private static CompositeConfiguration config;
 
@@ -56,6 +81,7 @@ public class JExUnitConfig {
 
 		config.put(DATE_PATTERN, "dd.MM.yyyy");
 		config.put(COMMAND_STATEMENT, "command");
+		config.put(DEFAULTCOMMAND_PREFIX, "");
 		config.put(DefaultCommands.DISABLED.getConfigKey(), "disabled");
 		config.put(DefaultCommands.REPORT.getConfigKey(), "report");
 		config.put(DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey(), "exception");
@@ -116,6 +142,23 @@ public class JExUnitConfig {
 	 */
 	public static String getStringProperty(String key) {
 		return config.getString(key);
+	}
+
+	/**
+	 * Get the configured property (DefaultCommand) with the given key add prepend the configured prefix for the default
+	 * commands.
+	 * 
+	 * @param defaultCommand
+	 *            the DefaultCommand to get the configured property for
+	 * @return the configured property value with the default command prefix prepended
+	 */
+	public static String getDefaultCommandProperty(DefaultCommands defaultCommand) {
+		String conf = config.getString(defaultCommand.getConfigKey());
+		String defaultCommandPrefix = config.getString(DEFAULTCOMMAND_PREFIX);
+		if (defaultCommandPrefix != null && !defaultCommandPrefix.trim().isEmpty()) {
+			conf = defaultCommandPrefix + conf;
+		}
+		return conf;
 	}
 
 	/**
