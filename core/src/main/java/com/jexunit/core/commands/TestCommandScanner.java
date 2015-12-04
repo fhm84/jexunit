@@ -6,9 +6,11 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.runner.RunWith;
 
 import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.Command.Type;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
@@ -113,13 +115,19 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 
 	private String calculateCommandName(Class<?> type) {
 		String name = type.getSimpleName();
-		// TODO: check for configured prefix and postfix to remove from the name
+		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_CLASS_PREFIX);
+		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_CLASS_POSTFIX);
+		name = StringUtils.removeStartIgnoreCase(name, prefix);
+		name = StringUtils.removeEndIgnoreCase(name, postfix);
 		return name;
 	}
 
 	private String calculateCommandName(Method m) {
 		String name = m.getName();
-		// TODO: check for configured prefix and postfix to remove from the name
+		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_METHOD_PREFIX);
+		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_METHOD_POSTFIX);
+		name = StringUtils.removeStartIgnoreCase(name, prefix);
+		name = StringUtils.removeEndIgnoreCase(name, postfix);
 		return name;
 	}
 
