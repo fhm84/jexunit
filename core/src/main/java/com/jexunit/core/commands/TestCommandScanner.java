@@ -113,6 +113,14 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		}
 	}
 
+	/**
+	 * Calculate the name for the test-command out of the simple name of the given class. If there is a prefix and/or
+	 * postfix configured, this will be removed from the name.
+	 * 
+	 * @param type
+	 *            Class to calculate the name for the test-command from
+	 * @return the calculated name for the test-command
+	 */
 	private String calculateCommandName(Class<?> type) {
 		String name = type.getSimpleName();
 		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_CLASS_PREFIX);
@@ -122,6 +130,14 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		return name;
 	}
 
+	/**
+	 * Calculate the name for the test-command out of the name of the given method. If there is a prefix and/or postfix
+	 * configured, this will be removed from the name.
+	 * 
+	 * @param m
+	 *            Method to calculate the name for the test-command from
+	 * @return the calculated name for the test-command
+	 */
 	private String calculateCommandName(Method m) {
 		String name = m.getName();
 		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_METHOD_PREFIX);
@@ -131,6 +147,14 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		return name;
 	}
 
+	/**
+	 * Check, if the given class is a valid test-command implementation. A class is a valid test-command implementation,
+	 * if there is only a single public method (functional interface!).
+	 * 
+	 * @param clazz
+	 *            Class to check
+	 * @return true, if the class defines exactly one single public method, else false
+	 */
 	private boolean checkTestCommandClass(Class<?> clazz) {
 		// check number of public methods
 		Method[] methods = clazz.getDeclaredMethods();
