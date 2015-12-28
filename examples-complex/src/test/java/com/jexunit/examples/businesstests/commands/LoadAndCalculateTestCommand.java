@@ -16,19 +16,17 @@ import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
 public class LoadAndCalculateTestCommand {
 
 	/**
-	 * Command-Implementation for the command LOAD. This will load the Entity by given id (in the
-	 * Excel-File) and add it to the TestContext (to use it later in other commands). This will also
-	 * test the new feature of java 8: get the parameter-names via reflection. The
-	 * <code>&#64;TestParam</code>-Annotation has not set the value-attribute! The name of the
-	 * test-parameter to "inject" will be the same as the parameter-name.
+	 * Command-Implementation for the command LOAD. This will load the Entity by given id (in the Excel-File) and add it
+	 * to the TestContext (to use it later in other commands). This will also test the new feature of java 8: get the
+	 * parameter-names via reflection. The <code>&#64;TestParam</code>-Annotation has not set the value-attribute! The
+	 * name of the test-parameter to "inject" will be the same as the parameter-name.
 	 * 
 	 * @param id
-	 *            the id of the entity to load out of the test-context (this will be "injected" from
-	 *            the test-case)
+	 *            the id of the entity to load out of the test-context (this will be "injected" from the test-case)
 	 * @param context
 	 *            the TestContext to add the loaded entity to
 	 */
-	@TestCommand("load")
+	@TestCommand
 	public void load(@TestParam long id, TestContext context) {
 		System.out.println("Load entity by id: " + id);
 
@@ -41,13 +39,13 @@ public class LoadAndCalculateTestCommand {
 	}
 
 	/**
-	 * Command-Implementation for the command CALCULATE. This will use the latest entity out of the
-	 * TestContext and run the business-calculation.
+	 * Command-Implementation for the command CALCULATE. This will use the latest entity out of the TestContext and run
+	 * the business-calculation.
 	 * 
 	 * @param entity
 	 *            the entity out of the TestContext
 	 */
-	@TestCommand("calculate")
+	@TestCommand
 	public void calculate(@Context MyComplexBusinessEntity entity) {
 		System.out.println("Entity from context: " + entity);
 

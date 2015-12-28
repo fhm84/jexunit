@@ -22,6 +22,7 @@ import com.jexunit.examples.businesstests.entity.MyComplexBusinessEntity;
  * @author fabian
  * 
  */
+@TestCommand("compare")
 public class CompareTestCommand {
 
 	/**
@@ -34,7 +35,6 @@ public class CompareTestCommand {
 	 *            the current business entity
 	 * @throws Exception
 	 */
-	@TestCommand("compare")
 	public void compare(@Context TestCase<?> testCase, @Context MyComplexBusinessEntity actual) throws Exception {
 		for (Map.Entry<String, TestCell> entry : testCase.getValues().entrySet()) {
 			Object obj = TestObjectHelper.getProperty(actual, entry.getKey());

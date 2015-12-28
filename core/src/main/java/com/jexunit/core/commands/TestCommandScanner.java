@@ -57,7 +57,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 			if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
 				for (Method m : clazz.getDeclaredMethods()) {
 					TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
-					addCommands(testCommands, type, m);
+					registerCommands(testCommands, type, m);
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -77,14 +77,24 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 				}
 
 				TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
-				addCommands(testCommands, clazz, null);
+				registerCommands(testCommands, clazz, null);
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void addCommands(TestCommand[] testCommands, Class<?> type, Method method) {
+	/**
+	 * Calculate the command names for the given Annotations and "register" the test-commands.
+	 * 
+	 * @param testCommands
+	 *            TestCommand-Annotations found
+	 * @param type
+	 *            the type the annotations were found in
+	 * @param method
+	 *            the method the annotations were found for
+	 */
+	private void registerCommands(TestCommand[] testCommands, Class<?> type, Method method) {
 		for (TestCommand tc : testCommands) {
 			if (tc != null) {
 				String[] commandNames = tc.value();
