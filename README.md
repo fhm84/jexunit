@@ -141,3 +141,31 @@ If we define our tests in excel files, there is no way to set a breakpoint "insi
 ##### Example #####
 
 TODO
+
+
+---
+
+## How to use JExUnit in my own project? ##
+
+The simplest way would be using JExUnit as maven dependency and [jitpack.io](http://jitpack.io) as maven repository.
+Sorry, but I haven't uploaded JExunit to maven central (yet).
+To use jitpack.io, you have to add the repository
+
+        <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+        </repository>
+
+Now you can add the JExUnit dependency
+
+        <dependency>
+          <groupId>com.github.fhm84</groupId>
+          <artifactId>jexunit</artifactId>
+          <version>jexunit-0.3.0</version>
+          <scope>test</scope>
+        </dependency>
+
+
+Alternatively you can download the _jexunit-core.jar_ from the release of your choice (I'd recommend to use the latest one) and add it to your project (to classpath). In this case you also have to add all the dependencies of JExUnit!
+
+Or you can build the current version of JExUnit on your own. Feel free to check out the project!
