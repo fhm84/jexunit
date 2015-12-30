@@ -76,11 +76,8 @@ public class JExUnitBase {
 	/**
 	 * Returns collection of input data for each test run.
 	 * 
-	 * @param excelFile
-	 *            the name/path of the excel file to load the test data from
-	 * @param worksheetAsTest
-	 *            "group" all the test-commands of a worksheet to one test (true) or run each test-command as single
-	 *            test (false)
+	 * @param testNumber
+	 *            the number (identifier, index, ...) of the test
 	 * 
 	 * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
 	 * @throws Exception

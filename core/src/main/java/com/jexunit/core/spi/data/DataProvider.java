@@ -16,7 +16,9 @@ public interface DataProvider {
 	 * Check the test to identify whether the data provider is able to load the test data with the given information.
 	 * Place to check the preconditions for the data provider.
 	 * 
-	 * @param testInstance
+	 * @param testClass
+	 *            (test)class to check for field, annotations or something else to check, if the provider can load the
+	 *            test data for
 	 * @return true, if the data provider could get enough information to load the test data, else false
 	 */
 	boolean canProvide(Class<?> testClass);
@@ -26,7 +28,9 @@ public interface DataProvider {
 	 * tests that will be provided.
 	 * 
 	 * @param testClass
+	 *            the (test)class to initialize the dataprovider for
 	 * @throws Exception
+	 *             in case something went wrong
 	 */
 	void initialize(Class<?> testClass) throws Exception;
 
@@ -34,7 +38,7 @@ public interface DataProvider {
 	 * It could be possible a test defines multiple files providing some test data. This method returns the number of
 	 * tests (files) found.
 	 * 
-	 * @return
+	 * @return the number of test (files) found
 	 */
 	int numberOfTests();
 
@@ -43,17 +47,19 @@ public interface DataProvider {
 	 * 
 	 * @param number
 	 *            number of the test
-	 * @return
+	 * @return the identifier for the test file with the given number (i.e. the filename)
 	 */
 	String getIdentifier(int number);
 
 	/**
-	 * Load the test data and transform it into the JExUnit internal representation.<br>
+	 * Load the test data and transform it into JExUnits internal representation.<br>
 	 * Each object has to be a list of type {@link TestCase}.
 	 * 
 	 * @param test
 	 *            the number of the test to load the data for
-	 * @return
+	 * @return the list of TestCases
+	 * @throws Exception
+	 *             if something went wrong
 	 */
 	Collection<Object[]> loadTestData(int test) throws Exception;
 }

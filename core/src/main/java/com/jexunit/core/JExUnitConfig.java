@@ -116,6 +116,7 @@ public class JExUnitConfig {
 	 * see <i>apache commons configuration</i>.
 	 * 
 	 * @param cfg
+	 *            the configuration to register/add
 	 */
 	public static synchronized void registerConfig(Configuration cfg) {
 		config.addConfiguration(cfg);
