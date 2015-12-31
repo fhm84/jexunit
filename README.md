@@ -161,7 +161,7 @@ Now you can add the JExUnit dependency
         <dependency>
           <groupId>com.github.fhm84</groupId>
           <artifactId>jexunit</artifactId>
-          <version>jexunit-0.3.0</version>
+          <version>jexunit-0.4.0</version>
           <scope>test</scope>
         </dependency>
 
