@@ -153,6 +153,7 @@ public class ExcelLoader {
 
 									// read/parse the "default" commands/parameters
 									if (commandHeaders != null && commandHeaders.size() > j) {
+										String header = commandHeaders.get(j);
 										if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
 												.equalsIgnoreCase(commandHeaders.get(j))) {
 											// each command has the ability to set a breakpoint to
@@ -160,14 +161,18 @@ public class ExcelLoader {
 											testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
 										} else if (JExUnitConfig
 												.getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
-												.equalsIgnoreCase(commandHeaders.get(j))) {
+												.equalsIgnoreCase(header)) {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.
 											testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
 										} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
-												.equalsIgnoreCase(commandHeaders.get(j))) {
+												.equalsIgnoreCase(header)) {
 											// each command can be disabled
 											testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
+										} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.COMMENT)
+												.equalsIgnoreCase(header)) {
+											// add the comment to the test-case
+											testCase.setComment(testCell.getValue());
 										}
 									}
 								}

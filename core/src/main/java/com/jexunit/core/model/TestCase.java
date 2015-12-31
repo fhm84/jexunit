@@ -17,6 +17,8 @@ public class TestCase<T extends Metadata> {
 	private T metadata;
 	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
+	private String comment;
+
 	private boolean disabled = false;
 	private boolean exceptionExpected = false;
 	private boolean breakpointEnabled = false;
@@ -66,6 +68,19 @@ public class TestCase<T extends Metadata> {
 
 	public void setValues(Map<String, TestCell> values) {
 		this.values = values;
+	}
+
+	/**
+	 * It's possible comment the test-command/-case in the data-file (excel file).
+	 * 
+	 * @return the comment out of the data-file
+	 */
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	/**

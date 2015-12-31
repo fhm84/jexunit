@@ -126,21 +126,22 @@ public class JExUnitBase {
 				} else {
 					try {
 						if (testCase.isDisabled()) {
-							log.info(String.format("Testcase disabled! (command: %s, %s)", testCase.getTestCommand(),
-									testCase.getMetadata().getDetailedIdentifier()));
+							log.info(String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
+									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()));
 							// if the testCase is disabled, ignore it (assume will pass the test)
-							Assume.assumeTrue(String.format("Testcase disabled! (command: %s, %s)",
-									testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()), true);
+							Assume.assumeTrue(
+									String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
+											testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()),
+									true);
 							continue testCaseLoop;
 						}
 						// run the test-command
 						testCommandRunner.runTestCommand(testCase);
 					} catch (AssertionError e) {
 						if (!exceptionExpected) {
-							errorCollector.addError(new AssertionError(
-									String.format("No Exception expected in TestCommand: %s, %s",
-											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()),
-									e));
+							errorCollector.addError(new AssertionError(String.format(
+									"No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
+									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
 						} else {
 							continue testCaseLoop;
 						}
@@ -150,30 +151,33 @@ public class JExUnitBase {
 							if (t instanceof AssertionError) {
 								if (!exceptionExpected) {
 									errorCollector.addError(new AssertionError(String.format(
-											"No Exception expected in TestCommand: %s, %s", testCase.getTestCommand(),
-											testCase.getMetadata().getDetailedIdentifier()), t));
+											"No Exception expected in TestCommand: %s, %s. %s",
+											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
+											testCase.getComment()), t));
 								} else {
 									continue testCaseLoop;
 								}
 							}
 						}
 						e.printStackTrace();
-						fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s)",
-								testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e));
+						fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s) %s",
+								testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e,
+								testCase.getComment()));
 					}
 				}
 
 				// if an exception is expected, but no exception is thrown, the test will fail!
 				if (exceptionExpected) {
-					errorCollector
-							.addError(new AssertionError(String.format("Exception expected! in TestCommand: %s, %s",
-									testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier())));
+					errorCollector.addError(new AssertionError(
+							String.format("Exception expected! in TestCommand: %s, %s. %s", testCase.getTestCommand(),
+									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment())));
 				}
 			} catch (Exception e) {
 				log.log(Level.WARNING, "TestException", e);
 				if (!exceptionExpected) {
-					fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s", e,
-							testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()));
+					fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
+							testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
+							testCase.getComment()));
 				}
 			}
 		}
@@ -192,7 +196,8 @@ public class JExUnitBase {
 	 */
 	public void runCommand(TestCase<?> testCase) throws Exception {
 		errorCollector.addError(new NoSuchMethodError(String.format(
-				"No implementation found for the command \"%1$s\". Please override this method in your Unit-Test or provide a method annotated with @TestCommand(\"%1$s\")",
+				"No implementation found for the command \"%1$s\". "
+						+ "Please override this method in your Unit-Test or provide a method or class annotated with @TestCommand(\"%1$s\")",
 				testCase.getTestCommand())));
 	}
 }
