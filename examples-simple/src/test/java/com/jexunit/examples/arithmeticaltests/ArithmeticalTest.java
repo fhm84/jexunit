@@ -88,5 +88,6 @@ public class ArithmeticalTest {
 	@Test
 	public void simpleTest() {
 		log.info("What about this test?");
+		assertThat(JExUnitConfig.getProperty("mytest.configkey"), equalTo("test-value"));
 	}
 }

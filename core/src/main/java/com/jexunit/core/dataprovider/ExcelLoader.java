@@ -164,6 +164,10 @@ public class ExcelLoader {
 											// each command has the ability to expect an exception.
 											// you can define this via the field EXCEPTION_EXPECTED.
 											testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
+										} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
+												.equalsIgnoreCase(commandHeaders.get(j))) {
+											// each command can be disabled
+											testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
 										}
 									}
 								}

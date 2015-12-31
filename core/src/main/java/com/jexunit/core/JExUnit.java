@@ -26,8 +26,8 @@ public class JExUnit extends Suite {
 
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
 
-	public JExUnit(Class<?> klass) throws Throwable {
-		super(klass, Collections.<Runner> emptyList());
+	public JExUnit(Class<?> clazz) throws Throwable {
+		super(clazz, Collections.<Runner> emptyList());
 
 		ServiceRegistry.initialize();
 
@@ -36,7 +36,7 @@ public class JExUnit extends Suite {
 		List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
 		if (dataproviders != null) {
 			for (DataProvider dp : dataproviders) {
-				if (dp.canProvide(klass)) {
+				if (dp.canProvide(clazz)) {
 					dataprovider = dp;
 				}
 			}
@@ -47,16 +47,16 @@ public class JExUnit extends Suite {
 		}
 
 		TestContextManager.add(DataProvider.class, dataprovider);
-		dataprovider.initialize(klass);
+		dataprovider.initialize(clazz);
 
 		// add the Parameterized JExUnitBase, initialized with the ExcelFileName
 		for (int i = 0; i < dataprovider.numberOfTests(); i++) {
-			runners.add(new Parameterized(JExUnitBase.class, klass, i, dataprovider.getIdentifier(i)));
+			runners.add(new Parameterized(JExUnitBase.class, clazz, i, dataprovider.getIdentifier(i)));
 		}
 
 		// if there are Test-methods defined in the test-class, this once will be execute too
 		try {
-			runners.add(new BlockJUnit4ClassRunner(klass));
+			runners.add(new BlockJUnit4ClassRunner(clazz));
 		} catch (Exception e) {
 			// ignore (if there is no method annotated with @Test in the class, an exception is
 			// thrown -> so we can ignore this here)

@@ -106,11 +106,11 @@ public class JExUnitBase {
 				if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
 						.equalsIgnoreCase(testCase.getTestCommand())) {
 					if (testCase.isDisabled()) {
-						log.info(String.format("Testcase disabled! (%s)",
+						log.info(String.format("Testsheet disabled! (%s)",
 								testCase.getMetadata().getDetailedIdentifier()));
-						// if the test is disabled, ignore the junit-test (assume will pass the
+						// if the testsheet is disabled, ignore the junit-test (assume will pass the
 						// test)
-						Assume.assumeTrue(String.format("Testcase disabled! (%s)",
+						Assume.assumeTrue(String.format("Testsheet disabled! (%s)",
 								testCase.getMetadata().getDetailedIdentifier()), true);
 						return;
 					}
@@ -125,6 +125,14 @@ public class JExUnitBase {
 					continue testCaseLoop;
 				} else {
 					try {
+						if (testCase.isDisabled()) {
+							log.info(String.format("Testcase disabled! (command: %s, %s)", testCase.getTestCommand(),
+									testCase.getMetadata().getDetailedIdentifier()));
+							// if the testCase is disabled, ignore it (assume will pass the test)
+							Assume.assumeTrue(String.format("Testcase disabled! (command: %s, %s)",
+									testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier()), true);
+							continue testCaseLoop;
+						}
 						// run the test-command
 						testCommandRunner.runTestCommand(testCase);
 					} catch (AssertionError e) {
