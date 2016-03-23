@@ -87,6 +87,7 @@ public class JExUnitConfig {
 		config.put(DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey(), "exception");
 		config.put(DefaultCommands.BREAKPOINT.getConfigKey(), "breakpoint");
 		config.put(DefaultCommands.COMMENT.getConfigKey(), "comment");
+		config.put(DefaultCommands.FAST_FAIL.getConfigKey(), "fastFail");
 
 		return new MapConfiguration(config);
 	}
