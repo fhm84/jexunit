@@ -142,6 +142,9 @@ public class JExUnitBase {
 							errorCollector.addError(new AssertionError(String.format(
 									"No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
 									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
+							if (testCase.isFastFail()) {
+								fail(String.format("FastFail attribute forces the complete test sheet to fail."));
+							}
 						} else {
 							continue testCaseLoop;
 						}
@@ -154,6 +157,10 @@ public class JExUnitBase {
 											"No Exception expected in TestCommand: %s, %s. %s",
 											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
 											testCase.getComment()), t));
+									if (testCase.isFastFail()) {
+										fail(String
+												.format("FastFail attribute forces the complete test sheet to fail."));
+									}
 								} else {
 									continue testCaseLoop;
 								}

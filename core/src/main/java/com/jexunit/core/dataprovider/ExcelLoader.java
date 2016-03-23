@@ -173,6 +173,10 @@ public class ExcelLoader {
 												.equalsIgnoreCase(header)) {
 											// add the comment to the test-case
 											testCase.setComment(testCell.getValue());
+										} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.FAST_FAIL)
+												.equalsIgnoreCase(header)) {
+											// the command can fast fail the complete test sheet on fail
+											testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
 										}
 									}
 								}

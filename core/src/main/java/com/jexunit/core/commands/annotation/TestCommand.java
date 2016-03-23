@@ -28,6 +28,13 @@ public @interface TestCommand {
 	String[] value() default {};
 
 	/**
+	 * Fast fail the complete test-sheet, if this command fails.
+	 * 
+	 * @return true, if the command will fast fail the complete test sheet, else false (default)
+	 */
+	boolean fastFail() default false;
+
+	/**
 	 * Annotation for representing a method as the implementation for multiple test-commands.
 	 * 
 	 * @author fabian

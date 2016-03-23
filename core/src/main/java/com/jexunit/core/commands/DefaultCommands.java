@@ -31,6 +31,12 @@ public enum DefaultCommands {
 	COMMENT("jexunit.defaultcommand.comment"),
 
 	/**
+	 * Parameter for a command to fast fail the complete test sheet. This parameter will override the default setting of
+	 * the test command.
+	 */
+	FAST_FAIL("jexunit.defaultcommand.fastfail"),
+
+	/**
 	 * Parameter for "setting a breakpoint inside the excel-file" to be able to debug the test more easily.
 	 */
 	BREAKPOINT("jexunit.defaultcommand.breakpoint");

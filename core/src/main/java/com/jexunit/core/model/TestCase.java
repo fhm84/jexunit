@@ -21,6 +21,7 @@ public class TestCase<T extends Metadata> {
 
 	private boolean disabled = false;
 	private boolean exceptionExpected = false;
+	private boolean fastFail = false;
 	private boolean breakpointEnabled = false;
 
 	public TestCase() {
@@ -107,6 +108,19 @@ public class TestCase<T extends Metadata> {
 
 	public void setExceptionExpected(boolean exceptionExpected) {
 		this.exceptionExpected = exceptionExpected;
+	}
+
+	/**
+	 * Flag for fast failing the complete test sheet on failing test command.
+	 * 
+	 * @return true, if the test-case fast fails the complete test sheet, else false (default)
+	 */
+	public boolean isFastFail() {
+		return fastFail;
+	}
+
+	public void setFastFail(boolean fastFail) {
+		this.fastFail = fastFail;
 	}
 
 	/**
