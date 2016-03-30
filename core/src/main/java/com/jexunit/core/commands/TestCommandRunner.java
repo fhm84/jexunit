@@ -51,6 +51,10 @@ public class TestCommandRunner {
 		Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(),
 				testBase.getTestType());
 		if (testCommand != null) {
+			// set the default value for fastFail if not set in the testCase
+			if (testCase.getFastFail() == null) {
+				testCase.setFastFail(testCommand.isFastFail());
+			}
 			if (testCommand.getType() == Type.METHOD) {
 				// prepare the parameters
 				List<Object> parameters = prepareParameters(testCase, testCommand.getMethod());

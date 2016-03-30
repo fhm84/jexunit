@@ -28,15 +28,28 @@ public class Command {
 	 */
 	private Class<?> implementation;
 
+	/**
+	 * the default fastFail value for the command.
+	 */
+	private boolean fastFail = false;
+
 	public static enum Type {
 		CLASS, METHOD;
 	}
 
 	public Command(String name, Class<?> implementation) {
-		this(name, implementation, null);
+		this(name, implementation, null, false);
+	}
+
+	public Command(String name, Class<?> implementation, boolean fastFail) {
+		this(name, implementation, null, fastFail);
 	}
 
 	public Command(String name, Class<?> implementation, Method method) {
+		this(name, implementation, method, false);
+	}
+
+	public Command(String name, Class<?> implementation, Method method, boolean fastFail) {
 		this.name = name;
 		this.implementation = implementation;
 		this.method = method;
@@ -45,6 +58,7 @@ public class Command {
 		} else {
 			this.type = Type.METHOD;
 		}
+		this.fastFail = fastFail;
 	}
 
 	public String getName() {
@@ -84,6 +98,14 @@ public class Command {
 
 	public void setImplementation(Class<?> implementation) {
 		this.implementation = implementation;
+	}
+
+	public boolean isFastFail() {
+		return fastFail;
+	}
+
+	public void setFastFail(boolean fastFail) {
+		this.fastFail = fastFail;
 	}
 
 	@Override

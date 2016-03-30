@@ -75,10 +75,9 @@ public class Parameterized extends Suite {
 		private Object createTestUsingFieldInjection() throws Exception {
 			List<FrameworkField> annotatedFieldsByParameter = getAnnotatedFieldsByParameter();
 			if (annotatedFieldsByParameter.size() != fParameters.length) {
-				throw new Exception(
-						String.format(
-								"Wrong number of parameters and @Parameter fields. @Parameter fields counted: %s, available parameters: %s.",
-								annotatedFieldsByParameter.size(), fParameters.length));
+				throw new Exception(String.format(
+						"Wrong number of parameters and @Parameter fields. @Parameter fields counted: %s, available parameters: %s.",
+						annotatedFieldsByParameter.size(), fParameters.length));
 			}
 			Object testClassInstance = getTestClass().getJavaClass().newInstance();
 			if (getTestClass().getJavaClass() == JExUnitBase.class) {
@@ -97,10 +96,12 @@ public class Parameterized extends Suite {
 						field.setAccessible(false);
 					}
 				} catch (IllegalArgumentException iare) {
-					throw new Exception(String.format(
-							"%s: Trying to set %s with the value %s that is not the right type (%s instead of %s).",
-							getTestClass().getName(), field.getName(), fParameters[index], fParameters[index]
-									.getClass().getSimpleName(), field.getType().getSimpleName()), iare);
+					throw new Exception(
+							String.format(
+									"%s: Trying to set %s with the value %s that is not the right type (%s instead of %s).",
+									getTestClass().getName(), field.getName(), fParameters[index],
+									fParameters[index].getClass().getSimpleName(), field.getType().getSimpleName()),
+							iare);
 				}
 			}
 			return testClassInstance;
@@ -133,10 +134,9 @@ public class Parameterized extends Suite {
 				for (FrameworkField each : annotatedFieldsByParameter) {
 					int index = each.getField().getAnnotation(Parameter.class).value();
 					if (index < 0 || index > annotatedFieldsByParameter.size() - 1) {
-						errors.add(new Exception(
-								String.format(
-										"Invalid @Parameter value: %s. @Parameter fields counted: %s. Please use an index between 0 and %s.",
-										index, annotatedFieldsByParameter.size(), annotatedFieldsByParameter.size() - 1)));
+						errors.add(new Exception(String.format(
+								"Invalid @Parameter value: %s. @Parameter fields counted: %s. Please use an index between 0 and %s.",
+								index, annotatedFieldsByParameter.size(), annotatedFieldsByParameter.size() - 1)));
 					} else {
 						usedIndices[index]++;
 					}
@@ -146,8 +146,8 @@ public class Parameterized extends Suite {
 					if (numberOfUse == 0) {
 						errors.add(new Exception(String.format("@Parameter(%s) is never used.", index)));
 					} else if (numberOfUse > 1) {
-						errors.add(new Exception(String.format("@Parameter(%s) is used more than once (%s).", index,
-								numberOfUse)));
+						errors.add(new Exception(
+								String.format("@Parameter(%s) is used more than once (%s).", index, numberOfUse)));
 					}
 				}
 			}
@@ -162,9 +162,10 @@ public class Parameterized extends Suite {
 		protected Annotation[] getRunnerAnnotations() {
 			return new Annotation[0];
 		}
+
 	}
 
-	private static final List<Runner> NO_RUNNERS = Collections.<Runner> emptyList();
+	private static final List<Runner> NO_RUNNERS = Collections.<Runner>emptyList();
 	private final ArrayList<Runner> runners = new ArrayList<Runner>();
 	private Class<?> testType;
 	private String identifier;
@@ -277,19 +278,31 @@ public class Parameterized extends Suite {
 	}
 
 	private String nameFor(String namePattern, int index, Object[] parameters) {
-		String finalPattern = namePattern.replaceAll("\\{index\\}", Integer.toString(index));
+		String finalPattern;
 		if (getSimpleExcelFileName() != null) {
 			// change the name of the test to be unique in case of excelFileName is set (i.e. for
 			// mass tests)
-			finalPattern = getSimpleExcelFileName() + " - " + finalPattern;
+			finalPattern = getSimpleExcelFileName() + " - " + namePattern;
+		} else {
+			finalPattern = namePattern;
 		}
+
 		String name;
+		String idx = Integer.toString(index);
+
 		if (parameters != null && parameters.length > 0 && parameters[0] instanceof List
 				&& !((List<?>) parameters[0]).isEmpty() && ((List<?>) parameters[0]).get(0) instanceof TestCase) {
+			TestCase<?> tc = (TestCase<?>) ((List<?>) parameters[0]).get(0);
+			if (tc.getMetadata() != null) {
+				idx = tc.getMetadata().getIdentifier();
+			}
+			finalPattern = finalPattern.replaceAll("\\{index\\}", idx);
 			name = MessageFormat.format(finalPattern, ((List<?>) parameters[0]).get(0));
 		} else {
+			finalPattern = finalPattern.replaceAll("\\{index\\}", idx);
 			name = MessageFormat.format(finalPattern, parameters);
 		}
+
 		return "[" + name + "]";
 	}
 

@@ -21,7 +21,7 @@ public class TestCase<T extends Metadata> {
 
 	private boolean disabled = false;
 	private boolean exceptionExpected = false;
-	private boolean fastFail = false;
+	private Boolean fastFail = null;
 	private boolean breakpointEnabled = false;
 
 	public TestCase() {
@@ -116,6 +116,10 @@ public class TestCase<T extends Metadata> {
 	 * @return true, if the test-case fast fails the complete test sheet, else false (default)
 	 */
 	public boolean isFastFail() {
+		return fastFail != null && fastFail;
+	}
+
+	public Boolean getFastFail() {
 		return fastFail;
 	}
 

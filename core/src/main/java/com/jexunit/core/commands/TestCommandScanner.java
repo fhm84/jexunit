@@ -113,10 +113,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 					}
 					if (method == null) {
 						// test-command is implemented in a class
-						commands.get(command).put(null, new Command(command, type));
+						commands.get(command).put(null, new Command(command, type, tc.fastFail()));
 					} else {
 						// test-command is a method
-						commands.get(command).put(type, new Command(command, type, method));
+						commands.get(command).put(type, new Command(command, type, method, tc.fastFail()));
 					}
 				}
 			}
