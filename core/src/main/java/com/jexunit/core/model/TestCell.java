@@ -53,6 +53,7 @@ public class TestCell {
 	 * @return the name of the column (A, B, C, ...)
 	 */
 	public String getColumn() {
+		// TODO: remove "dependency" to the excel loader here!
 		return ExcelLoader.getColumn(column);
 	}
 

@@ -1,6 +1,5 @@
 /**
- * In this package you will find the infrastructure-code
- * used to integrate with junit.
+ * In this package you will find the infrastructure-code used to integrate with the junit framework.
  * 
  * @author fabian
  *

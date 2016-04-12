@@ -5,7 +5,10 @@ import java.util.Collection;
 import com.jexunit.core.model.TestCase;
 
 /**
- * DataProvider to read the data from file or anywhere and transform it to the internal representation.
+ * DataProvider interface to read the data from file or anywhere and transform it to the internal representation.<br>
+ * The ServiceRegistry will find all implementations of DataProviders. At runtime the JExUnit framework will "ask" the
+ * data providers, if they can provide some data for a given test class. So for example you can define your own
+ * annotations to check for in your data provider.
  * 
  * @author fabian
  *

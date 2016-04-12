@@ -31,7 +31,7 @@ public enum DefaultCommands {
 	COMMENT("jexunit.defaultcommand.comment"),
 
 	/**
-	 * Parameter for a command to fast fail the complete test sheet. This parameter will override the default setting of
+	 * Parameter for a command to fast fail the complete test group. This parameter will override the default setting of
 	 * the test command.
 	 */
 	FAST_FAIL("jexunit.defaultcommand.fastfail"),

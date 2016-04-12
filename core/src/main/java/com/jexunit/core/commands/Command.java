@@ -29,7 +29,8 @@ public class Command {
 	private Class<?> implementation;
 
 	/**
-	 * the default fastFail value for the command.
+	 * the default fastFail value for the command. the fast fail flag will immediately fail the complete test group if
+	 * the command fails.
 	 */
 	private boolean fastFail = false;
 

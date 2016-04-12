@@ -31,11 +31,6 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 
 	private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see eu.infomas.annotation.AnnotationDetector.Reporter#annotations()
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends Annotation>[] annotations() {

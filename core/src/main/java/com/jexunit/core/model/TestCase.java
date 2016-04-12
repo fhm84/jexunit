@@ -4,19 +4,31 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This is the "entity" for a single test instruction. A row consists of a command (for the API) and a number of values
- * for this command. Additionally there is the name of the worksheet and the rownumber of the command for information
- * while debugging and test failures.
+ * This is the "entity" for a single test instruction. A test case consists of a command (for the API) and a number of
+ * values for this command. Additionally there is some metadata that can be defined and filled by the data provider
+ * implementation for more information on debugging and test failures.
  * 
  * @author fabian
  * 
  */
 public class TestCase<T extends Metadata> {
 
+	/**
+	 * The "name" of the test command.
+	 */
 	private String testCommand;
+	/**
+	 * Metadata for additional information about the test instruction (like test group, identifier, and so on).
+	 */
 	private T metadata;
+	/**
+	 * The values for the test instruction (the test command).
+	 */
 	private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
 
+	/**
+	 * Optional comment for the test case (out of the data file).
+	 */
 	private String comment;
 
 	private boolean disabled = false;
@@ -35,6 +47,7 @@ public class TestCase<T extends Metadata> {
 	 * Get the test-command for the test-case.
 	 * 
 	 * @return the test-command
+	 * @see #testCommand
 	 */
 	public String getTestCommand() {
 		return testCommand;
@@ -49,6 +62,7 @@ public class TestCase<T extends Metadata> {
 	 * possibly other things.
 	 * 
 	 * @return the metadata of the test-case
+	 * @see #metadata
 	 */
 	public T getMetadata() {
 		return metadata;
@@ -62,6 +76,7 @@ public class TestCase<T extends Metadata> {
 	 * Get the values (found/read from the excel file) for the test-case.
 	 * 
 	 * @return the values for the test-case
+	 * @see TestCase#values
 	 */
 	public Map<String, TestCell> getValues() {
 		return values;
@@ -75,6 +90,7 @@ public class TestCase<T extends Metadata> {
 	 * It's possible comment the test-command/-case in the data-file (excel file).
 	 * 
 	 * @return the comment out of the data-file
+	 * @see #comment
 	 */
 	public String getComment() {
 		return comment;

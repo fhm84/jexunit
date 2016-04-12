@@ -28,9 +28,9 @@ public @interface TestCommand {
 	String[] value() default {};
 
 	/**
-	 * Fast fail the complete test-sheet, if this command fails.
+	 * Fast fail the complete test group, if this command fails.
 	 * 
-	 * @return true, if the command will fast fail the complete test sheet, else false (default)
+	 * @return true, if the command will fast fail the complete test group, else false (default)
 	 */
 	boolean fastFail() default false;
 
