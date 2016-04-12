@@ -70,8 +70,7 @@ public class TestCommandRunner {
 				injectTestParams(testCase, testCommandInstance);
 
 				// invoke the test-command
-				// FIXME: we should get the only PUBLIC method here!!!
-				Method m = testCommand.getImplementation().getDeclaredMethods()[0];
+				Method m = getSinglePublicMethod(testCommand);
 				// prepare the parameters
 				List<Object> parameters = prepareParameters(testCase, m);
 
@@ -81,6 +80,29 @@ public class TestCommandRunner {
 		} else {
 			testBase.runCommand(testCase);
 		}
+	}
+
+	/**
+	 * Check the given test command for a single public method and return this method. If there is no public method
+	 * declared, null will be returned. If there are multiple public methods found, an IllegalArgumentException will be
+	 * thrown because test commands of type class are allowed only a single public method!
+	 * 
+	 * @param testCommand
+	 * @return
+	 */
+	private Method getSinglePublicMethod(Command testCommand) {
+		Method method = null;
+		for (Method m : testCommand.getImplementation().getDeclaredMethods()) {
+			if (Modifier.isPublic(m.getModifiers())) {
+				if (method == null) {
+					method = m;
+				} else {
+					throw new IllegalArgumentException(
+							"Multiple public methods found in test command of type 'CLASS'. This is not allowed!");
+				}
+			}
+		}
+		return method;
 	}
 
 	/**
