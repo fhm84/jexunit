@@ -10,4 +10,5 @@ public class FeaturesTest {
 
 	@ExcelFile
 	static String[] excelFiles = new String[] { "src/test/resources/FeaturesTest.xlsx" };
+
 }
