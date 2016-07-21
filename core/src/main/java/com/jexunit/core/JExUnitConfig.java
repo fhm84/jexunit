@@ -29,34 +29,52 @@ public class JExUnitConfig {
 
 	private static final Logger LOG = Logger.getLogger(JExUnitConfig.class.getName());
 
-	public static final String DATE_PATTERN = "jexunit.datePattern";
+	public enum ConfigKey {
 
-	/**
-	 * keyword for identifying a command
-	 */
-	public static final String COMMAND_STATEMENT = "jexunit.command_statement";
-	/**
-	 * prefix for the default commands (i.e. Testcase.ignore instead of ignore)
-	 */
-	public static final String DEFAULTCOMMAND_PREFIX = "jexunit.defaultcommand_prefix";
+		DATE_PATTERN("jexunit.datePattern", "dd.MM.yyyy"),
+		/**
+		 * keyword for identifying a command
+		 */
+		COMMAND_STATEMENT("jexunit.command_statement", "command"),
+		/**
+		 * prefix for the default commands (i.e. Testcase.ignore instead of ignore)
+		 */
+		DEFAULTCOMMAND_PREFIX("jexunit.defaultcommand_prefix", ""),
+		/**
+		 * prefix for test-command-classes
+		 */
+		COMMAND_CLASS_PREFIX("jexunit.command.class_prefix", ""),
+		/**
+		 * postfix for test-command-classes
+		 */
+		COMMAND_CLASS_POSTFIX("jexunit.command.class_postfix", ""),
 
-	/**
-	 * prefix for test-command-classes
-	 */
-	public static final String COMMAND_CLASS_PREFIX = "jexunit.command.class_prefix";
-	/**
-	 * postfix for test-command-classes
-	 */
-	public static final String COMMAND_CLASS_POSTFIX = "jexunit.command.class_postfix";
+		/**
+		 * prefix for test-command-methods
+		 */
+		COMMAND_METHOD_PREFIX("jexunit.command.method_prefix", ""),
+		/**
+		 * postfix for test-command-methods
+		 */
+		COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", "")
+		;
 
-	/**
-	 * prefix for test-command-methods
-	 */
-	public static final String COMMAND_METHOD_PREFIX = "jexunit.command.method_prefix";
-	/**
-	 * postfix for test-command-methods
-	 */
-	public static final String COMMAND_METHOD_POSTFIX = "jexunit.command.method_postfix";
+		private String key;
+		private String defaultConfig;
+
+		ConfigKey(String key, String defaultConfig) {
+			this.key = key;
+			this.defaultConfig = defaultConfig;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getDefaultConfig() {
+			return defaultConfig;
+		}
+	}
 
 	private static CompositeConfiguration config;
 
@@ -79,15 +97,12 @@ public class JExUnitConfig {
 	private static Configuration getDefaultConfiguration() {
 		Map<String, Object> config = new HashMap<>();
 
-		config.put(DATE_PATTERN, "dd.MM.yyyy");
-		config.put(COMMAND_STATEMENT, "command");
-		config.put(DEFAULTCOMMAND_PREFIX, "");
-		config.put(DefaultCommands.DISABLED.getConfigKey(), "disabled");
-		config.put(DefaultCommands.REPORT.getConfigKey(), "report");
-		config.put(DefaultCommands.EXCEPTION_EXCPECTED.getConfigKey(), "exception");
-		config.put(DefaultCommands.BREAKPOINT.getConfigKey(), "breakpoint");
-		config.put(DefaultCommands.COMMENT.getConfigKey(), "comment");
-		config.put(DefaultCommands.FAST_FAIL.getConfigKey(), "fastFail");
+		for (ConfigKey ck : ConfigKey.values()) {
+			config.put(ck.getKey(), ck.getDefaultConfig());
+		}
+		for (DefaultCommands dc : DefaultCommands.values()) {
+			config.put(dc.getConfigKey(), dc.getDefaultValue());
+		}
 
 		return new MapConfiguration(config);
 	}
@@ -96,7 +111,7 @@ public class JExUnitConfig {
 	 * Initialize the configuration. This will be done only one times. If you initialize the configuration multiple
 	 * times, only the first time, the configuration will be prepared, read, ...
 	 */
-	public static void init() {
+	public static synchronized void init() {
 		if (config == null) {
 			config = new CompositeConfiguration(getDefaultConfiguration());
 			config.setThrowExceptionOnMissing(false);
@@ -157,7 +172,7 @@ public class JExUnitConfig {
 	 */
 	public static String getDefaultCommandProperty(DefaultCommands defaultCommand) {
 		String conf = config.getString(defaultCommand.getConfigKey());
-		String defaultCommandPrefix = config.getString(DEFAULTCOMMAND_PREFIX);
+		String defaultCommandPrefix = config.getString(ConfigKey.DEFAULTCOMMAND_PREFIX.getKey());
 		if (defaultCommandPrefix != null && !defaultCommandPrefix.trim().isEmpty()) {
 			conf = defaultCommandPrefix + conf;
 		}

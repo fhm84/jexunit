@@ -26,7 +26,7 @@ public class ServiceRegistry {
 	/**
 	 * Initialize the ServiceRegistry singleton.
 	 */
-	public static void initialize() {
+	public static synchronized void initialize() {
 		if (instace == null) {
 			instace = new ServiceRegistry();
 			instace.loadExtensions(DataProvider.class);
