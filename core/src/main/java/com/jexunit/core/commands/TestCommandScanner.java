@@ -128,8 +128,8 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 	 */
 	private String calculateCommandName(Class<?> type) {
 		String name = type.getSimpleName();
-		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_CLASS_PREFIX);
-		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_CLASS_POSTFIX);
+		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
+		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
 		name = StringUtils.removeStartIgnoreCase(name, prefix);
 		name = StringUtils.removeEndIgnoreCase(name, postfix);
 		return name;
@@ -145,8 +145,8 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 	 */
 	private String calculateCommandName(Method m) {
 		String name = m.getName();
-		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_METHOD_PREFIX);
-		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_METHOD_POSTFIX);
+		String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
+		String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
 		name = StringUtils.removeStartIgnoreCase(name, prefix);
 		name = StringUtils.removeEndIgnoreCase(name, postfix);
 		return name;

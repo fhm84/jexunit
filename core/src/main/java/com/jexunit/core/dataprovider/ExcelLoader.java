@@ -56,7 +56,7 @@ public class ExcelLoader {
 	public static Collection<Object[]> loadTestData(String excelFile, boolean worksheetAsTest) throws Exception {
 		Map<String, List<TestCase<?>>> tests = readExcel(excelFile);
 
-		Collection<Object[]> col = new ArrayList<Object[]>();
+		Collection<Object[]> col = new ArrayList<>();
 		if (worksheetAsTest) {
 			tests.forEach((k, v) -> col.add(new Object[] { v }));
 		} else {
@@ -102,9 +102,9 @@ public class ExcelLoader {
 
 					if (row != null) {
 						String cellValue = cellValues2String(workbook, row.getCell(0));
-						if (JExUnitConfig.getStringProperty(JExUnitConfig.COMMAND_STATEMENT)
+						if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
 								.equalsIgnoreCase(cellValue)) {
-							commandHeaders = new ArrayList<String>();
+							commandHeaders = new ArrayList<>();
 
 							// iterate through the columns
 							for (int h = 0; h < row.getLastCellNum(); h++) {
@@ -217,7 +217,7 @@ public class ExcelLoader {
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN))
+				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
 						.format(cell.getDateCellValue());
 			} else {
 				return String.valueOf(cell.getNumericCellValue());

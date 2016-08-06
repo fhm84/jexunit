@@ -78,7 +78,7 @@ public class ServiceRegistry {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> void register(Class<T> type, T service) {
-		if (service == null || type.isAssignableFrom(service.getClass())) {
+		if (service == null || !type.isAssignableFrom(service.getClass())) {
 			throw new IllegalArgumentException("The service to register should be a subtype of the given type!");
 		}
 		if (!services.containsKey(type)) {

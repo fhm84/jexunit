@@ -62,7 +62,8 @@ class PropertyUtils {
 			} else if (clazz == BigDecimal.class) {
 				return new BigDecimal(value);
 			} else if (clazz == Date.class) {
-				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN)).parse(value);
+				return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
+						.parse(value);
 			} else if (clazz.isEnum()) {
 				return clazz.getMethod("valueOf", String.class).invoke(clazz, value);
 			}

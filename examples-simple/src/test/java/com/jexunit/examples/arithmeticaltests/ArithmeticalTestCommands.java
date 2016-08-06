@@ -68,14 +68,14 @@ public class ArithmeticalTestCommands {
 	}
 
 	@TestCommand("add")
-	public static void runAddCommand(TestCase<?> testCase) throws Exception {
+	public void runAddCommand(TestCase<?> testCase) throws Exception {
 		log.info("in test command: ADD!");
 		ArithmeticalTestObject obj = TestObjectHelper.createObject(testCase, ArithmeticalTestObject.class);
 		assertThat(obj.getParam1() + obj.getParam2(), equalTo(obj.getResult()));
 	}
 
 	@TestCommand({ "sub", "subtract" })
-	public static void runSubCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
+	public void runSubCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
 		log.info("in test command: " + testCase.getTestCommand() + "!");
 		assertThat(testObject.getParam1() - testObject.getParam2(), equalTo(testObject.getResult()));
 	}

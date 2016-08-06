@@ -56,8 +56,7 @@ public class JExUnitConfig {
 		/**
 		 * postfix for test-command-methods
 		 */
-		COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", "")
-		;
+		COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", "");
 
 		private String key;
 		private String defaultConfig;
@@ -163,6 +162,17 @@ public class JExUnitConfig {
 	}
 
 	/**
+	 * Get the configured property with the given ConfigKey.
+	 * 
+	 * @param key
+	 *            ConfigKey
+	 * @return the configured propert value
+	 */
+	public static String getStringProperty(ConfigKey key) {
+		return config.getString(key.getKey());
+	}
+
+	/**
 	 * Get the configured property (DefaultCommand) with the given key add prepend the configured prefix for the default
 	 * commands.
 	 * 
@@ -172,7 +182,7 @@ public class JExUnitConfig {
 	 */
 	public static String getDefaultCommandProperty(DefaultCommands defaultCommand) {
 		String conf = config.getString(defaultCommand.getConfigKey());
-		String defaultCommandPrefix = config.getString(ConfigKey.DEFAULTCOMMAND_PREFIX.getKey());
+		String defaultCommandPrefix = getStringProperty(ConfigKey.DEFAULTCOMMAND_PREFIX);
 		if (defaultCommandPrefix != null && !defaultCommandPrefix.trim().isEmpty()) {
 			conf = defaultCommandPrefix + conf;
 		}

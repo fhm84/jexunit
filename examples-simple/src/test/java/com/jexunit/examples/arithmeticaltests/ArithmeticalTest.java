@@ -67,7 +67,7 @@ public class ArithmeticalTest {
 	@Test
 	public void testConfiguration() {
 		assertThat("Default configuration should be overridden by the properties of the jexunit.properties",
-				JExUnitConfig.getStringProperty(JExUnitConfig.DATE_PATTERN), equalTo("MM/dd/yyyy"));
+				JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN), equalTo("MM/dd/yyyy"));
 
 		assertThat("Properties set in the @BeforeClass should be accessible via the JExUnitConfig",
 				JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));

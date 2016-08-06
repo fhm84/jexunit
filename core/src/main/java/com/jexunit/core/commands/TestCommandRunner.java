@@ -2,7 +2,6 @@ package com.jexunit.core.commands;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -21,9 +20,9 @@ import com.jexunit.core.model.TestCase;
 
 /**
  * Helper class for running the test-commands.
- * 
+ *
  * @author fabian
- * 
+ *
  */
 public class TestCommandRunner {
 
@@ -35,10 +34,10 @@ public class TestCommandRunner {
 
 	/**
 	 * Get the method for the current testCommand (via the {@code @TestCommand}-Annotation) and call it.
-	 * 
+	 *
 	 * @param testCase
 	 *            the current testCase to run
-	 * 
+	 *
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
@@ -55,12 +54,11 @@ public class TestCommandRunner {
 			if (testCase.getFastFail() == null) {
 				testCase.setFastFail(testCommand.isFastFail());
 			}
-			if (testCommand.getType() == Type.METHOD) {
-				// prepare the parameters
-				List<Object> parameters = prepareParameters(testCase, testCommand.getMethod());
 
-				// invoke the method with the parameters
-				invokeTestCommandMethod(testCommand.getMethod(), parameters.toArray());
+			// prepare the test-method
+			Method testMethod;
+			if (testCommand.getType() == Type.METHOD) {
+				testMethod = testCommand.getMethod();
 			} else if (testCommand.getType() == Type.CLASS) {
 				// prepare and run test-command defined by a class
 				Object testCommandInstance = testCommand.getImplementation().newInstance();
@@ -70,13 +68,16 @@ public class TestCommandRunner {
 				injectTestParams(testCase, testCommandInstance);
 
 				// invoke the test-command
-				Method m = getSinglePublicMethod(testCommand);
-				// prepare the parameters
-				List<Object> parameters = prepareParameters(testCase, m);
-
-				// invoke the method with the parameters
-				invokeTestCommandMethod(m, parameters.toArray());
+				testMethod = getSinglePublicMethod(testCommand);
+			} else {
+				throw new IllegalArgumentException("Type of the TestCommand has to be one of 'METHOD' or 'CLASS'!");
 			}
+
+			// prepare the parameters
+			List<Object> parameters = prepareParameters(testCase, testMethod);
+
+			// invoke the method with the parameters
+			invokeTestCommandMethod(testCommand, testMethod, parameters.toArray());
 		} else {
 			testBase.runCommand(testCase);
 		}
@@ -86,7 +87,7 @@ public class TestCommandRunner {
 	 * Check the given test command for a single public method and return this method. If there is no public method
 	 * declared, null will be returned. If there are multiple public methods found, an IllegalArgumentException will be
 	 * thrown because test commands of type class are allowed only a single public method!
-	 * 
+	 *
 	 * @param testCommand
 	 * @return
 	 */
@@ -107,7 +108,7 @@ public class TestCommandRunner {
 
 	/**
 	 * Remove the parameters used by the framework to only pass the "users" parameters to the commands.
-	 * 
+	 *
 	 * @param testCase
 	 *            current TestCase
 	 */
@@ -120,7 +121,7 @@ public class TestCommandRunner {
 	/**
 	 * Prepare the parameters for the given method (representing the test-command implementation) out of the given
 	 * test-case.
-	 * 
+	 *
 	 * @param testCase
 	 *            the test-case to prepare the parameters from
 	 * @param method
@@ -184,9 +185,9 @@ public class TestCommandRunner {
 
 	/**
 	 * Prepare the attributes for the given test-command class. This will "inject" the attributes annotated with
-	 * 
+	 *
 	 * @TestParam.
-	 * 
+	 *
 	 * @param testCase
 	 *            the test-case to prepare the parameters from
 	 * @param instance
@@ -247,7 +248,7 @@ public class TestCommandRunner {
 	 * Invoke the given method (representing the implementation of the test-command) with the given parameters. This
 	 * will invoke the method static, on the current test-class or on the instance out of the test-context. If there is
 	 * no instance in the test-context, a new instance will be created an put to the test-context.
-	 * 
+	 *
 	 * @param method
 	 *            the method to invoke
 	 * @param parameters
@@ -255,37 +256,27 @@ public class TestCommandRunner {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	private void invokeTestCommandMethod(Method method, Object[] parameters) throws Exception {
-		try {
-			if (method.getDeclaringClass() == testBase.getClass()) {
-				method.invoke(this, parameters);
-			} else if (Modifier.isStatic(method.getModifiers())) {
-				// invoke static
-				method.invoke(null, parameters);
-			} else {
-				// create new instance of the Command-Class and put it to the test-context
-				@SuppressWarnings("unchecked")
-				Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
-				Object instance = TestContextManager.get(clazz);
-				if (instance == null) {
-					instance = clazz.newInstance();
-					TestContextManager.add(clazz, instance);
-				}
-				method.invoke(instance, parameters);
+	private void invokeTestCommandMethod(Command testCommand, Method method, Object[] parameters) throws Exception {
+		Object o;
+		if (method.getDeclaringClass() == testBase.getClass()) {
+			o = this;
+		} else if (Modifier.isStatic(method.getModifiers())) {
+			o = null;
+		} else {
+			// create new instance of the Command-Class and put it to the test-context
+			@SuppressWarnings("unchecked")
+			Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
+			Object instance = TestContextManager.get(clazz);
+			if (instance == null) {
+				instance = clazz.newInstance();
+				TestContextManager.add(clazz, instance);
 			}
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			e.printStackTrace();
-			throw e;
-		} catch (InvocationTargetException e) {
-			Throwable t = e;
-			while (t.getCause() != null) {
-				t = t.getCause();
-			}
-			if (t instanceof AssertionError) {
-				throw (AssertionError) t;
-			}
-			throw e;
+			o = instance;
 		}
+
+		// invoke via TestCommandInvocationHandler to be able to proxy the call
+		Invocable invocationHandler = TestCommandInvocationHandler.getInvocationHandler(testCommand, method, o);
+		invocationHandler.invoke(parameters);
 	}
 
 }
