@@ -144,9 +144,7 @@ public class JExUnitBase {
 									"No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
 									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
 							if (testCase.isFastFail()) {
-								log.log(Level.FINE, "FastFail activated");
-								return;
-								// fail("FastFail attribute forces the complete test sheet to fail.");
+								fail("FastFail attribute forces the complete test sheet to fail.");
 							}
 						} else {
 							continue testCaseLoop;
@@ -161,10 +159,8 @@ public class JExUnitBase {
 											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
 											testCase.getComment()), t));
 									if (testCase.isFastFail()) {
-										log.log(Level.FINE, "FastFail activated");
-										return;
-										// fail(String
-										// .format("FastFail attribute forces the complete test sheet to fail."));
+										fail(String
+												.format("FastFail attribute forces the complete test sheet to fail."));
 									}
 								} else {
 									continue testCaseLoop;
@@ -183,10 +179,12 @@ public class JExUnitBase {
 					errorCollector.addError(new AssertionError(
 							String.format("Exception expected! in TestCommand: %s, %s. %s", testCase.getTestCommand(),
 									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment())));
-				}
-				if (testCase.isFastFail()) {
-					log.log(Level.FINE, "FastFail activated");
-					return;
+
+					if (testCase.isFastFail()) {
+						log.log(Level.FINE, "FastFail activated");
+						fail(String.format("FastFail attribute forces the complete test sheet to fail."));
+						return;
+					}
 				}
 			} catch (Exception e) {
 				log.log(Level.WARNING, "TestException", e);

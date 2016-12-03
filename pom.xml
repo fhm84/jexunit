@@ -14,7 +14,6 @@ Developers design a "API" for the department so these specialists can write func
 		<module>core</module>
 		<module>examples-simple</module>
 		<module>examples-complex</module>
-		<module>jexunit-statistics</module>
 	</modules>
 
 	<licenses>
