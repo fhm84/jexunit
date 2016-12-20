@@ -24,10 +24,10 @@ public class JExUnit extends Suite {
 
 	private static final Logger LOG = Logger.getLogger(JExUnit.class.getName());
 
-	private final ArrayList<Runner> runners = new ArrayList<Runner>();
+	private final ArrayList<Runner> runners = new ArrayList<>();
 
 	public JExUnit(Class<?> clazz) throws Throwable {
-		super(clazz, Collections.<Runner> emptyList());
+		super(clazz, Collections.<Runner>emptyList());
 
 		ServiceRegistry.initialize();
 
