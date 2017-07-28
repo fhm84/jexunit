@@ -1,3 +1,5 @@
+![jexunit_logo](etc/jexunit_logo_small.png)
+
 jexunit
 =======
 
