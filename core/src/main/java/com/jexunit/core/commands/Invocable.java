@@ -1,7 +1,7 @@
 package com.jexunit.core.commands;
 
 /**
- * Interace for the TestCommandInvocationHandler to be able to "dynamic proxy" the TestCommandInvocationHanlder to add
+ * Interace for the TestCommandInvocationHandler to be able to "dynamic proxy" the TestCommandInvocationHandler to add
  * additional functionality like e.g. auditing, logging, statistics, ...
  * 
  * @author Fabian

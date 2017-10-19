@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.AfterClass;
 import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.junit.rules.TestWatcher;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
@@ -46,6 +49,9 @@ public class JExUnitBase {
 
 	@Rule
 	public ErrorCollector errorCollector = new ErrorCollector();
+
+	@Rule
+	public TestWatcher watcher;
 
 	@Parameter
 	List<TestCase<?>> testCases;
@@ -159,8 +165,7 @@ public class JExUnitBase {
 											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
 											testCase.getComment()), t));
 									if (testCase.isFastFail()) {
-										fail(String
-												.format("FastFail attribute forces the complete test sheet to fail."));
+										fail("FastFail attribute forces the complete test sheet to fail.");
 									}
 								} else {
 									continue testCaseLoop;
@@ -182,7 +187,7 @@ public class JExUnitBase {
 
 					if (testCase.isFastFail()) {
 						log.log(Level.FINE, "FastFail activated");
-						fail(String.format("FastFail attribute forces the complete test sheet to fail."));
+						fail("FastFail attribute forces the complete test sheet to fail.");
 						return;
 					}
 				}
@@ -214,4 +219,15 @@ public class JExUnitBase {
 						+ "Please override this method in your Unit-Test or provide a method or class annotated with @TestCommand(\"%1$s\")",
 				testCase.getTestCommand())));
 	}
+
+	@BeforeClass
+	public static void initialseTest() {
+		// TODO: add callback?!
+	}
+
+	@AfterClass
+	public static void finalizeTest() {
+		// TODO: add callback?!
+	}
+
 }
