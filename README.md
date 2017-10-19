@@ -1,9 +1,8 @@
 ![jexunit_logo](etc/jexunit_logo_small.png)
 
-[![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master)](https://travis-ci.org/fhm84/jexunit)
-
 jexunit
 =======
+[![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master)](https://travis-ci.org/fhm84/jexunit)
 
 > a Tool for defining JUnit-Tests in Excel Worksheets
 
