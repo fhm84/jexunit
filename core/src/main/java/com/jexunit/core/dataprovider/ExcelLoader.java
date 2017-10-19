@@ -2,13 +2,14 @@ package com.jexunit.core.dataprovider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
 
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.commands.TestCommandScanner;
+import com.jexunit.core.commands.annotation.TestCommand;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -34,6 +35,8 @@ import com.jexunit.core.model.TestCell;
  * 
  */
 public class ExcelLoader {
+
+    private static Logger log = Logger.getLogger(ExcelLoader.class.getName());
 
 	// Utility class, only static access
 	private ExcelLoader() {
@@ -67,10 +70,31 @@ public class ExcelLoader {
 			}));
 		}
 
-		return col;
+        validateCommands(col);
+
+        return col;
 	}
 
-	/**
+    /**
+     * Validates test cases after they are parsed
+     * @param col
+     */
+    private static void validateCommands(Collection<Object[]> col) {
+        for (Object[] objects : col) {
+            ArrayList<TestCase> testCases = (ArrayList<TestCase>) objects[0];
+            Iterator<TestCase> iterator = testCases.iterator();
+            while(iterator.hasNext()){
+                TestCase testCase = iterator.next();
+                if(!TestCommandScanner.isTestCommandValid(testCase.getTestCommand().toLowerCase())) {
+                    log.warning("TestCommand " + testCase.getTestCommand() + " is not valid. TestCase will be removed!");
+                    iterator.remove();
+                }
+            }
+
+        }
+    }
+
+    /**
 	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list of GevoTestCases. So
 	 * each worksheet will run as separated testrun.
 	 * 
