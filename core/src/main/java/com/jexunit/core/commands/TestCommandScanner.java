@@ -213,4 +213,21 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 		}
 		return null;
 	}
+
+	/**
+	 * Checks if the passed command exists
+	 */
+	public static boolean isTestCommandValid(String s) {
+        if (commands.containsKey(s)) {
+            return true;
+        }
+
+        boolean isDefaultCommand = false;
+        for (DefaultCommands defaultCommands : DefaultCommands.values()) {
+            isDefaultCommand = defaultCommands.getDefaultValue().equals(s);
+            if(isDefaultCommand)
+                break;
+        }
+        return isDefaultCommand;
+    }
 }
