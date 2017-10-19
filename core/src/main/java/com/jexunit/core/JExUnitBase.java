@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jexunit.core.commands.validation.CommandValidator;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -38,196 +39,196 @@ import com.jexunit.core.spi.data.DataProvider;
  * 
  * @author fabian
  * 
- *         TODO: check the file for valid commands while reading/parsing it?
- * 
  */
 @Ignore
 @RunWith(Parameterized.class)
 public class JExUnitBase {
 
-	private static Logger log = Logger.getLogger(JExUnitBase.class.getName());
+    private static Logger log = Logger.getLogger(JExUnitBase.class.getName());
 
-	@Rule
-	public ErrorCollector errorCollector = new ErrorCollector();
+    @Rule
+    public ErrorCollector errorCollector = new ErrorCollector();
 
-	@Rule
-	public TestWatcher watcher;
+    @Rule
+    public TestWatcher watcher;
 
-	@Parameter
-	List<TestCase<?>> testCases;
+    @Parameter
+    List<TestCase<?>> testCases;
 
-	/**
-	 * Get the type of the running test-class to identify, if a test-command is provided by the test-class itself or by
-	 * another class. If the {@link #getClass()}-Method returns the JExUnitBase, this method will return null. This
-	 * indicates the framework, that the test-class was executed with the {@link @RunWith}-Annotation (so, the
-	 * JExUnit-class).
-	 */
-	private Class<?> testType = null;
+    /**
+     * Get the type of the running test-class to identify, if a test-command is provided by the test-class itself or by
+     * another class. If the {@link #getClass()}-Method returns the JExUnitBase, this method will return null. This
+     * indicates the framework, that the test-class was executed with the {@link @RunWith}-Annotation (so, the
+     * JExUnit-class).
+     */
+    private Class<?> testType = null;
 
-	private TestCommandRunner testCommandRunner;
+    private TestCommandRunner testCommandRunner;
 
-	public JExUnitBase() {
-		JExUnitConfig.init();
-		testCommandRunner = new TestCommandRunner(this);
-	}
+    public JExUnitBase() {
+        JExUnitConfig.init();
+        testCommandRunner = new TestCommandRunner(this);
+    }
 
-	public void setTestType(Class<?> testType) {
-		this.testType = testType;
-	}
+    public void setTestType(Class<?> testType) {
+        this.testType = testType;
+    }
 
-	public Class<?> getTestType() {
-		return testType;
-	}
+    public Class<?> getTestType() {
+        return testType;
+    }
 
-	/**
-	 * Returns collection of input data for each test run.
-	 * 
-	 * @param testNumber
-	 *            the number (identifier, index, ...) of the test
-	 * 
-	 * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
-	 * @throws Exception
-	 *             in case that something goes wrong
-	 */
-	@Parameters(name = "{0} [{index}]")
-	public static Collection<Object[]> setUp(int testNumber) throws Exception {
-		DataProvider dataProvider = TestContextManager.get(DataProvider.class);
-		return dataProvider.loadTestData(testNumber);
-	}
+    /**
+     * Returns collection of input data for each test run.
+     *
+     * @param testNumber
+     *            the number (identifier, index, ...) of the test
+     *
+     * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
+     * @throws Exception
+     *             in case that something goes wrong
+     */
+    @Parameters(name = "{0} [{index}]")
+    public static Collection<Object[]> setUp(int testNumber) throws Exception {
+        DataProvider dataProvider = TestContextManager.get(DataProvider.class);
+        Collection<Object[]> testData = dataProvider.loadTestData(testNumber);
+        CommandValidator.validateCommands(testData);
+        return testData;
+    }
 
-	/**
-	 * This is the test-method for junit. Here the iteration through the {@link TestCase}s and
-	 * interpretation/implementation of the test-commands will run.
-	 */
-	@Test
-	public void test() {
-		if (testCases == null || testCases.isEmpty()) {
-			return;
-		}
+    /**
+     * This is the test-method for junit. Here the iteration through the {@link TestCase}s and
+     * interpretation/implementation of the test-commands will run.
+     */
+    @Test
+    public void test() {
+        if (testCases == null || testCases.isEmpty()) {
+            return;
+        }
 
-		log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getMetadata().getTestGroup());
-		// FIXME: fastFail only current TestGroup?
-		testCaseLoop: for (TestCase<?> testCase : testCases) {
-			boolean exceptionExpected = testCase.isExceptionExpected();
-			try {
-				if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
-						.equalsIgnoreCase(testCase.getTestCommand())) {
-					if (testCase.isDisabled()) {
-						log.info(String.format("Testsheet disabled! (%s)",
-								testCase.getMetadata().getDetailedIdentifier()));
-						// if the testsheet is disabled, ignore the junit-test (assume will pass the
-						// test)
-						Assume.assumeTrue(String.format("Testsheet disabled! (%s)",
-								testCase.getMetadata().getDetailedIdentifier()), true);
-						return;
-					}
-				} else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
-						.equalsIgnoreCase(testCase.getTestCommand())) {
-					// log all the report-"values"
-					for (TestCell tc : testCase.getValues().values()) {
-						log.info(tc.getValue());
-					}
-					// continue: there is nothing else to do; you cannot expect an exception on a
-					// "report"-command
-					continue testCaseLoop;
-				} else {
-					try {
-						if (testCase.isDisabled()) {
-							log.info(String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
-									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()));
-							// if the testCase is disabled, ignore it (assume will pass the test)
-							Assume.assumeTrue(
-									String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
-											testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()),
-									true);
-							continue testCaseLoop;
-						}
-						// run the test-command
-						testCommandRunner.runTestCommand(testCase);
-					} catch (AssertionError e) {
-						if (!exceptionExpected) {
-							errorCollector.addError(new AssertionError(String.format(
-									"No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
-									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
-							if (testCase.isFastFail()) {
-								fail("FastFail attribute forces the complete test sheet to fail.");
-							}
-						} else {
-							continue testCaseLoop;
-						}
-					} catch (Exception e) {
-						Throwable t = e;
-						while ((t = t.getCause()) != null) {
-							if (t instanceof AssertionError) {
-								if (!exceptionExpected) {
-									errorCollector.addError(new AssertionError(String.format(
-											"No Exception expected in TestCommand: %s, %s. %s",
-											testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
-											testCase.getComment()), t));
-									if (testCase.isFastFail()) {
-										fail("FastFail attribute forces the complete test sheet to fail.");
-									}
-								} else {
-									continue testCaseLoop;
-								}
-							}
-						}
-						e.printStackTrace();
-						fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s) %s",
-								testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e,
-								testCase.getComment()));
-					}
-				}
+        log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getMetadata().getTestGroup());
+        // FIXME: fastFail only current TestGroup?
+        testCaseLoop: for (TestCase<?> testCase : testCases) {
+            boolean exceptionExpected = testCase.isExceptionExpected();
+            try {
+                if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
+                        .equalsIgnoreCase(testCase.getTestCommand())) {
+                    if (testCase.isDisabled()) {
+                        log.info(String.format("Testsheet disabled! (%s)",
+                                testCase.getMetadata().getDetailedIdentifier()));
+                        // if the testsheet is disabled, ignore the junit-test (assume will pass the
+                        // test)
+                        Assume.assumeTrue(String.format("Testsheet disabled! (%s)",
+                                testCase.getMetadata().getDetailedIdentifier()), true);
+                        return;
+                    }
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
+                        .equalsIgnoreCase(testCase.getTestCommand())) {
+                    // log all the report-"values"
+                    for (TestCell tc : testCase.getValues().values()) {
+                        log.info(tc.getValue());
+                    }
+                    // continue: there is nothing else to do; you cannot expect an exception on a
+                    // "report"-command
+                    continue testCaseLoop;
+                } else {
+                    try {
+                        if (testCase.isDisabled()) {
+                            log.info(String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
+                                    testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()));
+                            // if the testCase is disabled, ignore it (assume will pass the test)
+                            Assume.assumeTrue(
+                                    String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
+                                            testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()),
+                                    true);
+                            continue testCaseLoop;
+                        }
+                        // run the test-command
+                        testCommandRunner.runTestCommand(testCase);
+                    } catch (AssertionError e) {
+                        if (!exceptionExpected) {
+                            errorCollector.addError(new AssertionError(String.format(
+                                    "No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
+                                    testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
+                            if (testCase.isFastFail()) {
+                                fail("FastFail attribute forces the complete test sheet to fail.");
+                            }
+                        } else {
+                            continue testCaseLoop;
+                        }
+                    } catch (Exception e) {
+                        Throwable t = e;
+                        while ((t = t.getCause()) != null) {
+                            if (t instanceof AssertionError) {
+                                if (!exceptionExpected) {
+                                    errorCollector.addError(new AssertionError(String.format(
+                                            "No Exception expected in TestCommand: %s, %s. %s",
+                                            testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
+                                            testCase.getComment()), t));
+                                    if (testCase.isFastFail()) {
+                                        fail("FastFail attribute forces the complete test sheet to fail.");
+                                    }
+                                } else {
+                                    continue testCaseLoop;
+                                }
+                            }
+                        }
+                        e.printStackTrace();
+                        fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s) %s",
+                                testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e,
+                                testCase.getComment()));
+                    }
+                }
 
-				// if an exception is expected, but no exception is thrown, the test will fail!
-				if (exceptionExpected) {
-					errorCollector.addError(new AssertionError(
-							String.format("Exception expected! in TestCommand: %s, %s. %s", testCase.getTestCommand(),
-									testCase.getMetadata().getDetailedIdentifier(), testCase.getComment())));
+                // if an exception is expected, but no exception is thrown, the test will fail!
+                if (exceptionExpected) {
+                    errorCollector.addError(new AssertionError(
+                            String.format("Exception expected! in TestCommand: %s, %s. %s", testCase.getTestCommand(),
+                                    testCase.getMetadata().getDetailedIdentifier(), testCase.getComment())));
 
-					if (testCase.isFastFail()) {
-						log.log(Level.FINE, "FastFail activated");
-						fail("FastFail attribute forces the complete test sheet to fail.");
-						return;
-					}
-				}
-			} catch (Exception e) {
-				log.log(Level.WARNING, "TestException", e);
-				if (!exceptionExpected) {
-					fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
-							testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
-							testCase.getComment()));
-				}
-			}
-		}
-	}
+                    if (testCase.isFastFail()) {
+                        log.log(Level.FINE, "FastFail activated");
+                        fail("FastFail attribute forces the complete test sheet to fail.");
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                log.log(Level.WARNING, "TestException", e);
+                if (!exceptionExpected) {
+                    fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
+                            testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
+                            testCase.getComment()));
+                }
+            }
+        }
+    }
 
-	/**
-	 * This method runs your specified Test-Command. In the {@link TestCase} you will find all information you need
-	 * (read from the excel file/row) to run the command.<br>
-	 * You have to implement this method to run your specific tests.
-	 * 
-	 * @param testCase
-	 *            the TestCase containing all information from the excel file/row
-	 * 
-	 * @throws Exception
-	 *             in case that something goes wrong
-	 */
-	public void runCommand(TestCase<?> testCase) throws Exception {
-		errorCollector.addError(new NoSuchMethodError(String.format(
-				"No implementation found for the command \"%1$s\". "
-						+ "Please override this method in your Unit-Test or provide a method or class annotated with @TestCommand(\"%1$s\")",
-				testCase.getTestCommand())));
-	}
+    /**
+     * This method runs your specified Test-Command. In the {@link TestCase} you will find all information you need
+     * (read from the excel file/row) to run the command.<br>
+     * You have to implement this method to run your specific tests.
+     *
+     * @param testCase
+     *            the TestCase containing all information from the excel file/row
+     *
+     * @throws Exception
+     *             in case that something goes wrong
+     */
+    public void runCommand(TestCase<?> testCase) throws Exception {
+        errorCollector.addError(new NoSuchMethodError(String.format(
+                "No implementation found for the command \"%1$s\". "
+                        + "Please override this method in your Unit-Test or provide a method or class annotated with @TestCommand(\"%1$s\")",
+                testCase.getTestCommand())));
+    }
 
-	@BeforeClass
-	public static void initialseTest() {
-		// TODO: add callback?!
-	}
+    @BeforeClass
+    public static void initialseTest() {
+        // TODO: add callback?!
+    }
 
-	@AfterClass
-	public static void finalizeTest() {
-		// TODO: add callback?!
-	}
+    @AfterClass
+    public static void finalizeTest() {
+        // TODO: add callback?!
+    }
 
 }

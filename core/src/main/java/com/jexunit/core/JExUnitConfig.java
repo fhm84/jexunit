@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jexunit.core.commands.validation.ValidationType;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -56,7 +57,13 @@ public class JExUnitConfig {
 		/**
 		 * postfix for test-command-methods
 		 */
-		COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", "");
+		COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", ""),
+
+        /**
+         * Validation type (no validation, warn and remove invalid test commands from execution list or
+         * (fast) fail on missing command implementation).
+         */
+		COMMAND_VALIDATION_TYPE("jexunit.command.validation.type", ValidationType.WARN.name());
 
 		private String key;
 		private String defaultConfig;

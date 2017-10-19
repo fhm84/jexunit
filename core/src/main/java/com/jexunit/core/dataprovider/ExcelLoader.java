@@ -1,15 +1,9 @@
 package com.jexunit.core.dataprovider;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Logger;
-
-import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.commands.TestCommandScanner;
-import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.JExUnitConfig;
+import com.jexunit.core.commands.DefaultCommands;
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -21,10 +15,9 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.jexunit.core.JExUnitConfig;
-import com.jexunit.core.commands.DefaultCommands;
-import com.jexunit.core.model.TestCase;
-import com.jexunit.core.model.TestCell;
+import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Utility class for reading the excel file into the internal data representation.
@@ -35,8 +28,6 @@ import com.jexunit.core.model.TestCell;
  * 
  */
 public class ExcelLoader {
-
-    private static Logger log = Logger.getLogger(ExcelLoader.class.getName());
 
 	// Utility class, only static access
 	private ExcelLoader() {
@@ -70,29 +61,8 @@ public class ExcelLoader {
 			}));
 		}
 
-        validateCommands(col);
-
         return col;
 	}
-
-    /**
-     * Validates test cases after they are parsed
-     * @param col
-     */
-    private static void validateCommands(Collection<Object[]> col) {
-        for (Object[] objects : col) {
-            ArrayList<TestCase> testCases = (ArrayList<TestCase>) objects[0];
-            Iterator<TestCase> iterator = testCases.iterator();
-            while(iterator.hasNext()){
-                TestCase testCase = iterator.next();
-                if(!TestCommandScanner.isTestCommandValid(testCase.getTestCommand().toLowerCase())) {
-                    log.warning("TestCommand " + testCase.getTestCommand() + " is not valid. TestCase will be removed!");
-                    iterator.remove();
-                }
-            }
-
-        }
-    }
 
     /**
 	 * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list of GevoTestCases. So
@@ -105,7 +75,7 @@ public class ExcelLoader {
 	 * @throws Exception
 	 *             in case that something goes wrong
 	 */
-	public static Map<String, List<TestCase<?>>> readExcel(String excelFilePath) throws Exception {
+	static Map<String, List<TestCase<?>>> readExcel(String excelFilePath) throws Exception {
 		Map<String, List<TestCase<?>>> tests = new LinkedHashMap<>();
 
 		int i = 0;
@@ -214,9 +184,6 @@ public class ExcelLoader {
 			}
 		} catch (FileNotFoundException e) {
 			throw new Exception(String.format("Excel-file '%s' not found!", excelFilePath), e);
-		} catch (IOException e) {
-			throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s row: %s column: %s",
-					sheet, i + 1, getColumn(j + 1)), e);
 		} catch (Exception e) {
 			throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s row: %s column: %s",
 					sheet, i + 1, getColumn(j + 1)), e);
