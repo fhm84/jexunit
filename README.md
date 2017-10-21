@@ -2,7 +2,7 @@
 
 jexunit
 =======
-[![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master)](https://travis-ci.org/fhm84/jexunit)
+[![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master&style=flat-square)](https://travis-ci.org/fhm84/jexunit)
 
 > a Tool for defining JUnit-Tests in Excel Worksheets
 
