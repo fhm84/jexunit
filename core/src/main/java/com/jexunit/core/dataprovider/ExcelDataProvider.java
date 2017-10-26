@@ -100,7 +100,7 @@ public class ExcelDataProvider implements DataProvider {
 	 * 
 	 * @param field
 	 *            the field to check for the "correct" modifiers and type
-	 * @return
+	 * @return <code>true</code> if the given field is acceptable to provide the excel filename(s), else <code>false</code>
 	 */
 	private boolean isAcceptable(Field field) {
 		return Modifier.isStatic(field.getModifiers())
@@ -113,7 +113,7 @@ public class ExcelDataProvider implements DataProvider {
 	 * 
 	 * @param method
 	 *            the method to check for the "correct" modifiers and return type
-	 * @return
+	 * @return <code>true</code> if the given method is acceptable to provide the excel filename(s), else <code>false</code>
 	 */
 	private boolean isAcceptable(Method method) {
 		return Modifier.isStatic(method.getModifiers())

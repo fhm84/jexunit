@@ -171,7 +171,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param clazz   the type of the test-class
      * @return the command for the given class, if found, else null
      */
-    public static Command getTestCommand(String command, Class<?> clazz) {
+    static Command getTestCommand(String command, Class<?> clazz) {
         if (commands.containsKey(command)) {
             Map<Class<?>, Command> cmds = commands.get(command);
 

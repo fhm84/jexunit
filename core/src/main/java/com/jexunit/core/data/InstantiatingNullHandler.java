@@ -48,16 +48,13 @@ public class InstantiatingNullHandler implements NullHandler {
 
 		try {
 			String propName = property.toString();
-			Class<?> clazz = null;
 
-			if (target != null) {
-				PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(target.getClass(), propName);
-				if (pd == null) {
-					return null;
-				}
+			PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(target.getClass(), propName);
+			if (pd == null) {
+                return null;
+            }
 
-				clazz = pd.getPropertyType();
-			}
+			Class<?> clazz = pd.getPropertyType();
 
 			if (clazz == null) {
 				// can't do much here!

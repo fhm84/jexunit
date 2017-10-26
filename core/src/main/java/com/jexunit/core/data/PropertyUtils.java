@@ -1,5 +1,7 @@
 package com.jexunit.core.data;
 
+import com.jexunit.core.JExUnitConfig;
+
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -7,8 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jexunit.core.JExUnitConfig;
 
 /**
  * This class will provide useful utility methods for properties handling.
@@ -44,17 +44,11 @@ class PropertyUtils {
 		}
 		try {
 			if (clazz == Integer.class || clazz == int.class) {
-				Double d = Double.parseDouble(value);
-				if (d != null) {
-					return d.intValue();
-				}
+				return Double.valueOf(value).intValue();
 			} else if (clazz == Double.class || clazz == double.class) {
 				return Double.parseDouble(value);
 			} else if (clazz == Long.class || clazz == long.class) {
-				Double d = Double.parseDouble(value);
-				if (d != null) {
-					return d.longValue();
-				}
+				return Double.valueOf(value).longValue();
 			} else if (clazz == Float.class || clazz == float.class) {
 				return Float.parseFloat(value);
 			} else if (clazz == Boolean.class || clazz == boolean.class) {
@@ -68,15 +62,10 @@ class PropertyUtils {
 				return clazz.getMethod("valueOf", String.class).invoke(clazz, value);
 			}
 			return value;
-		} catch (NumberFormatException | ParseException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
-			throw e;
-		} catch (IllegalArgumentException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
-			throw e;
-		} catch (SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (ParseException | IllegalArgumentException | SecurityException |
+                IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { clazz, value });
 			throw e;
 		}
-	}
+    }
 }

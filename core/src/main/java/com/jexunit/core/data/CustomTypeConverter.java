@@ -13,7 +13,7 @@ import ognl.DefaultTypeConverter;
  * Cutstom type converter extending the default type converter of ognl for handling integer and long values, because
  * JExUnit will extract these kinds of variables as double and the default type converter cannot convert double values
  * to integer or long values.
- * 
+ *
  * @author fabian
  *
  */
@@ -23,7 +23,7 @@ public class CustomTypeConverter extends DefaultTypeConverter {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ognl.TypeConverter#convertValue(java.util.Map, java.lang.Object, java.lang.reflect.Member, java.lang.String,
 	 * java.lang.Object, java.lang.Class)
 	 */
@@ -42,11 +42,8 @@ public class CustomTypeConverter extends DefaultTypeConverter {
 		try {
 			String stringValue = (String) value;
 			return PropertyUtils.convertPropertyStringToObject(toType, stringValue);
-		} catch (NumberFormatException | ParseException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { toType, value });
-		} catch (IllegalArgumentException e) {
-			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { toType, value });
-		} catch (SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (ParseException | IllegalArgumentException | SecurityException |
+                IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[] { toType, value });
 		}
 

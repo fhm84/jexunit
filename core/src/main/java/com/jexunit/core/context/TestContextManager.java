@@ -13,13 +13,7 @@ package com.jexunit.core.context;
  */
 public class TestContextManager {
 
-	private static ThreadLocal<TestContext> context = new InheritableThreadLocal<TestContext>() {
-
-		@Override
-		protected TestContext initialValue() {
-			return new TestContext();
-		}
-	};
+	private static ThreadLocal<TestContext> context = InheritableThreadLocal.withInitial(TestContext::new);
 
 	/**
 	 * Get the TestContext.

@@ -166,7 +166,7 @@ public class Parameterized extends Suite {
 	}
 
 	private static final List<Runner> NO_RUNNERS = Collections.<Runner>emptyList();
-	private final ArrayList<Runner> runners = new ArrayList<Runner>();
+	private final ArrayList<Runner> runners = new ArrayList<>();
 	private Class<?> testType;
 	private String identifier;
 

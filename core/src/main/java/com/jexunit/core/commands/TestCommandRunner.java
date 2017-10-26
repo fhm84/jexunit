@@ -1,13 +1,5 @@
 package com.jexunit.core.commands;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.Command.Type;
@@ -18,6 +10,14 @@ import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.model.TestCase;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Helper class for running the test-commands.
  *
@@ -26,7 +26,7 @@ import com.jexunit.core.model.TestCase;
  */
 public class TestCommandRunner {
 
-	JExUnitBase testBase;
+	private JExUnitBase testBase;
 
 	public TestCommandRunner(JExUnitBase testBase) {
 		this.testBase = testBase;
@@ -88,8 +88,8 @@ public class TestCommandRunner {
 	 * declared, null will be returned. If there are multiple public methods found, an IllegalArgumentException will be
 	 * thrown because test commands of type class are allowed only a single public method!
 	 *
-	 * @param testCommand
-	 * @return
+	 * @param testCommand test command
+	 * @return method "behind" the test command
 	 */
 	private Method getSinglePublicMethod(Command testCommand) {
 		Method method = null;
@@ -147,7 +147,7 @@ public class TestCommandRunner {
 							// add an instance out of the test-context
 							Context ctx = (Context) a;
 							String id = ctx.value();
-							if (id == null || id.isEmpty()) {
+							if (id.isEmpty()) {
 								// lookup the instance out of the current TestContext
 								parameters.add(TestContextManager.get(parameterType));
 							} else {
@@ -161,7 +161,7 @@ public class TestCommandRunner {
 							// read out the parameters name if key is NOT set and parameter name is
 							// present (possible since jdk 1.8 if compiler argument '-parameters' is
 							// set!
-							if ((key == null || key.isEmpty()) && parameter.isNamePresent()) {
+							if (key.isEmpty() && parameter.isNamePresent()) {
 								// try to get the parameters name as key
 								key = parameter.getName();
 							}
@@ -185,8 +185,7 @@ public class TestCommandRunner {
 
 	/**
 	 * Prepare the attributes for the given test-command class. This will "inject" the attributes annotated with
-	 *
-	 * @TestParam.
+	 * <code>@TestParam</code>.
 	 *
 	 * @param testCase
 	 *            the test-case to prepare the parameters from
@@ -204,7 +203,7 @@ public class TestCommandRunner {
 					Context ctx = (Context) a;
 					String id = ctx.value();
 					Object value;
-					if (id == null || id.isEmpty()) {
+					if (id.isEmpty()) {
 						// lookup the instance out of the current TestContext
 						value = TestContextManager.get(field.getType());
 					} else {
@@ -223,7 +222,7 @@ public class TestCommandRunner {
 					TestParam param = (TestParam) a;
 					String key = param.value();
 					// if key is not set, the field name will be the key
-					if (key == null || key.isEmpty()) {
+					if (key.isEmpty()) {
 						// get the field name as key
 						key = field.getName();
 					}

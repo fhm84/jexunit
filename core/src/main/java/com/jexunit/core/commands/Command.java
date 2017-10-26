@@ -87,10 +87,7 @@ public class Command {
 	}
 
 	public boolean isStaticMethod() {
-		if (method != null) {
-			return Modifier.isStatic(method.getModifiers());
-		}
-		return false;
+		return method != null && Modifier.isStatic(method.getModifiers());
 	}
 
 	public Class<?> getImplementation() {
