@@ -4,47 +4,45 @@ import ognl.OgnlException;
 
 /**
  * @author fabian
- *
  */
 public class NoSuchCollectionElementException extends OgnlException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String targetCollection;
-	private String collectionExpression;
+    private final String targetCollection;
+    private final String collectionExpression;
 
-	public NoSuchCollectionElementException(String target, String name) {
-		super(getReason(target, name));
-		this.targetCollection = target;
-		this.collectionExpression = name;
-	}
+    public NoSuchCollectionElementException(final String target, final String name) {
+        super(getReason(target, name));
+        this.targetCollection = target;
+        this.collectionExpression = name;
+    }
 
-	static String getReason(String target, String name) {
-		String ret = null;
+    static String getReason(final String target, final String name) {
+        String ret;
+        if (target == null) {
+            ret = "null";
+        } else {
+            ret = target;
+        }
 
-		if (target == null) {
-			ret = "null";
-		} else {
-			ret = target;
-		}
+        ret += "[" + name + "]";
 
-		ret += "[" + name + "]";
+        return ret;
+    }
 
-		return ret;
-	}
+    /**
+     * @return the targetCollection
+     */
+    public String getTargetCollection() {
+        return targetCollection;
+    }
 
-	/**
-	 * @return the targetCollection
-	 */
-	public String getTargetCollection() {
-		return targetCollection;
-	}
-
-	/**
-	 * @return the collectionExpression
-	 */
-	public String getCollectionExpression() {
-		return collectionExpression;
-	}
+    /**
+     * @return the collectionExpression
+     */
+    public String getCollectionExpression() {
+        return collectionExpression;
+    }
 
 }

@@ -35,32 +35,32 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
     }
 
     @Override
-    public void reportMethodAnnotation(Class<? extends Annotation> annotation, String className, String methodName) {
+    public void reportMethodAnnotation(final Class<? extends Annotation> annotation, final String className, final String methodName) {
         try {
-            Class<?> clazz = getClass().getClassLoader().loadClass(className);
+            final Class<?> clazz = getClass().getClassLoader().loadClass(className);
             Class<?> type = null;
             if (clazz.isAnnotationPresent(RunWith.class)) {
-                RunWith rwa = clazz.getAnnotation(RunWith.class);
+                final RunWith rwa = clazz.getAnnotation(RunWith.class);
                 if (rwa.value() == JExUnit.class) {
                     type = clazz;
                 }
             }
 
             if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
-                for (Method m : clazz.getDeclaredMethods()) {
-                    TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
+                for (final Method m : clazz.getDeclaredMethods()) {
+                    final TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
                     registerCommands(testCommands, type, m);
                 }
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void reportTypeAnnotation(Class<? extends Annotation> annotation, String className) {
+    public void reportTypeAnnotation(final Class<? extends Annotation> annotation, final String className) {
         try {
-            Class<?> clazz = getClass().getClassLoader().loadClass(className);
+            final Class<?> clazz = getClass().getClassLoader().loadClass(className);
 
             if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
                 if (!checkTestCommandClass(clazz)) {
@@ -68,10 +68,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                             "Test-Command implementation not valid. A class defined as test-command has to provide one single public method!");
                 }
 
-                TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
+                final TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
                 registerCommands(testCommands, clazz, null);
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -83,8 +83,8 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param type         the type the annotations were found in
      * @param method       the method the annotations were found for
      */
-    private void registerCommands(TestCommand[] testCommands, Class<?> type, Method method) {
-        for (TestCommand tc : testCommands) {
+    private void registerCommands(final TestCommand[] testCommands, final Class<?> type, final Method method) {
+        for (final TestCommand tc : testCommands) {
             if (tc != null) {
                 String[] commandNames = tc.value();
                 if (commandNames.length == 0) {
@@ -119,10 +119,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param type Class to calculate the name for the test-command from
      * @return the calculated name for the test-command
      */
-    private String calculateCommandName(Class<?> type) {
+    private String calculateCommandName(final Class<?> type) {
         String name = type.getSimpleName();
-        String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
-        String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
+        final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
+        final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
         name = StringUtils.removeStartIgnoreCase(name, prefix);
         name = StringUtils.removeEndIgnoreCase(name, postfix);
         return name;
@@ -135,10 +135,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param m Method to calculate the name for the test-command from
      * @return the calculated name for the test-command
      */
-    private String calculateCommandName(Method m) {
+    private String calculateCommandName(final Method m) {
         String name = m.getName();
-        String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
-        String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
+        final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
+        final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
         name = StringUtils.removeStartIgnoreCase(name, prefix);
         name = StringUtils.removeEndIgnoreCase(name, postfix);
         return name;
@@ -151,11 +151,11 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param clazz Class to check
      * @return true, if the class defines exactly one single public method, else false
      */
-    private boolean checkTestCommandClass(Class<?> clazz) {
+    private boolean checkTestCommandClass(final Class<?> clazz) {
         // check number of public methods
-        Method[] methods = clazz.getDeclaredMethods();
+        final Method[] methods = clazz.getDeclaredMethods();
         int numberOfPublicMethods = 0;
-        for (Method m : methods) {
+        for (final Method m : methods) {
             if (Modifier.isPublic(m.getModifiers())) {
                 numberOfPublicMethods++;
             }
@@ -171,9 +171,9 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param clazz   the type of the test-class
      * @return the command for the given class, if found, else null
      */
-    static Command getTestCommand(String command, Class<?> clazz) {
+    static Command getTestCommand(final String command, final Class<?> clazz) {
         if (commands.containsKey(command)) {
-            Map<Class<?>, Command> cmds = commands.get(command);
+            final Map<Class<?>, Command> cmds = commands.get(command);
 
             if (cmds != null && !cmds.isEmpty()) {
                 if (clazz == null) {
@@ -185,7 +185,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     Class<?> cls = clazz;
                     do {
                         if (cmds.containsKey(cls)) {
-                            Command c = cmds.get(cls);
+                            final Command c = cmds.get(cls);
                             if (c.getType() == Type.CLASS || c.getImplementation() == cls) {
                                 return c;
                             }
@@ -204,13 +204,13 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
      * @param s command name to check
      * @return <code>true</code> if there is a command-implementation for the given string, else <code>false</code>
      */
-    public static boolean isTestCommandValid(String s) {
+    public static boolean isTestCommandValid(final String s) {
         if (commands.containsKey(s)) {
             return true;
         }
 
         boolean isDefaultCommand = false;
-        for (DefaultCommands defaultCommands : DefaultCommands.values()) {
+        for (final DefaultCommands defaultCommands : DefaultCommands.values()) {
             isDefaultCommand = defaultCommands.getDefaultValue().equals(s);
             if (isDefaultCommand) {
                 break;
@@ -218,4 +218,5 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         }
         return isDefaultCommand;
     }
+
 }

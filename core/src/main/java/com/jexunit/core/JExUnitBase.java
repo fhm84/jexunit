@@ -1,32 +1,26 @@
 package com.jexunit.core;
 
-import static org.junit.Assert.fail;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.jexunit.core.commands.DefaultCommands;
+import com.jexunit.core.commands.TestCommandRunner;
 import com.jexunit.core.commands.validation.CommandValidator;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import com.jexunit.core.context.TestContextManager;
+import com.jexunit.core.junit.Parameterized;
+import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
+import com.jexunit.core.spi.data.DataProvider;
+import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.jexunit.core.commands.DefaultCommands;
-import com.jexunit.core.commands.TestCommandRunner;
-import com.jexunit.core.context.TestContextManager;
-import com.jexunit.core.junit.Parameterized;
-import com.jexunit.core.model.TestCase;
-import com.jexunit.core.model.TestCell;
-import com.jexunit.core.spi.data.DataProvider;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.fail;
 
 /**
  * BaseClass for the Tests (BusinessTransactionTests or simple unit-tests).<br>
@@ -36,15 +30,14 @@ import com.jexunit.core.spi.data.DataProvider;
  * To run your own test-command, you have to implement the {@link #runCommand(TestCase)}-method. All the surrounding
  * features are implemented in this BaseClass. So you can define commands like "disable" the test-case, "report"
  * something and "expect" an exception. The only thing you have to do is to implement your own commands!
- * 
+ *
  * @author fabian
- * 
  */
 @Ignore
 @RunWith(Parameterized.class)
 public class JExUnitBase {
 
-    private static Logger log = Logger.getLogger(JExUnitBase.class.getName());
+    private static final Logger log = Logger.getLogger(JExUnitBase.class.getName());
 
     @Rule
     public ErrorCollector errorCollector = new ErrorCollector();
@@ -63,14 +56,14 @@ public class JExUnitBase {
      */
     private Class<?> testType = null;
 
-    private TestCommandRunner testCommandRunner;
+    private final TestCommandRunner testCommandRunner;
 
     public JExUnitBase() {
         JExUnitConfig.init();
         testCommandRunner = new TestCommandRunner(this);
     }
 
-    public void setTestType(Class<?> testType) {
+    public void setTestType(final Class<?> testType) {
         this.testType = testType;
     }
 
@@ -81,17 +74,14 @@ public class JExUnitBase {
     /**
      * Returns collection of input data for each test run.
      *
-     * @param testNumber
-     *            the number (identifier, index, ...) of the test
-     *
+     * @param testNumber the number (identifier, index, ...) of the test
      * @return the parameters for the {@link Parameterized}-JUnit-TestSuite
-     * @throws Exception
-     *             in case that something goes wrong
+     * @throws Exception in case that something goes wrong
      */
     @Parameters(name = "{0} [{index}]")
-    public static Collection<Object[]> setUp(int testNumber) throws Exception {
-        DataProvider dataProvider = TestContextManager.get(DataProvider.class);
-        Collection<Object[]> testData = dataProvider.loadTestData(testNumber);
+    public static Collection<Object[]> setUp(final int testNumber) throws Exception {
+        final DataProvider dataProvider = TestContextManager.get(DataProvider.class);
+        final Collection<Object[]> testData = dataProvider.loadTestData(testNumber);
         CommandValidator.validateCommands(testData);
         return testData;
     }
@@ -108,8 +98,9 @@ public class JExUnitBase {
 
         log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getMetadata().getTestGroup());
         // FIXME: fastFail only current TestGroup?
-        testCaseLoop: for (TestCase<?> testCase : testCases) {
-            boolean exceptionExpected = testCase.isExceptionExpected();
+        testCaseLoop:
+        for (final TestCase<?> testCase : testCases) {
+            final boolean exceptionExpected = testCase.isExceptionExpected();
             try {
                 if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
                         .equalsIgnoreCase(testCase.getTestCommand())) {
@@ -125,7 +116,7 @@ public class JExUnitBase {
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
                         .equalsIgnoreCase(testCase.getTestCommand())) {
                     // log all the report-"values"
-                    for (TestCell tc : testCase.getValues().values()) {
+                    for (final TestCell tc : testCase.getValues().values()) {
                         log.info(tc.getValue());
                     }
                     // continue: there is nothing else to do; you cannot expect an exception on a
@@ -145,7 +136,7 @@ public class JExUnitBase {
                         }
                         // run the test-command
                         testCommandRunner.runTestCommand(testCase);
-                    } catch (AssertionError e) {
+                    } catch (final AssertionError e) {
                         if (!exceptionExpected) {
                             errorCollector.addError(new AssertionError(String.format(
                                     "No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
@@ -156,7 +147,7 @@ public class JExUnitBase {
                         } else {
                             continue testCaseLoop;
                         }
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         Throwable t = e;
                         while ((t = t.getCause()) != null) {
                             if (t instanceof AssertionError) {
@@ -192,7 +183,7 @@ public class JExUnitBase {
                         return;
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.log(Level.WARNING, "TestException", e);
                 if (!exceptionExpected) {
                     fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
@@ -208,16 +199,14 @@ public class JExUnitBase {
      * (read from the excel file/row) to run the command.<br>
      * You have to implement this method to run your specific tests.
      *
-     * @param testCase
-     *            the TestCase containing all information from the excel file/row
-     *
-     * @throws Exception
-     *             in case that something goes wrong
+     * @param testCase the TestCase containing all information from the excel file/row
+     * @throws Exception in case that something goes wrong
      */
-    public void runCommand(TestCase<?> testCase) throws Exception {
+    public void runCommand(final TestCase<?> testCase) throws Exception {
         errorCollector.addError(new NoSuchMethodError(String.format(
                 "No implementation found for the command \"%1$s\". "
-                        + "Please override this method in your Unit-Test or provide a method or class annotated with @TestCommand(\"%1$s\")",
+                        + "Please override this method in your Unit-Test or provide a method or class annotated with " +
+                        "@TestCommand(\"%1$s\")",
                 testCase.getTestCommand())));
     }
 
