@@ -1,17 +1,19 @@
 package com.jexunit.core;
 
-import com.jexunit.core.context.TestContextManager;
-import com.jexunit.core.junit.Parameterized;
-import com.jexunit.core.spi.ServiceRegistry;
-import com.jexunit.core.spi.data.DataProvider;
-import org.junit.runner.Runner;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.Suite;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.jexunit.core.context.TestContextManager;
+import com.jexunit.core.junit.Parameterized;
+import com.jexunit.core.spi.ServiceRegistry;
+import com.jexunit.core.spi.data.DataProvider;
+
+import org.junit.Ignore;
+import org.junit.runner.Runner;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.Suite;
 
 /**
  * JUnit-Suite for running the tests with the <code>@RunWith</code>-Annotation.
@@ -26,30 +28,32 @@ public class JExUnit extends Suite {
 
     public JExUnit(final Class<?> clazz) throws Throwable {
         super(clazz, Collections.<Runner>emptyList());
+        if (!clazz.isAnnotationPresent(Ignore.class)) {
+            // Only init excel parsing logic if test is not ignored
+            ServiceRegistry.initialize();
 
-        ServiceRegistry.initialize();
+            DataProvider dataprovider = null;
 
-        DataProvider dataprovider = null;
-
-        final List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
-        if (dataproviders != null) {
-            for (final DataProvider dp : dataproviders) {
-                if (dp.canProvide(clazz)) {
-                    dataprovider = dp;
+            final List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
+            if (dataproviders != null) {
+                for (final DataProvider dp : dataproviders) {
+                    if (dp.canProvide(clazz)) {
+                        dataprovider = dp;
+                    }
                 }
             }
-        }
 
-        if (dataprovider == null) {
-            throw new IllegalArgumentException();
-        }
+            if (dataprovider == null) {
+                throw new IllegalArgumentException();
+            }
 
-        TestContextManager.add(DataProvider.class, dataprovider);
-        dataprovider.initialize(clazz);
+            TestContextManager.add(DataProvider.class, dataprovider);
+            dataprovider.initialize(clazz);
 
-        // add the Parameterized JExUnitBase, initialized with the ExcelFileName
-        for (int i = 0; i < dataprovider.numberOfTests(); i++) {
-            runners.add(new Parameterized(JExUnitBase.class, clazz, i, dataprovider.getIdentifier(i)));
+            // add the Parameterized JExUnitBase, initialized with the ExcelFileName
+            for (int i = 0; i < dataprovider.numberOfTests(); i++) {
+                runners.add(new Parameterized(JExUnitBase.class, clazz, i, dataprovider.getIdentifier(i)));
+            }
         }
 
         // if there are Test-methods defined in the test-class, this once will be execute too
