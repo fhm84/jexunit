@@ -7,18 +7,18 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for marking the TestContext to "inject" (into the test-command-method).
- * 
+ *
  * @author fabian
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 public @interface Context {
 
-	/**
-	 * The id for lookup the value in the context.
-	 * 
-	 * @return the id for lookup the value
-	 */
-	String value() default "";
+    /**
+     * The id for lookup the value in the context.
+     *
+     * @return the id for lookup the value
+     */
+    String value() default "";
+
 }

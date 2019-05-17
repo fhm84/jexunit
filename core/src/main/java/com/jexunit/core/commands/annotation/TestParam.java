@@ -15,27 +15,27 @@ import java.lang.annotation.Target;
  * </code>
  * </p>
  * In this case you don't have to "inject" the whole TestCase to get the id.
- * 
+ *
  * @author fabian
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ElementType.PARAMETER})
 public @interface TestParam {
 
-	/**
-	 * Get the name/id of the of the value to lookup out of the test-parameters.
-	 * 
-	 * @return the name/id of the value to lookup
-	 */
-	String value() default "";
+    /**
+     * Get the name/id of the of the value to lookup out of the test-parameters.
+     *
+     * @return the name/id of the value to lookup
+     */
+    String value() default "";
 
-	/**
-	 * Mark the parameter as required. If there is a parameter marked as required but is null, the framework will not
-	 * invoke the method and the test will fail!<br>
-	 * Default value is true.
-	 * 
-	 * @return true, if the parameter is required (default), else false
-	 */
-	boolean required() default true;
+    /**
+     * Mark the parameter as required. If there is a parameter marked as required but is null, the framework will not
+     * invoke the method and the test will fail!<br>
+     * Default value is true.
+     *
+     * @return true, if the parameter is required (default), else false
+     */
+    boolean required() default true;
+
 }
