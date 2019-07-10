@@ -3,9 +3,14 @@ package com.jexunit.core;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.validation.ValidationType;
 import lombok.Getter;
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration2.CompositeConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -110,14 +115,14 @@ public class JExUnitConfig {
             config = new CompositeConfiguration(getDefaultConfiguration());
             config.setThrowExceptionOnMissing(false);
 
-            final URL jexunitProperties = ConfigurationUtils.locate("jexunit.properties");
-            if (jexunitProperties != null) {
-                // properties file is optional, so only load if exists!
-                try {
-                    config.addConfiguration(new PropertiesConfiguration(jexunitProperties));
-                } catch (final ConfigurationException e) {
-                    LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
-                }
+            final FileBasedConfigurationBuilder<PropertiesConfiguration> builder =
+                    new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+                            .configure(new Parameters().properties()
+                                    .setFileName("jexunit.properties"));
+            try {
+                config.addConfiguration(builder.getConfiguration());
+            } catch (final ConfigurationException e) {
+                LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
             }
         }
     }

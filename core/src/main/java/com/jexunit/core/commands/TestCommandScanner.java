@@ -7,7 +7,7 @@ import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.runner.RunWith;
 
 import java.lang.annotation.Annotation;
