@@ -12,7 +12,6 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.ClasspathLocationStrategy;
 
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -122,9 +121,9 @@ public class JExUnitConfig {
                             .configure(new Parameters().properties()
                                     .setLocationStrategy(new ClasspathLocationStrategy())
                                     .setFileName("jexunit.properties"));
-            if (Files.exists(builder.getFileHandler().getFile().toPath())) {
+            if (builder.getFileHandler().locate()) {
                 try {
-                    config.addConfigurationFirst(builder.getConfiguration());
+                    config.addConfiguration(builder.getConfiguration());
                 } catch (final ConfigurationException e) {
                     LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
                 }
@@ -142,7 +141,7 @@ public class JExUnitConfig {
      * @param cfg the configuration to register/add
      */
     public static synchronized void registerConfig(final Configuration cfg) {
-        config.addConfiguration(cfg);
+        config.addConfigurationFirst(cfg);
     }
 
     /**
