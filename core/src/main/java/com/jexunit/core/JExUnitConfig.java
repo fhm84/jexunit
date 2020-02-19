@@ -11,6 +11,7 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -119,10 +120,12 @@ public class JExUnitConfig {
                     new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
                             .configure(new Parameters().properties()
                                     .setFileName("jexunit.properties"));
-            try {
-                config.addConfiguration(builder.getConfiguration());
-            } catch (final ConfigurationException e) {
-                LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
+            if (Files.exists(builder.getFileHandler().getFile().toPath())) {
+                try {
+                    config.addConfiguration(builder.getConfiguration());
+                } catch (final ConfigurationException e) {
+                    LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
+                }
             }
         }
     }
