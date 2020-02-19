@@ -1,16 +1,12 @@
 package com.jexunit.core.model;
 
 import com.jexunit.core.dataprovider.ExcelLoader;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * The "entity" for a single cell. It consists of the value and the column (number).
  *
  * @author fabian
  */
-@Getter
-@Setter
 public class TestCell {
 
     /**
@@ -35,6 +31,19 @@ public class TestCell {
      */
     public TestCell(final int column, final String value) {
         this.column = column;
+        this.value = value;
+    }
+
+    /**
+     * Get the cells value.
+     *
+     * @return the value of the cell
+     */
+    public String getValue() {
+        return value;
+    }
+
+    public void setvalue(final String value) {
         this.value = value;
     }
 
