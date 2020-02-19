@@ -7,12 +7,7 @@ import com.jexunit.core.model.TestCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileNotFoundException;
@@ -76,7 +71,7 @@ public class ExcelLoader {
         try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
             // iterate through the worksheets
-            for (final XSSFSheet worksheet : workbook) {
+            for (final Sheet worksheet : workbook) {
                 sheet = worksheet.getSheetName();
                 final List<TestCase<?>> testCases = new ArrayList<>();
 
@@ -84,7 +79,7 @@ public class ExcelLoader {
 
                 // iterate through the rows
                 for (i = 0; i <= worksheet.getLastRowNum(); i++) {
-                    final XSSFRow row = worksheet.getRow(i);
+                    final Row row = worksheet.getRow(i);
 
                     if (row != null) {
                         final String cellValue = cellValues2String(workbook, row.getCell(0));
@@ -190,27 +185,27 @@ public class ExcelLoader {
      * @param cell     cell (excel)
      * @return the value of the excel-cell as String
      */
-    static String cellValues2String(final XSSFWorkbook workbook, final XSSFCell cell) {
+    static String cellValues2String(final XSSFWorkbook workbook, final Cell cell) {
         if (cell == null) {
             return null;
         }
         switch (cell.getCellType()) {
-            case XSSFCell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                             .format(cell.getDateCellValue());
                 } else {
                     return String.valueOf(cell.getNumericCellValue());
                 }
-            case XSSFCell.CELL_TYPE_STRING:
+            case STRING:
                 return cell.getStringCellValue();
-            case XSSFCell.CELL_TYPE_FORMULA:
+            case FORMULA:
                 return evaluateCellFormula(workbook, cell);
-            case XSSFCell.CELL_TYPE_BLANK:
+            case BLANK:
                 return cell.getStringCellValue();
-            case XSSFCell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
-            case XSSFCell.CELL_TYPE_ERROR:
+            case ERROR:
                 return String.valueOf(cell.getErrorCellValue());
         }
         return null;
@@ -223,16 +218,16 @@ public class ExcelLoader {
      * @param cell     cell (excel)
      * @return the value of the excel-call as string (the formula will be executed)
      */
-    static String evaluateCellFormula(final XSSFWorkbook workbook, final XSSFCell cell) {
+    static String evaluateCellFormula(final XSSFWorkbook workbook, final Cell cell) {
         final FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         final CellValue cellValue = evaluator.evaluate(cell);
 
         switch (cellValue.getCellType()) {
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 return String.valueOf(cellValue.getBooleanValue());
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 return String.valueOf(cellValue.getNumberValue());
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return cellValue.getStringValue();
             default:
                 return null;
