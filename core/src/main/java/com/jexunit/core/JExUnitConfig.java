@@ -10,6 +10,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.ClasspathLocationStrategy;
 
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -113,20 +114,24 @@ public class JExUnitConfig {
      */
     public static synchronized void init() {
         if (config == null) {
-            config = new CompositeConfiguration(getDefaultConfiguration());
+            config = new CompositeConfiguration();
             config.setThrowExceptionOnMissing(false);
 
             final FileBasedConfigurationBuilder<PropertiesConfiguration> builder =
                     new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
                             .configure(new Parameters().properties()
+                                    .setLocationStrategy(new ClasspathLocationStrategy())
                                     .setFileName("jexunit.properties"));
             if (Files.exists(builder.getFileHandler().getFile().toPath())) {
                 try {
-                    config.addConfiguration(builder.getConfiguration());
+                    config.addConfigurationFirst(builder.getConfiguration());
                 } catch (final ConfigurationException e) {
                     LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
                 }
             }
+
+            // after adding the user configuration provided via jexunit.properties file, add the default configuration
+            config.addConfiguration(getDefaultConfiguration());
         }
     }
 
