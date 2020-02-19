@@ -17,4 +17,5 @@ public class MyComplexBusinessTest {
 
 	@ExcelFile
 	private static final String[] excelFiles = new String[] { "src/test/resources/ComplexBusinessTest.xlsx" };
+
 }
