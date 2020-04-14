@@ -201,7 +201,11 @@ public class ExcelLoader {
                     return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                             .format(cell.getDateCellValue());
                 } else {
-                    return String.valueOf(cell.getNumericCellValue());
+                    double number = cell.getNumericCellValue();
+                    if ((number == Math.floor(number)) && !Double.isInfinite(number)) {
+                        return String.valueOf(new Double(number).intValue());
+                    }
+                    return String.valueOf(number);
                 }
             case STRING:
                 return cell.getStringCellValue();
