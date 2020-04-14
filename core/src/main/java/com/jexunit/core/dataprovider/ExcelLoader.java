@@ -70,6 +70,7 @@ public class ExcelLoader {
         String sheet = null;
         try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
+            workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             // iterate through the worksheets
             for (final Sheet worksheet : workbook) {
                 sheet = worksheet.getSheetName();
@@ -189,7 +190,12 @@ public class ExcelLoader {
         if (cell == null) {
             return null;
         }
-        switch (cell.getCellType()) {
+        CellType cellType = cell.getCellType();
+        if (cellType == CellType.FORMULA) {
+            cellType = cell.getCachedFormulaResultType();
+        }
+
+        switch (cellType) {
             case NUMERIC:
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
@@ -199,8 +205,6 @@ public class ExcelLoader {
                 }
             case STRING:
                 return cell.getStringCellValue();
-            case FORMULA:
-                return evaluateCellFormula(workbook, cell);
             case BLANK:
                 return cell.getStringCellValue();
             case BOOLEAN:
@@ -209,29 +213,6 @@ public class ExcelLoader {
                 return String.valueOf(cell.getErrorCellValue());
         }
         return null;
-    }
-
-    /**
-     * Evaluate the formula of the given cell.
-     *
-     * @param workbook workbook (excel) for evaluating the cell formula
-     * @param cell     cell (excel)
-     * @return the value of the excel-call as string (the formula will be executed)
-     */
-    static String evaluateCellFormula(final XSSFWorkbook workbook, final Cell cell) {
-        final FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        final CellValue cellValue = evaluator.evaluate(cell);
-
-        switch (cellValue.getCellType()) {
-            case BOOLEAN:
-                return String.valueOf(cellValue.getBooleanValue());
-            case NUMERIC:
-                return String.valueOf(cellValue.getNumberValue());
-            case STRING:
-                return cellValue.getStringValue();
-            default:
-                return null;
-        }
     }
 
     /**
