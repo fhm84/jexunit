@@ -27,7 +27,7 @@ public class LoadAndCalculateTestCommand {
 	 *            the TestContext to add the loaded entity to
 	 */
 	@TestCommand
-	public void load(@TestParam long id, TestContext context) {
+	public void load(@TestParam("id") long id, TestContext context) {
 		System.out.println("Load entity by id: " + id);
 
 		MyComplexBusinessService service = MyComplexBusinessService.getInstance();
