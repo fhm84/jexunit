@@ -90,7 +90,9 @@ public class ExcelLoader {
 
                             // iterate through the columns
                             for (int h = 0; h < row.getLastCellNum(); h++) {
-                                commandHeaders.add(row.getCell(h).getStringCellValue());
+                                if (row.getCell(h) != null) {
+                                    commandHeaders.add(row.getCell(h).getStringCellValue());
+                                }
                             }
                         } else {
                             if (cellValue == null || cellValue.isEmpty()) {
