@@ -128,6 +128,9 @@ public class ExcelLoader {
                                 testCase.getMetadata().setRow(row.getRowNum() + 1);
 
                                 for (j = 1; j < row.getLastCellNum(); j++) {
+                                    if (row.getCell(j) == null) {
+                                        continue;
+                                    }
                                     final TestCell testCell = new TestCell();
                                     testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
                                     testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
