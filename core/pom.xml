@@ -9,7 +9,7 @@ Developers design a "API" for the department so these specialists can write func
 	<parent>
 		<groupId>com.jexunit</groupId>
 		<artifactId>jexunit</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.2-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>jexunit-core</artifactId>
