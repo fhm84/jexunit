@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.jexunit</groupId>
 		<artifactId>jexunit</artifactId>
-		<version>1.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>examples-complex</artifactId>
@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>com.jexunit</groupId>
 			<artifactId>jexunit-core</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
