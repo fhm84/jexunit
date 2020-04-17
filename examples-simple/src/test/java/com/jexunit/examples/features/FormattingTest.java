@@ -5,15 +5,13 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
-import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 @RunWith(JExUnit.class)
 public class FormattingTest {
@@ -42,7 +40,15 @@ public class FormattingTest {
 		// Same date than today preserving configured date pattern
 		String format = new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
 				.format(new Date());
+
 		Assert.assertEquals(format, date);
+
+		date = params.get("timestamp");
+		// Same date than today preserving configured date pattern
+		format = new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
+				.format(new Date());
+		// Compare two timestamps (From Excel and Java). Because there is a little time-difference (maximum 1 second) between these dates
+		Assert.assertEquals(StringUtils.left(format, format.length() - 2), StringUtils.left(date, date.length() - 2));
 	}
 
 	@TestCommand("COMPAREINT")

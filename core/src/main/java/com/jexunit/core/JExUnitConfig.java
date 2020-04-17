@@ -34,6 +34,8 @@ public class JExUnitConfig {
     public enum ConfigKey {
 
         DATE_PATTERN("jexunit.datePattern", "dd.MM.yyyy"),
+
+        DATETIME_PATTERN("jexunit.dateTimePattern", "dd.MM.yyyy hh:mm:ss"),
         /**
          * keyword for identifying a command
          */

@@ -49,6 +49,7 @@ class PropertyUtils {
             } else if (clazz == BigDecimal.class) {
                 return new BigDecimal(value);
             } else if (clazz == Date.class) {
+                // TODO: Add possibility to parse Timestamps
                 return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                         .parse(value);
             } else if (clazz.isEnum()) {
