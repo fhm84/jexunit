@@ -128,46 +128,16 @@ public class ExcelLoader {
                                 testCase.getMetadata().setSheet(worksheet.getSheetName());
                                 testCase.getMetadata().setRow(row.getRowNum() + 1);
 
-                                for (j = 1; j < row.getLastCellNum(); j++) {
-                                    if (row.getCell(j) == null) {
-                                        continue;
-                                    }
-                                    final TestCell testCell = new TestCell();
-                                    testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
-                                    testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
-                                    // the "report"-command doesn't need a header-line
-                                    testCase.getValues().put(commandHeaders != null && commandHeaders.size() > j
-                                            ? commandHeaders.get(j) : "param" + j, testCell);
+                                fillvaluesinmap(workbook, commandHeaders, row, testCase);
 
-                                    // read/parse the "default" commands/parameters
-                                    if (commandHeaders != null && commandHeaders.size() > j) {
-                                        final String header = commandHeaders.get(j);
-                                        if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
-                                                .equalsIgnoreCase(commandHeaders.get(j))) {
-                                            // each command has the ability to set a breakpoint to
-                                            // debug the test more easily
-                                            testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig
-                                                .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
-                                                .equalsIgnoreCase(header)) {
-                                            // each command has the ability to expect an exception.
-                                            // you can define this via the field EXCEPTION_EXPECTED.
-                                            testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
-                                                .equalsIgnoreCase(header)) {
-                                            // each command can be disabled
-                                            testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.COMMENT)
-                                                .equalsIgnoreCase(header)) {
-                                            // add the comment to the test-case
-                                            testCase.setComment(testCell.getValue());
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.FAST_FAIL)
-                                                .equalsIgnoreCase(header)) {
-                                            // the command can fast fail the complete test sheet on fail
-                                            testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
-                                        }
+                                if (testCase.isMultiline()) {
+                                    while (worksheet.getRow(i+1) != null && StringUtils.equals(cellValues2String(workbook, worksheet.getRow(i+1).getCell(0)), cellValue)) {
+                                        i++;
+                                        testCase.next();
+                                        fillvaluesinmap(workbook, commandHeaders, worksheet.getRow(i), testCase);
                                     }
                                 }
+
                                 testCases.add(testCase);
                             }
                         }
@@ -183,6 +153,55 @@ public class ExcelLoader {
                     sheet, i + 1, getColumn(j + 1)), e);
         }
         return tests;
+    }
+
+    private static void fillvaluesinmap(XSSFWorkbook workbook, List<String> commandHeaders, Row row, TestCase<ExcelMetadata> testCase) {
+        for (int j = 1; j < row.getLastCellNum(); j++) {
+            if (row.getCell(j) == null) {
+                continue;
+            }
+            final TestCell testCell = new TestCell();
+            testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
+            testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
+            // the "report"-command doesn't need a header-line
+            String key = commandHeaders != null && commandHeaders.size() > j
+                    ? commandHeaders.get(j) : "param" + j;
+            testCase.getValues().put(key, testCell);
+
+            // read/parse the "default" commands/parameters
+            if (commandHeaders != null && commandHeaders.size() > j) {
+                final String header = commandHeaders.get(j);
+                if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
+                        .equalsIgnoreCase(commandHeaders.get(j))) {
+                    // each command has the ability to set a breakpoint to
+                    // debug the test more easily
+                    testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig
+                        .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
+                        .equalsIgnoreCase(header)) {
+                    // each command has the ability to expect an exception.
+                    // you can define this via the field EXCEPTION_EXPECTED.
+                    testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
+                        .equalsIgnoreCase(header)) {
+                    // each command can be disabled
+                    testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.COMMENT)
+                        .equalsIgnoreCase(header)) {
+                    // add the comment to the test-case
+                    testCase.setComment(testCell.getValue());
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.FAST_FAIL)
+                        .equalsIgnoreCase(header)) {
+                    // the command can fast fail the complete test sheet on fail
+                    testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE)
+                        .equalsIgnoreCase(header)) {
+                    // the command can fast fail the complete test sheet on fail
+                    testCase.setMultiline(Boolean.parseBoolean(testCell.getValue()));
+                    testCase.getValues().remove(key);
+                }
+            }
+        }
     }
 
     /**
