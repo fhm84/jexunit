@@ -20,6 +20,7 @@ public class MultilineTest {
 	private static List<Map<String, TestCell>> multilineValues;
 	private static List<Map<String, TestCell>> singleLineValues;
 	private static Map<String, TestCell> singleLineValue;
+	private static List<Map<String, TestCell>> defaultMultilineValues;
 
 
 	@TestCommand("createPerson")
@@ -30,6 +31,12 @@ public class MultilineTest {
 			singleLineValues = testCase.getMultilineValues();
 			singleLineValue = testCase.getValues();
 		}
+	}
+
+	@TestCommand("createPersonMultiline")
+	public static void createPersonMultiline(TestCase<?> testCase) {
+		Assert.assertTrue(testCase.isMultiline());
+		defaultMultilineValues = testCase.getMultilineValues();
 	}
 
 	@Test
@@ -51,6 +58,24 @@ public class MultilineTest {
 	}
 
 	@Test
+	public void testDefaultMultilineValues() {
+		// Drei Multiline-Zeilen hintereinander
+		Assert.assertEquals(3, defaultMultilineValues.size());
+
+
+		// Sortierung wie im Excel
+		Assert.assertEquals("Robert", defaultMultilineValues.get(0).get("firstname").getValue());
+		Assert.assertEquals("Simon", defaultMultilineValues.get(1).get("firstname").getValue());
+		Assert.assertEquals("Julian", defaultMultilineValues.get(2).get("firstname").getValue());
+
+		// Multiline-Spalte selbst ist nicht aufgeführt
+		Assert.assertEquals(3, defaultMultilineValues.get(0).values().size());
+		Assert.assertEquals(3, defaultMultilineValues.get(1).values().size());
+		Assert.assertEquals(3, defaultMultilineValues.get(2).values().size());
+
+	}
+
+	@Test
 	public void testSinglelineValues() {
 		// Multiline-Zugriff auch bei Single-Line möglich
 		Assert.assertEquals(1, singleLineValues.size());
@@ -64,4 +89,6 @@ public class MultilineTest {
 		// Multiline-Spalte selbst ist nicht aufgeführt
 		Assert.assertEquals(4, multilineValues.get(0).values().size());
 	}
+
+
 }

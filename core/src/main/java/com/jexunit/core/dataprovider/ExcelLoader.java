@@ -4,6 +4,7 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -202,6 +203,13 @@ public class ExcelLoader {
                 }
             }
         }
+
+        if (testCase.getMultiline() == null && ArrayUtils.contains(
+                StringUtils.split(JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS), ","),
+                testCase.getTestCommand())) {
+            testCase.setMultiline(true);
+        }
+
     }
 
     /**
