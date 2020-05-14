@@ -5,7 +5,6 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 
@@ -48,7 +47,7 @@ public class FormattingTest {
 		format = new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
 				.format(new Date());
 		// Compare two timestamps (From Excel and Java). Because there is a little time-difference (maximum 1 second) between these dates
-		Assert.assertEquals(StringUtils.left(format, format.length() - 2), StringUtils.left(date, date.length() - 2));
+		Assert.assertEquals(format.substring(0, format.length() - 2), date.substring(0, date.length() - 2));
 	}
 
 	@TestCommand("COMPAREINT")

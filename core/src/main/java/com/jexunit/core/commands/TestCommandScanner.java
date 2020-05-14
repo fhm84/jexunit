@@ -7,7 +7,6 @@ import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.runner.RunWith;
 
 import java.lang.annotation.Annotation;
@@ -123,8 +122,13 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = type.getSimpleName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
-        name = StringUtils.removeStartIgnoreCase(name, prefix);
-        name = StringUtils.removeEndIgnoreCase(name, postfix);
+        if (name.toLowerCase().startsWith(prefix.toLowerCase())) {
+            name = name.substring(prefix.length());
+        }
+        if (name.toLowerCase().endsWith(postfix.toLowerCase())) {
+            name = name.substring(0, name.length() - postfix.length());
+        }
+
         return name;
     }
 
@@ -139,8 +143,13 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = m.getName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
-        name = StringUtils.removeStartIgnoreCase(name, prefix);
-        name = StringUtils.removeEndIgnoreCase(name, postfix);
+        if (name.toLowerCase().startsWith(prefix.toLowerCase())) {
+            name = name.substring(prefix.length());
+        }
+        if (name.toLowerCase().endsWith(postfix.toLowerCase())) {
+            name = name.substring(0, name.length() - postfix.length());
+        }
+
         return name;
     }
 

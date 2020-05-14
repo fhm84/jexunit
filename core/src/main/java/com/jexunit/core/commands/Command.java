@@ -1,9 +1,8 @@
 package com.jexunit.core.commands;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,6 +15,7 @@ import java.lang.reflect.Modifier;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Command {
 
     private String name;
@@ -67,21 +67,6 @@ public class Command {
 
     public boolean isStaticMethod() {
         return method != null && Modifier.isStatic(method.getModifiers());
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (!(o instanceof Command)) {
-            return false;
-        }
-        final Command c = (Command) o;
-        return new EqualsBuilder().append(name, c.name).append(type, c.type).append(method, c.method)
-                .append(implementation, c.implementation).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(name).append(type).append(method).append(implementation).hashCode();
     }
 
     // TODO: add "mapping" details to set the method parameters, "inject" the test params, ...

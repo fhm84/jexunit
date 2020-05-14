@@ -4,12 +4,13 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileNotFoundException;
@@ -132,7 +133,9 @@ public class ExcelLoader {
                                 fillvaluesinmap(workbook, commandHeaders, row, testCase);
 
                                 if (testCase.isMultiline()) {
-                                    while (worksheet.getRow(i+1) != null && StringUtils.equals(cellValues2String(workbook, worksheet.getRow(i+1).getCell(0)), cellValue)) {
+                                    while (worksheet.getRow(i + 1) != null &&
+                                            cellValue.equalsIgnoreCase(cellValues2String(workbook,
+                                                    worksheet.getRow(i + 1).getCell(0)))) {
                                         i++;
                                         testCase.next();
                                         fillvaluesinmap(workbook, commandHeaders, worksheet.getRow(i), testCase);
@@ -204,10 +207,13 @@ public class ExcelLoader {
             }
         }
 
-        if (testCase.getMultiline() == null && ArrayUtils.contains(
-                StringUtils.split(JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS), ","),
-                testCase.getTestCommand())) {
-            testCase.setMultiline(true);
+        if (testCase.getMultiline() == null) {
+            String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+            for (String command : commands) {
+                if (command.equalsIgnoreCase(testCase.getTestCommand())) {
+                    testCase.setMultiline(true);
+                }
+            }
         }
 
     }
@@ -233,7 +239,8 @@ public class ExcelLoader {
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     Date value = cell.getDateCellValue();
                     // Test if date is datetime. Does format contain letter h?
-                    if (StringUtils.contains(StringUtils.lowerCase(cell.getCellStyle().getDataFormatString()), "h")) {
+                    if (cell.getCellStyle().getDataFormatString() != null &&
+                            cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
                         return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
                                 .format(value);
                     } else {
