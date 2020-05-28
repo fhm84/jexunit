@@ -30,6 +30,10 @@ public class JExUnitConfig {
 
         DATE_PATTERN("jexunit.datePattern", "dd.MM.yyyy"),
 
+        BEFORE_EXCEL("jexunit.sheet.before", ""),
+
+        AFTER_EXCEL("jexunit.sheet.after", ""),
+
         DATETIME_PATTERN("jexunit.dateTimePattern", "dd.MM.yyyy hh:mm:ss"),
         /**
          * keyword for identifying a command
