@@ -27,7 +27,7 @@ public class JExUnit extends Suite {
     private final ArrayList<Runner> runners = new ArrayList<>();
 
     public JExUnit(final Class<?> clazz) throws Throwable {
-        super(clazz, Collections.<Runner>emptyList());
+        super(clazz, Collections.emptyList());
         if (!clazz.isAnnotationPresent(Ignore.class)) {
             // Only init excel parsing logic if test is not ignored
             ServiceRegistry.initialize();

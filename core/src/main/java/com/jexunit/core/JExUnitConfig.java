@@ -10,6 +10,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.ClasspathLocationStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,18 +113,24 @@ public class JExUnitConfig {
      */
     public static synchronized void init() {
         if (config == null) {
-            config = new CompositeConfiguration(getDefaultConfiguration());
+            config = new CompositeConfiguration();
             config.setThrowExceptionOnMissing(false);
 
             final FileBasedConfigurationBuilder<PropertiesConfiguration> builder =
                     new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
                             .configure(new Parameters().properties()
+                                    .setLocationStrategy(new ClasspathLocationStrategy())
                                     .setFileName("jexunit.properties"));
-            try {
-                config.addConfiguration(builder.getConfiguration());
-            } catch (final ConfigurationException e) {
-                LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
+            if (builder.getFileHandler().locate()) {
+                try {
+                    config.addConfiguration(builder.getConfiguration());
+                } catch (final ConfigurationException e) {
+                    LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
+                }
             }
+
+            // after adding the user configuration provided via jexunit.properties file, add the default configuration
+            config.addConfiguration(getDefaultConfiguration());
         }
     }
 
@@ -134,7 +141,7 @@ public class JExUnitConfig {
      * @param cfg the configuration to register/add
      */
     public static synchronized void registerConfig(final Configuration cfg) {
-        config.addConfiguration(cfg);
+        config.addConfigurationFirst(cfg);
     }
 
     /**
