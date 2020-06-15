@@ -4,7 +4,6 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
@@ -191,7 +190,7 @@ public class ExcelLoader {
         }
         switch (cell.getCellType()) {
             case NUMERIC:
-                if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                if (DateUtil.isCellDateFormatted(cell)) {
                     return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                             .format(cell.getDateCellValue());
                 } else {
