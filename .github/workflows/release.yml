@@ -1,0 +1,13 @@
+- name: Release
+    uses: qcastel/github-actions-maven-release@master
+    with:
+      release-branch-name: "master"
+
+      maven-repo-server-id: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
+      maven-repo-server-username: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
+      maven-repo-server-password: ${{ secrets.MVN_REPO_PRIVATE_REPO_PASSWORD }}
+
+      git-release-bot-name: "release-bot"
+      git-release-bot-email: "release-bot@example.com"
+
+      access-token: ${{ secrets.GITHUB_TOKEN }}

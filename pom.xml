@@ -46,9 +46,9 @@
 
     <distributionManagement>
         <repository>
-            <id>internal.repo</id>
-            <name>Temporary Staging Repository</name>
-            <url>file://${project.basedir}/etc/mvn-repo</url>
+            <id>github</id>
+            <name>GitHub fhm84 Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/fhm84</url>
         </repository>
     </distributionManagement>
 
