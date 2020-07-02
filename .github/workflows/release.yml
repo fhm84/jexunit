@@ -1,13 +1,25 @@
-- name: Release
-    uses: qcastel/github-actions-maven-release@master
-    with:
-      release-branch-name: "master"
+name: Release
 
-      maven-repo-server-id: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
-      maven-repo-server-username: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
-      maven-repo-server-password: ${{ secrets.MVN_REPO_PRIVATE_REPO_PASSWORD }}
+jobs:
+  build:
 
-      git-release-bot-name: "release-bot"
-      git-release-bot-email: "release-bot@example.com"
+    runs-on: ubuntu-latest
 
-      access-token: ${{ secrets.GITHUB_TOKEN }}
+    setps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Release
+        uses: qcastel/github-actions-maven-release@master
+        with:
+          release-branch-name: "master"
+
+          maven-repo-server-id: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
+          maven-repo-server-username: ${{ secrets.MVN_REPO_PRIVATE_REPO_USER }}
+          maven-repo-server-password: ${{ secrets.MVN_REPO_PRIVATE_REPO_PASSWORD }}
+
+          git-release-bot-name: "release-bot"
+          git-release-bot-email: "release-bot@example.com"
+
+          access-token: ${{ secrets.GITHUB_TOKEN }}
