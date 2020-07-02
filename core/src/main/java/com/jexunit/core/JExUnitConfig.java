@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -115,22 +114,44 @@ public class JExUnitConfig {
     public static synchronized void init() {
         if (config == null) {
             config = new HashMap<>();
-            InputStream in = JExUnitConfig.class.getClassLoader().getResourceAsStream("jexunit.properties");
-            Properties prop = new Properties();
+            final InputStream in = JExUnitConfig.class.getClassLoader().getResourceAsStream("jexunit.properties");
+            final Properties prop = new Properties();
             if (in != null) {
                 try {
                     prop.load(in);
                     in.close();
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
             }
 
             config.putAll(getDefaultConfiguration());
 
-            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+            registerConfig(prop);
+        }
+    }
+
+    /**
+     * Register additional configuration.
+     *
+     * @param cfg the configuration to register/add
+     */
+    public static synchronized void registerConfig(final Properties cfg) {
+        if (cfg != null && !cfg.isEmpty()) {
+            for (final Map.Entry<Object, Object> entry : cfg.entrySet()) {
                 config.put(String.valueOf(entry.getKey()), entry.getValue());
             }
+        }
+    }
+
+    /**
+     * Register additional configuration.
+     *
+     * @param cfg the configuration to register/add
+     */
+    public static synchronized void registerConfig(final Map<String, Object> cfg) {
+        if (cfg != null && !cfg.isEmpty()) {
+            config.putAll(cfg);
         }
     }
 

@@ -6,10 +6,7 @@ import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileNotFoundException;
@@ -68,7 +65,7 @@ public class ExcelLoader {
         final Map<String, List<TestCase<?>>> tests = new LinkedHashMap<>();
 
         int i = 0;
-        int j = 0;
+        final int j = 0;
         String sheet = null;
         try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
@@ -158,7 +155,7 @@ public class ExcelLoader {
         return tests;
     }
 
-    private static void fillvaluesinmap(XSSFWorkbook workbook, List<String> commandHeaders, Row row, TestCase<ExcelMetadata> testCase) {
+    private static void fillvaluesinmap(final XSSFWorkbook workbook, final List<String> commandHeaders, final Row row, final TestCase<ExcelMetadata> testCase) {
         for (int j = 1; j < row.getLastCellNum(); j++) {
             if (row.getCell(j) == null) {
                 continue;
@@ -167,7 +164,7 @@ public class ExcelLoader {
             testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
             testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
             // the "report"-command doesn't need a header-line
-            String key = commandHeaders != null && commandHeaders.size() > j
+            final String key = commandHeaders != null && commandHeaders.size() > j
                     ? commandHeaders.get(j) : "param" + j;
             testCase.getValues().put(key, testCell);
 
@@ -207,8 +204,8 @@ public class ExcelLoader {
         }
 
         if (testCase.getMultiline() == null) {
-            String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
-            for (String command : commands) {
+            final String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+            for (final String command : commands) {
                 if (command.equalsIgnoreCase(testCase.getTestCommand())) {
                     testCase.setMultiline(true);
                 }
@@ -236,7 +233,7 @@ public class ExcelLoader {
         switch (cellType) {
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    Date value = cell.getDateCellValue();
+                    final Date value = cell.getDateCellValue();
                     // Test if date is datetime. Does format contain letter h?
                     if (cell.getCellStyle().getDataFormatString() != null &&
                             cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
@@ -247,7 +244,7 @@ public class ExcelLoader {
                                 .format(value);
                     }
                 } else {
-                    double number = cell.getNumericCellValue();
+                    final double number = cell.getNumericCellValue();
                     if ((number == Math.floor(number)) && !Double.isInfinite(number)) {
                         return String.valueOf(new Double(number).intValue());
                     }

@@ -122,10 +122,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = type.getSimpleName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
-        if (name.toLowerCase().startsWith(prefix.toLowerCase())) {
+        if (prefix != null && name.toLowerCase().startsWith(prefix.toLowerCase())) {
             name = name.substring(prefix.length());
         }
-        if (name.toLowerCase().endsWith(postfix.toLowerCase())) {
+        if (postfix != null && name.toLowerCase().endsWith(postfix.toLowerCase())) {
             name = name.substring(0, name.length() - postfix.length());
         }
 
@@ -143,10 +143,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = m.getName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
-        if (name.toLowerCase().startsWith(prefix.toLowerCase())) {
+        if (prefix != null && name.toLowerCase().startsWith(prefix.toLowerCase())) {
             name = name.substring(prefix.length());
         }
-        if (name.toLowerCase().endsWith(postfix.toLowerCase())) {
+        if (postfix != null && name.toLowerCase().endsWith(postfix.toLowerCase())) {
             name = name.substring(0, name.length() - postfix.length());
         }
 
