@@ -3,6 +3,7 @@
 jexunit
 =======
 [![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master&style=flat-square)](https://travis-ci.org/fhm84/jexunit)
+![Java CI with Maven](https://github.com/fhm84/jexunit/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![Release](https://jitpack.io/v/fhm84/jexunit.svg?style=flat-square)](https://jitpack.io/#fhm84/jexunit)
 
 > a Tool for defining JUnit-Tests in Excel Worksheets
