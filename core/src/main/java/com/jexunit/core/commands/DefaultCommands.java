@@ -39,6 +39,18 @@ public enum DefaultCommands {
     FAST_FAIL("jexunit.defaultcommand.fastfail", "fastFail"),
 
     /**
+     * Parameter for a multiline command. This parameter will override the default setting of
+     * the test command.
+     */
+    MULTILINE("jexunit.defaultcommand.multiline", "multiline"),
+
+    /**
+     * Parameter for a list of multiline commands. This parameter will override the default setting of
+     * the test command.
+     */
+    MULTILINE_COMMANDS("jexunit.multiline_commands", ""),
+
+    /**
      * Parameter for "setting a breakpoint inside the excel-file" to be able to debug the test more easily.
      */
     BREAKPOINT("jexunit.defaultcommand.breakpoint", "breakpoint");

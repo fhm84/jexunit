@@ -6,7 +6,10 @@ import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileNotFoundException;
@@ -69,6 +72,7 @@ public class ExcelLoader {
         String sheet = null;
         try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
+            workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             // iterate through the worksheets
             for (final Sheet worksheet : workbook) {
                 sheet = worksheet.getSheetName();
@@ -88,7 +92,9 @@ public class ExcelLoader {
 
                             // iterate through the columns
                             for (int h = 0; h < row.getLastCellNum(); h++) {
-                                commandHeaders.add(row.getCell(h).getStringCellValue());
+                                if (row.getCell(h) != null) {
+                                    commandHeaders.add(row.getCell(h).getStringCellValue());
+                                }
                             }
                         } else {
                             if (cellValue == null || cellValue.isEmpty()) {
@@ -123,43 +129,18 @@ public class ExcelLoader {
                                 testCase.getMetadata().setSheet(worksheet.getSheetName());
                                 testCase.getMetadata().setRow(row.getRowNum() + 1);
 
-                                for (j = 1; j < row.getLastCellNum(); j++) {
-                                    final TestCell testCell = new TestCell();
-                                    testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
-                                    testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
-                                    // the "report"-command doesn't need a header-line
-                                    testCase.getValues().put(commandHeaders != null && commandHeaders.size() > j
-                                            ? commandHeaders.get(j) : "param" + j, testCell);
+                                fillvaluesinmap(workbook, commandHeaders, row, testCase);
 
-                                    // read/parse the "default" commands/parameters
-                                    if (commandHeaders != null && commandHeaders.size() > j) {
-                                        final String header = commandHeaders.get(j);
-                                        if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
-                                                .equalsIgnoreCase(commandHeaders.get(j))) {
-                                            // each command has the ability to set a breakpoint to
-                                            // debug the test more easily
-                                            testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig
-                                                .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
-                                                .equalsIgnoreCase(header)) {
-                                            // each command has the ability to expect an exception.
-                                            // you can define this via the field EXCEPTION_EXPECTED.
-                                            testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
-                                                .equalsIgnoreCase(header)) {
-                                            // each command can be disabled
-                                            testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.COMMENT)
-                                                .equalsIgnoreCase(header)) {
-                                            // add the comment to the test-case
-                                            testCase.setComment(testCell.getValue());
-                                        } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.FAST_FAIL)
-                                                .equalsIgnoreCase(header)) {
-                                            // the command can fast fail the complete test sheet on fail
-                                            testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
-                                        }
+                                if (testCase.isMultiline()) {
+                                    while (worksheet.getRow(i + 1) != null &&
+                                            cellValue.equalsIgnoreCase(cellValues2String(workbook,
+                                                    worksheet.getRow(i + 1).getCell(0)))) {
+                                        i++;
+                                        testCase.next();
+                                        fillvaluesinmap(workbook, commandHeaders, worksheet.getRow(i), testCase);
                                     }
                                 }
+
                                 testCases.add(testCase);
                             }
                         }
@@ -177,6 +158,65 @@ public class ExcelLoader {
         return tests;
     }
 
+    private static void fillvaluesinmap(XSSFWorkbook workbook, List<String> commandHeaders, Row row, TestCase<ExcelMetadata> testCase) {
+        for (int j = 1; j < row.getLastCellNum(); j++) {
+            if (row.getCell(j) == null) {
+                continue;
+            }
+            final TestCell testCell = new TestCell();
+            testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
+            testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
+            // the "report"-command doesn't need a header-line
+            String key = commandHeaders != null && commandHeaders.size() > j
+                    ? commandHeaders.get(j) : "param" + j;
+            testCase.getValues().put(key, testCell);
+
+            // read/parse the "default" commands/parameters
+            if (commandHeaders != null && commandHeaders.size() > j) {
+                final String header = commandHeaders.get(j);
+                if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.BREAKPOINT)
+                        .equalsIgnoreCase(commandHeaders.get(j))) {
+                    // each command has the ability to set a breakpoint to
+                    // debug the test more easily
+                    testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig
+                        .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
+                        .equalsIgnoreCase(header)) {
+                    // each command has the ability to expect an exception.
+                    // you can define this via the field EXCEPTION_EXPECTED.
+                    testCase.setExceptionExpected(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
+                        .equalsIgnoreCase(header)) {
+                    // each command can be disabled
+                    testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.COMMENT)
+                        .equalsIgnoreCase(header)) {
+                    // add the comment to the test-case
+                    testCase.setComment(testCell.getValue());
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.FAST_FAIL)
+                        .equalsIgnoreCase(header)) {
+                    // the command can fast fail the complete test sheet on fail
+                    testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE)
+                        .equalsIgnoreCase(header)) {
+                    // the command can fast fail the complete test sheet on fail
+                    testCase.setMultiline(Boolean.parseBoolean(testCell.getValue()));
+                    testCase.getValues().remove(key);
+                }
+            }
+        }
+
+        if (testCase.getMultiline() == null) {
+            String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+            for (String command : commands) {
+                if (command.equalsIgnoreCase(testCase.getTestCommand())) {
+                    testCase.setMultiline(true);
+                }
+            }
+        }
+
+    }
+
     /**
      * Get the value of the excel-cell as String.
      *
@@ -188,18 +228,33 @@ public class ExcelLoader {
         if (cell == null) {
             return null;
         }
-        switch (cell.getCellType()) {
+        CellType cellType = cell.getCellType();
+        if (cellType == CellType.FORMULA) {
+            cellType = cell.getCachedFormulaResultType();
+        }
+
+        switch (cellType) {
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
-                            .format(cell.getDateCellValue());
+                    Date value = cell.getDateCellValue();
+                    // Test if date is datetime. Does format contain letter h?
+                    if (cell.getCellStyle().getDataFormatString() != null &&
+                            cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
+                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
+                                .format(value);
+                    } else {
+                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
+                                .format(value);
+                    }
                 } else {
-                    return String.valueOf(cell.getNumericCellValue());
+                    double number = cell.getNumericCellValue();
+                    if ((number == Math.floor(number)) && !Double.isInfinite(number)) {
+                        return String.valueOf(new Double(number).intValue());
+                    }
+                    return String.valueOf(number);
                 }
             case STRING:
                 return cell.getStringCellValue();
-            case FORMULA:
-                return evaluateCellFormula(workbook, cell);
             case BLANK:
                 return cell.getStringCellValue();
             case BOOLEAN:
@@ -208,29 +263,6 @@ public class ExcelLoader {
                 return String.valueOf(cell.getErrorCellValue());
         }
         return null;
-    }
-
-    /**
-     * Evaluate the formula of the given cell.
-     *
-     * @param workbook workbook (excel) for evaluating the cell formula
-     * @param cell     cell (excel)
-     * @return the value of the excel-call as string (the formula will be executed)
-     */
-    static String evaluateCellFormula(final XSSFWorkbook workbook, final Cell cell) {
-        final FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        final CellValue cellValue = evaluator.evaluate(cell);
-
-        switch (cellValue.getCellType()) {
-            case BOOLEAN:
-                return String.valueOf(cellValue.getBooleanValue());
-            case NUMERIC:
-                return String.valueOf(cellValue.getNumberValue());
-            case STRING:
-                return cellValue.getStringValue();
-            default:
-                return null;
-        }
     }
 
     /**

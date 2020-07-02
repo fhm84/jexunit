@@ -9,7 +9,7 @@ Developers design a "API" for the department so these specialists can write func
 	<parent>
 		<groupId>com.jexunit</groupId>
 		<artifactId>jexunit</artifactId>
-		<version>0.4.1-SNAPSHOT</version>
+		<version>1.0.4</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>jexunit-core</artifactId>
@@ -41,6 +41,7 @@ Developers design a "API" for the department so these specialists can write func
 			<artifactId>ognl</artifactId>
 			<version>3.2.14</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-configuration2</artifactId>
@@ -52,6 +53,7 @@ Developers design a "API" for the department so these specialists can write func
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.4</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

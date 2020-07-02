@@ -7,6 +7,8 @@ import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.junit.Parameterized;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import com.jexunit.core.spi.AfterSheet;
+import com.jexunit.core.spi.BeforeSheet;
 import com.jexunit.core.spi.data.DataProvider;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
@@ -211,13 +213,28 @@ public class JExUnitBase {
     }
 
     @BeforeClass
-    public static void initialseTest() {
-        // TODO: add callback?!
+    public static void initialseTest() throws Exception {
+        String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.BEFORE_EXCEL);
+        if (clazzName != null && !clazzName.isEmpty()) {
+            Class<?> name = Class.forName(clazzName);
+            if (BeforeSheet.class.isAssignableFrom(name)) {
+                BeforeSheet instance = (BeforeSheet) name.getDeclaredConstructor().newInstance();
+                instance.run();
+            }
+        }
     }
 
     @AfterClass
-    public static void finalizeTest() {
-        // TODO: add callback?!
+    public static void finalizeTest() throws Exception{
+        String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.AFTER_EXCEL);
+        if (clazzName != null && !clazzName.isEmpty()) {
+            Class<?> name = Class.forName(clazzName);
+            if (AfterSheet.class.isAssignableFrom(name)) {
+                AfterSheet instance = (AfterSheet) name.getDeclaredConstructor().newInstance();
+                instance.run();
+            }
+        }
+
     }
 
 }

@@ -8,7 +8,7 @@ Developers design a "API" for the department so these specialists can write func
 
 	<groupId>com.jexunit</groupId>
 	<artifactId>jexunit</artifactId>
-	<version>0.4.1-SNAPSHOT</version>
+	<version>1.0.4</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -52,25 +52,12 @@ Developers design a "API" for the department so these specialists can write func
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+	        <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+        </properties>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
-				<configuration>
-					<release>8</release>
-					<showDeprecation>true</showDeprecation>
-					<showWarnings>true</showWarnings>
-					<fork>true</fork>
-					<compilerArgs>
-						<arg>-parameters</arg>
-					</compilerArgs>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>

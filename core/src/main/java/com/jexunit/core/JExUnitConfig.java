@@ -3,17 +3,12 @@ package com.jexunit.core;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.validation.ValidationType;
 import lombok.Getter;
-import org.apache.commons.configuration2.CompositeConfiguration;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.MapConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.configuration2.io.ClasspathLocationStrategy;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +29,12 @@ public class JExUnitConfig {
     public enum ConfigKey {
 
         DATE_PATTERN("jexunit.datePattern", "dd.MM.yyyy"),
+
+        BEFORE_EXCEL("jexunit.sheet.before", ""),
+
+        AFTER_EXCEL("jexunit.sheet.after", ""),
+
+        DATETIME_PATTERN("jexunit.dateTimePattern", "dd.MM.yyyy hh:mm:ss"),
         /**
          * keyword for identifying a command
          */
@@ -76,7 +77,7 @@ public class JExUnitConfig {
 
     }
 
-    private static CompositeConfiguration config;
+    private static Map<String, Object> config;
 
     /**
      * Private constructor -> only static access.
@@ -94,7 +95,7 @@ public class JExUnitConfig {
      *
      * @return default configuration
      */
-    private static Configuration getDefaultConfiguration() {
+    private static Map<String, Object> getDefaultConfiguration() {
         final Map<String, Object> config = new HashMap<>();
 
         for (final ConfigKey ck : ConfigKey.values()) {
@@ -104,7 +105,7 @@ public class JExUnitConfig {
             config.put(dc.getConfigKey(), dc.getDefaultValue());
         }
 
-        return new MapConfiguration(config);
+        return config;
     }
 
     /**
@@ -113,35 +114,24 @@ public class JExUnitConfig {
      */
     public static synchronized void init() {
         if (config == null) {
-            config = new CompositeConfiguration();
-            config.setThrowExceptionOnMissing(false);
-
-            final FileBasedConfigurationBuilder<PropertiesConfiguration> builder =
-                    new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
-                            .configure(new Parameters().properties()
-                                    .setLocationStrategy(new ClasspathLocationStrategy())
-                                    .setFileName("jexunit.properties"));
-            if (builder.getFileHandler().locate()) {
+            config = new HashMap<>();
+            InputStream in = JExUnitConfig.class.getClassLoader().getResourceAsStream("jexunit.properties");
+            Properties prop = new Properties();
+            if (in != null) {
                 try {
-                    config.addConfiguration(builder.getConfiguration());
-                } catch (final ConfigurationException e) {
-                    LOG.log(Level.WARNING, "ConfigurationException loading the jexunit.properties file.", e);
+                    prop.load(in);
+                    in.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
-            // after adding the user configuration provided via jexunit.properties file, add the default configuration
-            config.addConfiguration(getDefaultConfiguration());
-        }
-    }
+            config.putAll(getDefaultConfiguration());
 
-    /**
-     * Register an additional Configuration implementation. This can be any kind of configuration. For more information
-     * see <i>apache commons configuration</i>.
-     *
-     * @param cfg the configuration to register/add
-     */
-    public static synchronized void registerConfig(final Configuration cfg) {
-        config.addConfigurationFirst(cfg);
+            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+                config.put(String.valueOf(entry.getKey()), entry.getValue());
+            }
+        }
     }
 
     /**
@@ -151,7 +141,7 @@ public class JExUnitConfig {
      * @param value new value
      */
     public static synchronized void setConfigProperty(final String key, final Object value) {
-        config.setProperty(key, value);
+        config.put(key, value);
     }
 
     /**
@@ -161,7 +151,7 @@ public class JExUnitConfig {
      * @return the configured property value
      */
     public static String getStringProperty(final String key) {
-        return config.getString(key);
+        return String.valueOf(config.get(key));
     }
 
     /**
@@ -171,7 +161,7 @@ public class JExUnitConfig {
      * @return the configured propert value
      */
     public static String getStringProperty(final ConfigKey key) {
-        return config.getString(key.getKey());
+        return getStringProperty(key.getKey());
     }
 
     /**
@@ -182,22 +172,12 @@ public class JExUnitConfig {
      * @return the configured property value with the default command prefix prepended
      */
     public static String getDefaultCommandProperty(final DefaultCommands defaultCommand) {
-        String conf = config.getString(defaultCommand.getConfigKey());
+        String conf = getStringProperty(defaultCommand.getConfigKey());
         final String defaultCommandPrefix = getStringProperty(ConfigKey.DEFAULTCOMMAND_PREFIX);
         if (defaultCommandPrefix != null && !defaultCommandPrefix.trim().isEmpty()) {
             conf = defaultCommandPrefix + conf;
         }
         return conf;
-    }
-
-    /**
-     * Get the configured property with the given key.
-     *
-     * @param key config key
-     * @return the configured property value
-     */
-    public static Object getProperty(final String key) {
-        return config.getProperty(key);
     }
 
 }

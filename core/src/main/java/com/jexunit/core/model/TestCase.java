@@ -1,7 +1,6 @@
 package com.jexunit.core.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is the "entity" for a single test instruction. A test case consists of a command (for the API) and a number of
@@ -23,8 +22,9 @@ public class TestCase<T extends Metadata> {
     /**
      * The values for the test instruction (the test command).
      */
-    private Map<String, TestCell> values = new LinkedHashMap<String, TestCell>();
+    private List<Map<String, TestCell>> values = new ArrayList<>(Collections.singletonList(new LinkedHashMap<>()));
 
+    private int counter = 0;
     /**
      * Optional comment for the test case (out of the data file).
      */
@@ -33,6 +33,7 @@ public class TestCase<T extends Metadata> {
     private boolean disabled = false;
     private boolean exceptionExpected = false;
     private Boolean fastFail = null;
+    private Boolean multiline = null;
     private boolean breakpointEnabled = false;
 
     public TestCase() {
@@ -78,11 +79,11 @@ public class TestCase<T extends Metadata> {
      * @see TestCase#values
      */
     public Map<String, TestCell> getValues() {
-        return values;
+        return values.get(counter);
     }
 
     public void setValues(final Map<String, TestCell> values) {
-        this.values = values;
+        this.values.set(counter, values);
     }
 
     /**
@@ -142,6 +143,18 @@ public class TestCase<T extends Metadata> {
         this.fastFail = fastFail;
     }
 
+    public boolean isMultiline() {
+        return multiline != null && multiline;
+    }
+
+    public Boolean getMultiline() {
+        return multiline;
+    }
+
+    public void setMultiline(final boolean multiline) {
+        this.multiline = multiline;
+    }
+
     /**
      * Flag for debugging. If this flag is set to true, you can debug your command using conditional breakpoints.
      *
@@ -165,6 +178,15 @@ public class TestCase<T extends Metadata> {
             return metadata.getTestGroup();
         }
         return super.toString();
+    }
+
+    public void next() {
+        counter++;
+        values.add(counter, new LinkedHashMap<>());
+    }
+
+    public List<Map<String, TestCell>> getMultilineValues(){
+        return values;
     }
 
 }
