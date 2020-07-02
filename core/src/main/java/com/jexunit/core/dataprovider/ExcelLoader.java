@@ -4,7 +4,6 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
@@ -236,7 +235,7 @@ public class ExcelLoader {
 
         switch (cellType) {
             case NUMERIC:
-                if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                if (DateUtil.isCellDateFormatted(cell)) {
                     Date value = cell.getDateCellValue();
                     // Test if date is datetime. Does format contain letter h?
                     if (cell.getCellStyle().getDataFormatString() != null &&

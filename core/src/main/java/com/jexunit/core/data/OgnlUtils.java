@@ -1,8 +1,6 @@
 package com.jexunit.core.data;
 
-import ognl.Ognl;
-import ognl.OgnlException;
-import ognl.OgnlRuntime;
+import ognl.*;
 
 import java.util.List;
 import java.util.Map;
@@ -54,8 +52,12 @@ public class OgnlUtils {
         OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
-        @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(obj);
-        Ognl.setTypeConverter(context, new CustomTypeConverter());
+        @SuppressWarnings("rawtypes") final Map context =
+                Ognl.createDefaultContext(
+                        obj,
+                        new DefaultMemberAccess(true),
+                        new DefaultClassResolver(),
+                        new CustomTypeConverter());
 
         final String propertyExpression = prepareExpression(propName);
         final Object expr = Ognl.parseExpression(propertyExpression);
@@ -67,8 +69,11 @@ public class OgnlUtils {
         OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
-        @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(obj);
-        Ognl.setTypeConverter(context, new CustomTypeConverter());
+        @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(
+                obj,
+                new DefaultMemberAccess(true),
+                new DefaultClassResolver(),
+                new CustomTypeConverter());
 
         final String propertyExpression = prepareExpression(propName);
         final Object expr = Ognl.parseExpression(propertyExpression);

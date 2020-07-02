@@ -37,7 +37,7 @@ public class CollectionPropertyHelper {
 
         // iterate through the collection
         for (final Object obj : target) {
-            final Object currentValue = Ognl.getValue(expression, obj);
+            final Object currentValue = Ognl.getValue(expression, context, obj);
             // if we found the object out of the collection with the expected value ...
             if (currentValue != null && currentValue.equals(expectedValue)) {
                 // ... return the current object out of the collection
