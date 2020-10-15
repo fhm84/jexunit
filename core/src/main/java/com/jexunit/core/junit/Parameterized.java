@@ -166,16 +166,20 @@ public class Parameterized extends Suite {
     private final ArrayList<Runner> runners = new ArrayList<>();
     private Class<?> testType;
     private String identifier;
-
-    try {
-        final String package = System.getProperty("jexunit.annotation-scan.package");
-        if (package != null && !package.isEmpty()) {
-            detector.detect(package);
-        } else {
-            detector.detect();
+    
+    static {
+        // scan classes for test commands
+        final AnnotationDetector detector = new AnnotationDetector(new TestCommandScanner());
+        try {
+            final String property = System.getProperty("jexunit.annotation-scan.package");
+            if (property != null && !property.isEmpty()) {
+                detector.detect(property);
+            } else {
+                detector.detect();
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
         }
-    } catch (final IOException e) {
-        e.printStackTrace();
     }
 
 
