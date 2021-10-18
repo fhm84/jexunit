@@ -1,6 +1,7 @@
 package com.jexunit.core.junit;
 
 import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.TestCommandScanner;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.dataprovider.ExcelFile;
@@ -171,9 +172,10 @@ public class Parameterized extends Suite {
         // scan classes for test commands
         final AnnotationDetector detector = new AnnotationDetector(new TestCommandScanner());
         try {
-            final String property = System.getProperty("jexunit.annotation-scan.package");
+            JExUnitConfig.init();
+            final String property = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.ANNOTATION_SCAN_PACKAGE);
             if (property != null && !property.isEmpty()) {
-                detector.detect(property);
+                detector.detect(property.split(","));
             } else {
                 detector.detect();
             }

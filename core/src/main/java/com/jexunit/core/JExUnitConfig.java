@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 /**
  * JExUnit configuration. This will give access to the configuration running JExUnit. It's possible to override the
  * default configuration from a <i>"jexunit.properties"</i> file or via configuration set for example in the
- * <code>@BeforClass</code>-method of the test. The same way you can add your own/customized configuration to the
+ * <code>@BeforeClass</code>-method of the test. The same way you can add your own/customized configuration to the
  * JExUnitConfig to get unified access to the whole test-configuration.<br>
  * For the internal representation <i>apache commons configuration</i> is used. So it should be easy to extend.
  *
@@ -64,7 +64,13 @@ public class JExUnitConfig {
          * Validation type (no validation, warn and remove invalid test commands from execution list or
          * (fast) fail on missing command implementation).
          */
-        COMMAND_VALIDATION_TYPE("jexunit.command.validation.type", ValidationType.WARN.name());
+        COMMAND_VALIDATION_TYPE("jexunit.command.validation.type", ValidationType.WARN.name()),
+
+        /**
+         * Limit annotation scan (for command implementations) to given packages and sub-packages.
+         * Multiple packages can be split by "<code>,</code>" (comma).
+         */
+        ANNOTATION_SCAN_PACKAGE("jexunit.annotation-scan.package", "");
 
         private final String key;
         private final String defaultConfig;
@@ -179,7 +185,7 @@ public class JExUnitConfig {
      * Get the configured property with the given ConfigKey.
      *
      * @param key ConfigKey
-     * @return the configured propert value
+     * @return the configured property value
      */
     public static String getStringProperty(final ConfigKey key) {
         return getStringProperty(key.getKey());
