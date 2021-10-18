@@ -24,7 +24,7 @@ public enum DefaultCommands {
     /**
      * Parameter for expecting an exception.
      */
-    EXCEPTION_EXCPECTED("jexunit.defaultcommand.exception_expected", "exception"),
+    EXCEPTION_EXPECTED("jexunit.defaultcommand.exception_expected", "exception"),
 
     /**
      * Parameter for a comment in case the assertion/command fails. This parameter can be used like the message for

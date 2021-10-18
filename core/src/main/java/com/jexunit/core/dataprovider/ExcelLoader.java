@@ -177,7 +177,7 @@ public class ExcelLoader {
                     // debug the test more easily
                     testCase.setBreakpointEnabled(Boolean.parseBoolean(testCell.getValue()));
                 } else if (JExUnitConfig
-                        .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXCPECTED)
+                        .getDefaultCommandProperty(DefaultCommands.EXCEPTION_EXPECTED)
                         .equalsIgnoreCase(header)) {
                     // each command has the ability to expect an exception.
                     // you can define this via the field EXCEPTION_EXPECTED.
