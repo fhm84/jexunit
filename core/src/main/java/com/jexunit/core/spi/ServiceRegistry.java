@@ -13,7 +13,7 @@ public class ServiceRegistry {
 
     private static final Map<Class<?>, List<?>> services = new HashMap<>();
 
-    private static ServiceRegistry instace;
+    private static ServiceRegistry instance;
 
     private ServiceRegistry() {
     }
@@ -22,9 +22,9 @@ public class ServiceRegistry {
      * Initialize the ServiceRegistry singleton.
      */
     public static synchronized void initialize() {
-        if (instace == null) {
-            instace = new ServiceRegistry();
-            instace.loadExtensions(DataProvider.class);
+        if (instance == null) {
+            instance = new ServiceRegistry();
+            instance.loadExtensions(DataProvider.class);
         }
     }
 
@@ -44,10 +44,10 @@ public class ServiceRegistry {
      * @return the (singleton) instance of the ServiceRegistry
      */
     public static ServiceRegistry getInstance() {
-        if (instace == null) {
+        if (instance == null) {
             initialize();
         }
-        return instace;
+        return instance;
     }
 
     /**

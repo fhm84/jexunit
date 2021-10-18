@@ -43,7 +43,7 @@ public class TestCell {
         return value;
     }
 
-    public void setvalue(final String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 

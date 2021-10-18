@@ -109,7 +109,7 @@ public class ExcelLoader {
 
                                 if (row.getLastCellNum() >= 1) {
                                     final TestCell testCell = new TestCell();
-                                    testCell.setvalue(cellValues2String(workbook, row.getCell(1)));
+                                    testCell.setValue(cellValues2String(workbook, row.getCell(1)));
                                     testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
                                     testCase.getValues().put(
                                             JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED),
@@ -161,7 +161,7 @@ public class ExcelLoader {
                 continue;
             }
             final TestCell testCell = new TestCell();
-            testCell.setvalue(cellValues2String(workbook, row.getCell(j)));
+            testCell.setValue(cellValues2String(workbook, row.getCell(j)));
             testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
             // the "report"-command doesn't need a header-line
             final String key = commandHeaders != null && commandHeaders.size() > j
