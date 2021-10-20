@@ -22,6 +22,8 @@ public class ExcelDataProvider implements DataProvider {
 
     private boolean worksheetAsTest;
 
+    private boolean transpose;
+
     @Override
     public boolean canProvide(final Class<?> testClass) {
         int annotatedFields = 0;
@@ -87,7 +89,7 @@ public class ExcelDataProvider implements DataProvider {
             throw new IllegalArgumentException("The ExcelDataProvider cannot provide test data for test number " + test
                     + "!");
         }
-        return ExcelLoader.loadTestData(excelFileNames.get(test), worksheetAsTest);
+        return ExcelLoader.loadTestData(excelFileNames.get(test), worksheetAsTest, transpose);
     }
 
     /**
@@ -163,6 +165,7 @@ public class ExcelDataProvider implements DataProvider {
 
             final ExcelFile annotation = field.getAnnotation(ExcelFile.class);
             worksheetAsTest = annotation.worksheetAsTest();
+            transpose = annotation.transpose();
 
             final boolean isFieldAccessible = field.isAccessible();
             if (!isFieldAccessible) {

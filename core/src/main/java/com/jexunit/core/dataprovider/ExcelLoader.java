@@ -33,11 +33,14 @@ public class ExcelLoader {
      *                        loaded (for example: src/test/resources/myExcelFile.xls)
      * @param worksheetAsTest "group" all the test-commands of a worksheet to one test (true) or run each test-command
      *                        as single test (false)
+     * @param transpose       transpose data when reading. If set to <code>false</code>, data is read row wise, else if
+     *                        set to <code>true</code> data is read column wise
      * @return a list of the parsed {@link TestCase}s
      * @throws Exception in case that something goes wrong
      */
-    public static Collection<Object[]> loadTestData(final String excelFile, final boolean worksheetAsTest) throws Exception {
-        final Map<String, List<TestCase<?>>> tests = readExcel(excelFile);
+    public static Collection<Object[]> loadTestData(final String excelFile, final boolean worksheetAsTest,
+                                                    final boolean transpose) throws Exception {
+        final Map<String, List<TestCase<?>>> tests = readExcel(excelFile, transpose);
 
         final Collection<Object[]> col = new ArrayList<>();
         if (worksheetAsTest) {
@@ -54,20 +57,23 @@ public class ExcelLoader {
     }
 
     /**
-     * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list of GevoTestCases. So
-     * each worksheet will run as separated testrun.
+     * Read the excel-sheet and generate the TestCases. Each worksheet will become its own list of TestCases. So
+     * each worksheet will run as separated test run.
      *
      * @param excelFilePath the path to the excel-file to read
+     * @param transpose     transpose data when reading. If set to <code>false</code>, data is read row wise, else if
+     *                      set to <code>true</code> data is read column wise
      * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as value
      * @throws Exception in case that something goes wrong
      */
-    static Map<String, List<TestCase<?>>> readExcel(final String excelFilePath) throws Exception {
+    static Map<String, List<TestCase<?>>> readExcel(final String excelFilePath,
+                                                    final boolean transpose) throws Exception {
         final Map<String, List<TestCase<?>>> tests = new LinkedHashMap<>();
 
         int i = 0;
         final int j = 0;
         String sheet = null;
-        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
+        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ)) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
             workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             // iterate through the worksheets
@@ -155,7 +161,8 @@ public class ExcelLoader {
         return tests;
     }
 
-    private static void fillvaluesinmap(final XSSFWorkbook workbook, final List<String> commandHeaders, final Row row, final TestCase<ExcelMetadata> testCase) {
+    private static void fillvaluesinmap(final XSSFWorkbook workbook, final List<String> commandHeaders, final Row row,
+                                        final TestCase<ExcelMetadata> testCase) {
         for (int j = 1; j < row.getLastCellNum(); j++) {
             if (row.getCell(j) == null) {
                 continue;
