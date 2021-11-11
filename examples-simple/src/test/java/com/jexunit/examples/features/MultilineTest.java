@@ -19,6 +19,7 @@ public class MultilineTest {
 
     @ExcelFile
     static String[] excelFiles = new String[]{"src/test/resources/MultilineTest.xlsx"};
+
     private static List<Map<String, TestCell>> multilineValues;
     private static List<Map<String, TestCell>> singleLineValues;
     private static Map<String, TestCell> singleLineValue;
@@ -87,6 +88,5 @@ public class MultilineTest {
         // Multiline-Spalte selbst ist nicht aufgeführt
         assertEquals(4, multilineValues.get(0).values().size());
     }
-
 
 }

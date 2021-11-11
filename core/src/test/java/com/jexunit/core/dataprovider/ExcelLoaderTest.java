@@ -20,46 +20,6 @@ public class ExcelLoaderTest {
     }
 
     @Test
-    public void getColumn_A$int() throws Exception {
-        final ExcelLoader target = new ExcelLoader();
-
-        int column = 1;
-        String actual = target.getColumn(column);
-        String expected = "A";
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 26;
-        expected = "Z";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 28;
-        expected = "AB";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 52;
-        expected = "AZ";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 60;
-        expected = "BH";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 705;
-        expected = "AAC";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-
-        column = 4136;
-        expected = "FCB";
-        actual = target.getColumn(column);
-        assertThat(actual, is(equalTo(expected)));
-    }
-
-    @Test
     public void shouldReadExcel() throws Exception {
         final ExcelLoader target = new ExcelLoader();
         final Map<String, List<TestCase<ExcelMetadata>>> data = target.readExcel(Paths.get("", "src", "test", "resources", "loader-test.xlsx").toAbsolutePath().toString());

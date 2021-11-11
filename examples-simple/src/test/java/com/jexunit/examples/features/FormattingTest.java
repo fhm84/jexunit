@@ -21,7 +21,7 @@ public class FormattingTest {
     static String[] excelFiles = new String[]{"src/test/resources/FormattingTest.xlsx"};
 
     @TestCommand("map")
-    public static void runMap(final TestCase<?> testCase, final HashMap<String, String> params) throws Exception {
+    public static void runMap(final TestCase<?> testCase, final HashMap<String, String> params) {
         final String param1 = params.get("param1");
         final String param2 = params.get("param2");
 
@@ -60,6 +60,7 @@ public class FormattingTest {
         final String aFloat = params.get("float");
         assertEquals("1.999", aFloat);
     }
+
 }
 
 

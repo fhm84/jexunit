@@ -8,4 +8,5 @@ public class BeforeLog implements BeforeSheet {
     public void run() {
         System.out.println("before");
     }
+
 }

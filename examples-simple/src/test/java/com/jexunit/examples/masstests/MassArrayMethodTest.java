@@ -1,10 +1,9 @@
 package com.jexunit.examples.masstests;
 
-import org.junit.runner.RunWith;
-
-import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.dataprovider.ExcelFile;
+import org.junit.runner.RunWith;
 
 /**
  * Simple Test for the framework.
@@ -26,17 +25,17 @@ import com.jexunit.core.dataprovider.ExcelFile;
  * <p>
  * This test should check to provide multiple excel-files via <code>String[]</code> from a method.
  * </p>
- * 
+ *
  * @author fabian
- * 
  */
 @RunWith(JExUnit.class)
 public class MassArrayMethodTest {
 
-	@ExcelFile(worksheetAsTest = false)
-	public static String[] getExcelFiles() {
-		String[] excelFiles = new String[] { "src/test/resources/MassTests.xlsx",
-				"src/test/resources/MassTests2.xlsx" };
-		return excelFiles;
-	}
+    @ExcelFile(worksheetAsTest = false)
+    public static String[] getExcelFiles() {
+        String[] excelFiles = new String[]{"src/test/resources/MassTests.xlsx",
+                "src/test/resources/MassTests2.xlsx"};
+        return excelFiles;
+    }
+
 }

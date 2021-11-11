@@ -46,7 +46,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @RunWith(JExUnit.class)
 public class ArithmeticalTest {
 
-    private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
+    private static final Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
 
     @ExcelFile
     static String[] excelFiles = new String[]{"src/test/resources/ArithmeticalTests.xlsx",
@@ -72,13 +72,13 @@ public class ArithmeticalTest {
     }
 
     @TestCommand("mul")
-    public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
+    public static void runMulCommand(final TestCase<?> testCase, final ArithmeticalTestObject testObject) {
         log.log(Level.INFO, "in test command: MUL!");
         assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
     }
 
     @TestCommand("div")
-    public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
+    public static void runDivCommand(final TestCase<?> testCase, final ArithmeticalTestObject testObject) {
         log.log(Level.INFO, "in test command: DIV!");
         assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
     }
@@ -88,4 +88,5 @@ public class ArithmeticalTest {
         log.info("What about this test?");
         assertThat(JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
     }
+
 }

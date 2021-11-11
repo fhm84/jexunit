@@ -147,6 +147,13 @@ public class ExcelLoader {
         return new ImmutablePair<>(lastRow, lastColumn);
     }
 
+    /**
+     * Map given cells to test cases.
+     *
+     * @param cells cells (read from excel worksheet - independent if transposed or not)
+     * @return list of test cases to be executed
+     * @throws Exception
+     */
     private List<TestCase<ExcelMetadata>> mapCells(final List<List<Cell>> cells) throws Exception {
         final List<TestCase<ExcelMetadata>> testCases = new ArrayList<>();
 
@@ -158,6 +165,7 @@ public class ExcelLoader {
 
         // this is always the current cell (use for detailed exception message in case of an exception)
         Cell cell = null;
+        // marker for "newly defined" command line (to e.g. reset the multiline flag
         boolean commandLine = false;
         try {
             for (final List<Cell> cellList : cells) {
@@ -167,8 +175,7 @@ public class ExcelLoader {
                 cell = cellList.get(0);
                 final String cellValue = cellValues2String(cell);
                 if (cellValue == null || cellValue.isEmpty()) {
-                    // if the first column is empty, this is a comment line and will be
-                    // ignored
+                    // if the first column is empty, this is a comment line and will be ignored
                     continue;
                 } else if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
                         .equalsIgnoreCase(cellValue)) {
@@ -189,13 +196,13 @@ public class ExcelLoader {
                     // the first column is always the command
                     testCase.setTestCommand(cellValue);
                     testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
-                    testCase.getMetadata().setRow(cell.getRow().getRowNum() + 1);
+                    testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
 
                     if (cellList.size() >= 1) {
                         final TestCell testCell = new TestCell();
                         cell = cellList.get(1);
                         testCell.setValue(cellValues2String(cell));
-                        testCell.setIdentifier(getColumn(cell.getColumnIndex() + 1));
+                        testCell.setIdentifier(cell.getAddress().formatAsString());
                         testCase.getValues().put(
                                 JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED),
                                 testCell);
@@ -206,15 +213,17 @@ public class ExcelLoader {
                 } else if (commandHeaders != null || JExUnitConfig
                         .getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
                     final TestCase<ExcelMetadata> testCase;
-                    final TestCase<ExcelMetadata> lastTestCase = testCases.isEmpty() ? null : testCases.get(testCases.size() - 1);
+                    final TestCase<ExcelMetadata> lastTestCase =
+                            testCases.isEmpty() ? null : testCases.get(testCases.size() - 1);
 
-                    if (!commandLine && lastTestCase != null && lastTestCase.isMultiline() && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
+                    if (!commandLine && lastTestCase != null && lastTestCase.isMultiline()
+                            && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
                         testCase = lastTestCase;
                         testCase.next();
                     } else {
                         testCase = new TestCase<>(new ExcelMetadata());
                         testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
-                        testCase.getMetadata().setRow(cell.getRow().getRowNum() + 1);
+                        testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
 
                         // the first column is always the command
                         testCase.setTestCommand(cellValue);
@@ -246,7 +255,7 @@ public class ExcelLoader {
             }
             final TestCell testCell = new TestCell();
             testCell.setValue(cellValues2String(cell));
-            testCell.setIdentifier(getColumn(cell.getColumnIndex() + 1));
+            testCell.setIdentifier(cell.getAddress().formatAsString());
             // the "report"-command doesn't need a header-line
             final String key = commandHeaders != null && commandHeaders.size() > j
                     ? commandHeaders.get(j) : "param" + j;
@@ -289,7 +298,8 @@ public class ExcelLoader {
         }
 
         if (testCase.getMultiline() == null) {
-            final String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+            final String[] commands =
+                    JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
             for (final String command : commands) {
                 if (command.equalsIgnoreCase(testCase.getTestCommand())) {
                     testCase.setMultiline(true);
@@ -321,10 +331,12 @@ public class ExcelLoader {
                     // Test if date is datetime. Does format contain letter h?
                     if (cell.getCellStyle().getDataFormatString() != null &&
                             cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
-                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
+                        return new SimpleDateFormat(
+                                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
                                 .format(value);
                     } else {
-                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
+                        return new SimpleDateFormat(
+                                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                                 .format(value);
                     }
                 } else {
@@ -344,23 +356,6 @@ public class ExcelLoader {
                 return String.valueOf(cell.getErrorCellValue());
         }
         return null;
-    }
-
-    /**
-     * Get the character(s) of the column like it is in excel (A, B, C, ...)
-     *
-     * @param column the column index
-     * @return the name of the column (A, B, C, ...)
-     */
-    public String getColumn(int column) {
-        column--;
-        if (column >= 0 && column < 26) {
-            return Character.toString((char) ('A' + column));
-        } else if (column > 25) {
-            return getColumn(column / 26) + getColumn(column % 26 + 1);
-        } else {
-            throw new IllegalArgumentException("Invalid Column #" + Character.toString((char) (column + 1)));
-        }
     }
 
 }

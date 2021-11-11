@@ -40,14 +40,14 @@ public class ArithmeticalBusinessEntityTest {
     static String excelFile = "src/test/resources/ArithmeticalBusinessEntityTests.xlsx";
 
     @TestCommand(value = "add")
-    public static void runAddCommand(CustomTestObject testObject) throws Exception {
+    public static void runAddCommand(final CustomTestObject testObject) {
         log.log(Level.INFO, "in test command: ADD!");
         assertThat(testObject.getEntity().getParam1() + testObject.getEntity().getParam2(),
                 equalTo(testObject.getResult()));
     }
 
     @TestCommand(value = "sub")
-    public static void runSubCommand(CustomTestObject testObject) throws Exception {
+    public static void runSubCommand(final CustomTestObject testObject) {
         log.log(Level.INFO, "in test command: SUB!");
         assertThat(testObject.getEntity().getParam1() - testObject.getEntity().getParam2(),
                 equalTo(testObject.getResult()));
@@ -55,14 +55,14 @@ public class ArithmeticalBusinessEntityTest {
 
     @TestCommand(value = "multiply")
     @TestCommand(value = "mul")
-    public static void runMulCommand(CustomTestObject testObject) throws Exception {
+    public static void runMulCommand(final CustomTestObject testObject) {
         log.log(Level.INFO, "in test command: MUL!");
         assertThat(testObject.getEntity().getParam1() * testObject.getEntity().getParam2(),
                 equalTo(testObject.getResult()));
     }
 
     @TestCommands({@TestCommand(value = "divide"), @TestCommand(value = "div")})
-    public static void runDivCommand(CustomTestObject testObject) throws Exception {
+    public static void runDivCommand(final CustomTestObject testObject) {
         log.log(Level.INFO, "in test command: DIV!");
         assertThat(testObject.getEntity().getParam1() / testObject.getEntity().getParam2(),
                 equalTo(testObject.getResult()));
