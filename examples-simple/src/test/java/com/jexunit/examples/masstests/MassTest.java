@@ -1,10 +1,9 @@
 package com.jexunit.examples.masstests;
 
-import org.junit.runner.RunWith;
-
-import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.dataprovider.ExcelFile;
+import org.junit.runner.RunWith;
 
 /**
  * Simple Test for the framework.
@@ -27,14 +26,14 @@ import com.jexunit.core.dataprovider.ExcelFile;
  * This test should also check to provide multiple excel-files via a static <code>String[]</code>
  * -field.
  * </p>
- * 
+ *
  * @author fabian
- * 
  */
 @RunWith(JExUnit.class)
 public class MassTest {
 
-	@ExcelFile(worksheetAsTest = false)
-	static String[] excelFile = new String[] { "src/test/resources/MassTests.xlsx",
-			"src/test/resources/MassTests2.xlsx" };
+    @ExcelFile(worksheetAsTest = false)
+    static String[] excelFile = new String[]{"src/test/resources/MassTests.xlsx",
+            "src/test/resources/MassTests2.xlsx"};
+
 }

@@ -102,6 +102,7 @@
             <id>example-tests</id>
 
             <modules>
+                <module>core</module>
                 <module>examples-simple</module>
                 <module>examples-complex</module>
             </modules>

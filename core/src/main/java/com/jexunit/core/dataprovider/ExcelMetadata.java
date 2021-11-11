@@ -10,8 +10,6 @@ import com.jexunit.core.model.Metadata;
  */
 public class ExcelMetadata extends Metadata {
 
-    private int row;
-
     /**
      * Get the name of the sheet the test-case was defined in.
      *
@@ -25,23 +23,9 @@ public class ExcelMetadata extends Metadata {
         setTestGroup(sheet);
     }
 
-    /**
-     * Get the row-number of the test-case.
-     *
-     * @return the row-number of the test-case
-     */
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(final int row) {
-        this.row = row;
-        setIdentifier(String.valueOf(row));
-    }
-
     @Override
     public String getDetailedIdentifier() {
-        return String.format("worksheet: %s, row: %s", getTestGroup(), row);
+        return String.format("worksheet: %s, cell: %s", getTestGroup(), getIdentifier());
     }
 
 }

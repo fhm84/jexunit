@@ -8,4 +8,5 @@ public class AfterLog implements AfterSheet {
     public void run() {
         System.out.println("after");
     }
+
 }

@@ -1,13 +1,12 @@
 package com.jexunit.examples.masstests;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.jexunit.core.JExUnit;
+import com.jexunit.core.JExUnitBase;
+import com.jexunit.core.dataprovider.ExcelFile;
 import org.junit.runner.RunWith;
 
-import com.jexunit.core.JExUnitBase;
-import com.jexunit.core.JExUnit;
-import com.jexunit.core.dataprovider.ExcelFile;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simple Test for the framework.
@@ -30,18 +29,18 @@ import com.jexunit.core.dataprovider.ExcelFile;
  * This test should check to provide multiple excel-files via <code>List&lt;String&gt;</code> from a
  * method.
  * </p>
- * 
+ *
  * @author fabian
- * 
  */
 @RunWith(JExUnit.class)
 public class MassListMethodTest {
 
-	@ExcelFile(worksheetAsTest = false)
-	public static List<String> getExcelFiles() {
-		List<String> excelFiles = new ArrayList<>();
-		excelFiles.add("src/test/resources/MassTests.xlsx");
-		excelFiles.add("src/test/resources/MassTests2.xlsx");
-		return excelFiles;
-	}
+    @ExcelFile(worksheetAsTest = false)
+    public static List<String> getExcelFiles() {
+        final List<String> excelFiles = new ArrayList<>();
+        excelFiles.add("src/test/resources/MassTests.xlsx");
+        excelFiles.add("src/test/resources/MassTests2.xlsx");
+        return excelFiles;
+    }
+
 }

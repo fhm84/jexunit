@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 /**
  * BaseClass for the Tests (BusinessTransactionTests or simple unit-tests).<br>
  * This class is used to read the excel-file and "create" the separated junit-tests for each worksheet. Each test will
- * get a list of test-cases containing comands to execute.<br>
+ * get a list of test-cases containing commands to execute.<br>
  * <br>
  * To run your own test-command, you have to implement the {@link #runCommand(TestCase)}-method. All the surrounding
  * features are implemented in this BaseClass. So you can define commands like "disable" the test-case, "report"
@@ -213,12 +213,12 @@ public class JExUnitBase {
     }
 
     @BeforeClass
-    public static void initialseTest() throws Exception {
-        String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.BEFORE_EXCEL);
+    public static void initializeTest() throws Exception {
+        final String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.BEFORE_EXCEL);
         if (clazzName != null && !clazzName.isEmpty()) {
-            Class<?> name = Class.forName(clazzName);
+            final Class<?> name = Class.forName(clazzName);
             if (BeforeSheet.class.isAssignableFrom(name)) {
-                BeforeSheet instance = (BeforeSheet) name.getDeclaredConstructor().newInstance();
+                final BeforeSheet instance = (BeforeSheet) name.getDeclaredConstructor().newInstance();
                 instance.run();
             }
         }
@@ -226,15 +226,14 @@ public class JExUnitBase {
 
     @AfterClass
     public static void finalizeTest() throws Exception{
-        String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.AFTER_EXCEL);
+        final String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.AFTER_EXCEL);
         if (clazzName != null && !clazzName.isEmpty()) {
-            Class<?> name = Class.forName(clazzName);
+            final Class<?> name = Class.forName(clazzName);
             if (AfterSheet.class.isAssignableFrom(name)) {
-                AfterSheet instance = (AfterSheet) name.getDeclaredConstructor().newInstance();
+                final AfterSheet instance = (AfterSheet) name.getDeclaredConstructor().newInstance();
                 instance.run();
             }
         }
-
     }
 
 }

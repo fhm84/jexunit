@@ -4,6 +4,8 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
@@ -15,29 +17,40 @@ import java.util.*;
 
 /**
  * Utility class for reading the excel file into the internal data representation.
- * <p>
- * TODO: add possibility to change the "test-direction" from horizontal to vertical?
  *
  * @author fabian
  */
 public class ExcelLoader {
 
-    // Utility class, only static access
-    private ExcelLoader() {
+    final boolean worksheetAsTest;
+    final boolean transpose;
+
+    public ExcelLoader() {
+        this.worksheetAsTest = true;
+        this.transpose = false;
+    }
+
+    /**
+     * @param worksheetAsTest "group" all the test-commands of a worksheet to one test (true) or run each test-command
+     *                        as single test (false)
+     * @param transpose       transpose data when reading. If set to <code>false</code>, data is read row wise, else if
+     *                        set to <code>true</code> data is read column wise
+     */
+    public ExcelLoader(final boolean worksheetAsTest, final boolean transpose) {
+        this.worksheetAsTest = worksheetAsTest;
+        this.transpose = transpose;
     }
 
     /**
      * Load the excel-file and prepare the data (TestCommands). Each worksheet will run as separated Unit-Test.
      *
-     * @param excelFile       the name of the excel file (to be loaded). It has to be the filename incl. path to be
-     *                        loaded (for example: src/test/resources/myExcelFile.xls)
-     * @param worksheetAsTest "group" all the test-commands of a worksheet to one test (true) or run each test-command
-     *                        as single test (false)
+     * @param excelFile the name of the excel file (to be loaded). It has to be the filename incl. path to be
+     *                  loaded (for example: src/test/resources/myExcelFile.xls)
      * @return a list of the parsed {@link TestCase}s
      * @throws Exception in case that something goes wrong
      */
-    public static Collection<Object[]> loadTestData(final String excelFile, final boolean worksheetAsTest) throws Exception {
-        final Map<String, List<TestCase<?>>> tests = readExcel(excelFile);
+    public Collection<Object[]> loadTestData(final String excelFile) throws Exception {
+        final Map<String, List<TestCase<ExcelMetadata>>> tests = readExcel(excelFile);
 
         final Collection<Object[]> col = new ArrayList<>();
         if (worksheetAsTest) {
@@ -54,115 +67,195 @@ public class ExcelLoader {
     }
 
     /**
-     * Read the excel-sheet and generate the GevoTestCases. Each worksheet will become its own list of GevoTestCases. So
-     * each worksheet will run as separated testrun.
+     * Read the excel-sheet and generate the TestCases. Each worksheet will become its own list of TestCases. So
+     * each worksheet will run as separated test run.
      *
      * @param excelFilePath the path to the excel-file to read
      * @return a map with the excel worksheet name as key and the list of {@link TestCase}s as value
      * @throws Exception in case that something goes wrong
      */
-    static Map<String, List<TestCase<?>>> readExcel(final String excelFilePath) throws Exception {
-        final Map<String, List<TestCase<?>>> tests = new LinkedHashMap<>();
+    Map<String, List<TestCase<ExcelMetadata>>> readExcel(final String excelFilePath) throws Exception {
+        final Map<String, List<TestCase<ExcelMetadata>>> tests = new LinkedHashMap<>();
 
-        int i = 0;
-        final int j = 0;
         String sheet = null;
-        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);) {
+        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ)) {
             final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
             workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             // iterate through the worksheets
             for (final Sheet worksheet : workbook) {
                 sheet = worksheet.getSheetName();
-                final List<TestCase<?>> testCases = new ArrayList<>();
-
-                List<String> commandHeaders = null;
-
-                // iterate through the rows
-                for (i = 0; i <= worksheet.getLastRowNum(); i++) {
-                    final Row row = worksheet.getRow(i);
-
-                    if (row != null) {
-                        final String cellValue = cellValues2String(workbook, row.getCell(0));
-                        if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
-                                .equalsIgnoreCase(cellValue)) {
-                            commandHeaders = new ArrayList<>();
-
-                            // iterate through the columns
-                            for (int h = 0; h < row.getLastCellNum(); h++) {
-                                if (row.getCell(h) != null) {
-                                    commandHeaders.add(row.getCell(h).getStringCellValue());
-                                }
-                            }
-                        } else {
-                            if (cellValue == null || cellValue.isEmpty()) {
-                                // if the first column is empty, this is a comment line and will be
-                                // ignored
-                                continue;
-                            } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
-                                    .equalsIgnoreCase(cellValue)) {
-                                final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
-
-                                // the first column is always the command
-                                testCase.setTestCommand(cellValue);
-                                testCase.getMetadata().setSheet(worksheet.getSheetName());
-                                testCase.getMetadata().setRow(row.getRowNum() + 1);
-
-                                if (row.getLastCellNum() >= 1) {
-                                    final TestCell testCell = new TestCell();
-                                    testCell.setValue(cellValues2String(workbook, row.getCell(1)));
-                                    testCell.setColumn(row.getCell(1).getColumnIndex() + 1);
-                                    testCase.getValues().put(
-                                            JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED),
-                                            testCell);
-                                    testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
-                                }
-                                testCases.add(testCase);
-                            } else if (commandHeaders != null || JExUnitConfig
-                                    .getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
-                                final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
-
-                                // the first column is always the command
-                                testCase.setTestCommand(cellValue);
-                                testCase.getMetadata().setSheet(worksheet.getSheetName());
-                                testCase.getMetadata().setRow(row.getRowNum() + 1);
-
-                                fillvaluesinmap(workbook, commandHeaders, row, testCase);
-
-                                if (testCase.isMultiline()) {
-                                    while (worksheet.getRow(i + 1) != null &&
-                                            cellValue.equalsIgnoreCase(cellValues2String(workbook,
-                                                    worksheet.getRow(i + 1).getCell(0)))) {
-                                        i++;
-                                        testCase.next();
-                                        fillvaluesinmap(workbook, commandHeaders, worksheet.getRow(i), testCase);
-                                    }
-                                }
-
-                                testCases.add(testCase);
-                            }
-                        }
-                    }
-                }
+                final List<TestCase<ExcelMetadata>> testCases = readWorksheet(worksheet);
 
                 tests.put(worksheet.getSheetName(), testCases);
             }
         } catch (final FileNotFoundException e) {
             throw new Exception(String.format("Excel-file '%s' not found!", excelFilePath), e);
         } catch (final Exception e) {
-            throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s row: %s column: %s",
-                    sheet, i + 1, getColumn(j + 1)), e);
+            throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s", sheet), e);
         }
         return tests;
     }
 
-    private static void fillvaluesinmap(final XSSFWorkbook workbook, final List<String> commandHeaders, final Row row, final TestCase<ExcelMetadata> testCase) {
-        for (int j = 1; j < row.getLastCellNum(); j++) {
-            if (row.getCell(j) == null) {
+    private List<TestCase<ExcelMetadata>> readWorksheet(final Sheet worksheet) throws Exception {
+        final List<List<Cell>> cells = new ArrayList<>();
+
+        if (transpose) {
+            final Pair<Integer, Integer> lastRowColumn = getLastRowAndLastColumn(worksheet);
+            final int lastRow = lastRowColumn.getLeft();
+            final int lastColumn = lastRowColumn.getRight();
+
+            for (int rowNum = 0; rowNum <= lastRow; rowNum++) {
+                final Row row = worksheet.getRow(rowNum);
+                if (row == null) {
+                    continue;
+                }
+
+                for (int columnNum = 0; columnNum < lastColumn; columnNum++) {
+                    if (cells.size() <= columnNum) {
+                        cells.add(new LinkedList<>());
+                    }
+                    final Cell cell = row.getCell(columnNum);
+                    cells.get(columnNum).add(cell);
+                }
+            }
+        } else {
+            // iterate through the rows
+            for (int i = 0; i <= worksheet.getLastRowNum(); i++) {
+                final Row row = worksheet.getRow(i);
+
+                if (row != null) {
+                    for (int j = 0; j < row.getLastCellNum(); j++) {
+                        while (cells.size() <= i) {
+                            cells.add(new LinkedList<>());
+                        }
+                        final List<Cell> list = cells.get(i);
+                        final Cell cell = row.getCell(j);
+                        list.add(cell);
+                    }
+                }
+            }
+        }
+        return mapCells(cells);
+    }
+
+    private Pair<Integer, Integer> getLastRowAndLastColumn(final Sheet sheet) {
+        final int lastRow = sheet.getLastRowNum();
+        int lastColumn = 0;
+        for (final Row row : sheet) {
+            lastColumn = Math.max(lastColumn, row.getLastCellNum());
+        }
+        return new ImmutablePair<>(lastRow, lastColumn);
+    }
+
+    /**
+     * Map given cells to test cases.
+     *
+     * @param cells cells (read from excel worksheet - independent if transposed or not)
+     * @return list of test cases to be executed
+     * @throws Exception
+     */
+    private List<TestCase<ExcelMetadata>> mapCells(final List<List<Cell>> cells) throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = new ArrayList<>();
+
+        if (cells == null || cells.isEmpty()) {
+            return testCases;
+        }
+
+        List<String> commandHeaders = null;
+
+        // this is always the current cell (use for detailed exception message in case of an exception)
+        Cell cell = null;
+        // marker for "newly defined" command line (to e.g. reset the multiline flag
+        boolean commandLine = false;
+        try {
+            for (final List<Cell> cellList : cells) {
+                if (cellList.isEmpty()) {
+                    continue;
+                }
+                cell = cellList.get(0);
+                final String cellValue = cellValues2String(cell);
+                if (cellValue == null || cellValue.isEmpty()) {
+                    // if the first column is empty, this is a comment line and will be ignored
+                    continue;
+                } else if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
+                        .equalsIgnoreCase(cellValue)) {
+                    commandHeaders = new ArrayList<>();
+                    commandLine = true;
+
+                    // iterate through following cells
+                    for (int h = 1; h < cellList.size(); h++) {
+                        cell = cellList.get(h);
+                        if (cell != null) {
+                            commandHeaders.add(cell.getStringCellValue());
+                        }
+                    }
+                } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
+                        .equalsIgnoreCase(cellValue)) {
+                    final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
+
+                    // the first column is always the command
+                    testCase.setTestCommand(cellValue);
+                    testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
+                    testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
+
+                    if (cellList.size() >= 1) {
+                        final TestCell testCell = new TestCell();
+                        cell = cellList.get(1);
+                        testCell.setValue(cellValues2String(cell));
+                        testCell.setIdentifier(cell.getAddress().formatAsString());
+                        testCase.getValues().put(
+                                JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED),
+                                testCell);
+                        testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
+                    }
+                    testCases.add(testCase);
+                    commandLine = false;
+                } else if (commandHeaders != null || JExUnitConfig
+                        .getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
+                    final TestCase<ExcelMetadata> testCase;
+                    final TestCase<ExcelMetadata> lastTestCase =
+                            testCases.isEmpty() ? null : testCases.get(testCases.size() - 1);
+
+                    if (!commandLine && lastTestCase != null && lastTestCase.isMultiline()
+                            && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
+                        testCase = lastTestCase;
+                        testCase.next();
+                    } else {
+                        testCase = new TestCase<>(new ExcelMetadata());
+                        testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
+                        testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
+
+                        // the first column is always the command
+                        testCase.setTestCommand(cellValue);
+                        testCases.add(testCase);
+                    }
+
+                    map(commandHeaders, cellList.subList(1, cellList.size()), testCase);
+                    commandLine = false;
+                }
+            }
+        } catch (final Exception e) {
+            if (cell != null) {
+                throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s address: %s",
+                        cell.getSheet().getSheetName(), cell.getAddress().formatAsString()), e);
+            } else {
+                throw e;
+            }
+        }
+
+        return testCases;
+    }
+
+    private void map(final List<String> commandHeaders, final List<Cell> cells,
+                     final TestCase<ExcelMetadata> testCase) {
+        for (int j = 0; j < cells.size(); j++) {
+            final Cell cell = cells.get(j);
+            if (cell == null) {
                 continue;
             }
             final TestCell testCell = new TestCell();
-            testCell.setValue(cellValues2String(workbook, row.getCell(j)));
-            testCell.setColumn(row.getCell(j).getColumnIndex() + 1);
+            testCell.setValue(cellValues2String(cell));
+            testCell.setIdentifier(cell.getAddress().formatAsString());
             // the "report"-command doesn't need a header-line
             final String key = commandHeaders != null && commandHeaders.size() > j
                     ? commandHeaders.get(j) : "param" + j;
@@ -196,15 +289,17 @@ public class ExcelLoader {
                     testCase.setFastFail(Boolean.parseBoolean(testCell.getValue()));
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE)
                         .equalsIgnoreCase(header)) {
-                    // the command can fast fail the complete test sheet on fail
-                    testCase.setMultiline(Boolean.parseBoolean(testCell.getValue()));
+                    if (!testCase.isMultiline()) {
+                        testCase.setMultiline(Boolean.parseBoolean(testCell.getValue()));
+                    }
                     testCase.getValues().remove(key);
                 }
             }
         }
 
         if (testCase.getMultiline() == null) {
-            final String[] commands = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+            final String[] commands =
+                    JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
             for (final String command : commands) {
                 if (command.equalsIgnoreCase(testCase.getTestCommand())) {
                     testCase.setMultiline(true);
@@ -217,11 +312,10 @@ public class ExcelLoader {
     /**
      * Get the value of the excel-cell as String.
      *
-     * @param workbook workbook (excel) for evaluating cell formulas
-     * @param cell     cell (excel)
+     * @param cell cell (excel)
      * @return the value of the excel-cell as String
      */
-    static String cellValues2String(final XSSFWorkbook workbook, final Cell cell) {
+    String cellValues2String(final Cell cell) {
         if (cell == null) {
             return null;
         }
@@ -237,10 +331,12 @@ public class ExcelLoader {
                     // Test if date is datetime. Does format contain letter h?
                     if (cell.getCellStyle().getDataFormatString() != null &&
                             cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
-                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
+                        return new SimpleDateFormat(
+                                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
                                 .format(value);
                     } else {
-                        return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
+                        return new SimpleDateFormat(
+                                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
                                 .format(value);
                     }
                 } else {
@@ -260,23 +356,6 @@ public class ExcelLoader {
                 return String.valueOf(cell.getErrorCellValue());
         }
         return null;
-    }
-
-    /**
-     * Get the character(s) of the column like it is in excel (A, B, C, ...)
-     *
-     * @param column the column index
-     * @return the name of the column (A, B, C, ...)
-     */
-    public static String getColumn(int column) {
-        column--;
-        if (column >= 0 && column < 26) {
-            return Character.toString((char) ('A' + column));
-        } else if (column > 25) {
-            return getColumn(column / 26) + getColumn(column % 26 + 1);
-        } else {
-            throw new IllegalArgumentException("Invalid Column #" + Character.toString((char) (column + 1)));
-        }
     }
 
 }
