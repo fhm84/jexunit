@@ -1,16 +1,5 @@
 package com.jexunit.examples.arithmeticaltests;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.jexunit.core.JExUnit;
 import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnitConfig;
@@ -18,6 +7,16 @@ import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Simple Test for the framework.
@@ -41,53 +40,52 @@ import com.jexunit.examples.arithmeticaltests.model.ArithmeticalTestObject;
  * <p>
  * As add-on, there is an additional "normal" JUnit-Test(-Method), to test, if this method won't be ignored!
  * </p>
- * 
+ *
  * @author fabian
- * 
  */
 @RunWith(JExUnit.class)
 public class ArithmeticalTest {
 
-	private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
+    private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
 
-	@ExcelFile
-	static String[] excelFiles = new String[] { "src/test/resources/ArithmeticalTests.xlsx",
-			"src/test/resources/ArithmeticalTests2.xlsx" };
+    @ExcelFile
+    static String[] excelFiles = new String[]{"src/test/resources/ArithmeticalTests.xlsx",
+            "src/test/resources/ArithmeticalTests2.xlsx"};
 
-	@BeforeClass
-	public static void configure() {
-		JExUnitConfig.setConfigProperty("mytest.configkey", "test-value");
-	}
+    @BeforeClass
+    public static void configure() {
+        JExUnitConfig.setConfigProperty("mytest.configkey", "test-value");
+    }
 
-	@Before
-	public void init() {
-		log.log(Level.INFO, "BeforeClass - ArithmeticTests");
-	}
+    @Before
+    public void init() {
+        log.log(Level.INFO, "BeforeClass - ArithmeticTests");
+    }
 
-	@Test
-	public void testConfiguration() {
-		assertThat("Default configuration should be overridden by the properties of the jexunit.properties",
-				JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN), equalTo("MM/dd/yyyy"));
+    @Test
+    public void testConfiguration() {
+        assertThat("Default configuration should be overridden by the properties of the jexunit.properties",
+                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN), equalTo("MM/dd/yyyy"));
 
-		assertThat("Properties set in the @BeforeClass should be accessible via the JExUnitConfig",
-				JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
-	}
+        assertThat("Properties set in the @BeforeClass should be accessible via the JExUnitConfig",
+                JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
+    }
 
-	@TestCommand("mul")
-	public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
-		log.log(Level.INFO, "in test command: MUL!");
-		assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
-	}
+    @TestCommand("mul")
+    public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
+        log.log(Level.INFO, "in test command: MUL!");
+        assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
+    }
 
-	@TestCommand("div")
-	public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
-		log.log(Level.INFO, "in test command: DIV!");
-		assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
-	}
+    @TestCommand("div")
+    public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) throws Exception {
+        log.log(Level.INFO, "in test command: DIV!");
+        assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
+    }
 
-	@Test
-	public void simpleTest() {
-		log.info("What about this test?");
-		assertThat(JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
-	}
+    @Test
+    public void simpleTest() {
+        log.info("What about this test?");
+        assertThat(JExUnitConfig.getStringProperty("mytest.configkey"), equalTo("test-value"));
+    }
 }
