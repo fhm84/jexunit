@@ -36,17 +36,17 @@
     </developers>
 
     <scm>
-        <url>https://github.com/fhm84/jexunit.git</url>
-        <connection>scm:git:git@github.com:fhm84/jexunit.git</connection>
-        <developerConnection>scm:git:git@github.com:fhm84/jexunit.git</developerConnection>
+        <url>https://github.com/${git.repository}.git</url>
+        <connection>scm:git:git@github.com:${git.repository}.git</connection>
+        <developerConnection>scm:git:https://github.com/${git.repository}.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub fhm84 Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/fhm84</url>
+            <name>GitHub</name>
+            <url>https://maven.pkg.github.com/${git.repository}</url>
         </repository>
     </distributionManagement>
 
@@ -54,6 +54,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.scm.id>github</project.scm.id>
     </properties>
 
     <build>
