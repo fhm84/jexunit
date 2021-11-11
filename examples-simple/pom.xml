@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.jexunit</groupId>
             <artifactId>jexunit-core</artifactId>
-            <version>0.5.0</version>
+            <version>0.5.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
