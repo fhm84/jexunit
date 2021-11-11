@@ -1,7 +1,5 @@
 package com.jexunit.core.model;
 
-import com.jexunit.core.dataprovider.ExcelLoader;
-
 /**
  * The "entity" for a single cell. It consists of the value and the column (number).
  *
@@ -14,8 +12,7 @@ public class TestCell {
      */
     private String value;
 
-    // FIXME: maybe this should be renamed? -> 'identifier'? 'column' focuses on excel files
-    private int column;
+    private String identifier;
 
     /**
      * Default constructor.
@@ -26,11 +23,11 @@ public class TestCell {
     /**
      * Constructor setting the column number and value.
      *
-     * @param column the number representing the column
-     * @param value  the cells value
+     * @param identifier the number representing the column
+     * @param value      the cells value
      */
-    public TestCell(final int column, final String value) {
-        this.column = column;
+    public TestCell(final String identifier, final String value) {
+        this.identifier = identifier;
         this.value = value;
     }
 
@@ -52,13 +49,12 @@ public class TestCell {
      *
      * @return the name of the column (A, B, C, ...)
      */
-    public String getColumn() {
-        // TODO: remove "dependency" to the excel loader here!
-        return ExcelLoader.getColumn(column);
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setColumn(final int column) {
-        this.column = column;
+    public void setIdentifier(final String identifier) {
+        this.identifier = identifier;
     }
 
 }
