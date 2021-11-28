@@ -183,7 +183,7 @@ public class ExcelLoader {
                     commandLine = true;
 
                     // iterate through following cells
-                    for (int h = 1; h < cellList.size(); h++) {
+                    for (int h = 0; h < cellList.size(); h++) {
                         cell = cellList.get(h);
                         if (cell != null) {
                             commandHeaders.add(cell.getStringCellValue());
@@ -212,25 +212,18 @@ public class ExcelLoader {
                     commandLine = false;
                 } else if (commandHeaders != null || JExUnitConfig
                         .getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
-                    final TestCase<ExcelMetadata> testCase;
                     final TestCase<ExcelMetadata> lastTestCase =
                             testCases.isEmpty() ? null : testCases.get(testCases.size() - 1);
 
                     if (!commandLine && lastTestCase != null && lastTestCase.isMultiline()
                             && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
-                        testCase = lastTestCase;
-                        testCase.next();
-                    } else {
-                        testCase = new TestCase<>(new ExcelMetadata());
-                        testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
-                        testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
+                        lastTestCase.next();
 
-                        // the first column is always the command
-                        testCase.setTestCommand(cellValue);
-                        testCases.add(testCase);
+                        map(commandHeaders, cellList.subList(0, cellList.size()), lastTestCase);
+                    } else {
+                        testCases.addAll(mapTestCases(cellList, commandHeaders));
                     }
 
-                    map(commandHeaders, cellList.subList(1, cellList.size()), testCase);
                     commandLine = false;
                 }
             }
@@ -246,6 +239,44 @@ public class ExcelLoader {
         return testCases;
     }
 
+    private List<TestCase<ExcelMetadata>> mapTestCases(final List<Cell> cellList, final List<String> commandHeaders) {
+        final List<TestCase<ExcelMetadata>> testCases = new ArrayList<>();
+        if (commandHeaders == null || commandHeaders.isEmpty()) {
+            return testCases;
+        }
+
+        int nextCommandIndex = 0;
+        int lastCommandIndex;
+        do {
+            lastCommandIndex = nextCommandIndex;
+            final Cell commandCell = cellList.get(lastCommandIndex);
+            nextCommandIndex = getNextCommandIndex(commandHeaders, nextCommandIndex);
+
+            final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
+            testCase.setTestCommand(cellValues2String(commandCell));
+            testCase.getMetadata().setSheet(commandCell.getSheet().getSheetName());
+            testCase.getMetadata().setIdentifier(commandCell.getAddress().formatAsString());
+
+            final List<Cell> commandValueCells =
+                    cellList.subList(lastCommandIndex, nextCommandIndex > -1 ? nextCommandIndex : cellList.size());
+            map(commandHeaders, commandValueCells, testCase);
+
+            testCases.add(testCase);
+        } while (nextCommandIndex != -1 && nextCommandIndex < cellList.size());
+
+        return testCases;
+    }
+
+    private int getNextCommandIndex(final List<String> commandHeaders, final int lastIndex) {
+        for (int i = lastIndex + 1; i < commandHeaders.size(); i++) {
+            if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
+                    .equalsIgnoreCase(commandHeaders.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void map(final List<String> commandHeaders, final List<Cell> cells,
                      final TestCase<ExcelMetadata> testCase) {
         for (int j = 0; j < cells.size(); j++) {
@@ -259,7 +290,12 @@ public class ExcelLoader {
             // the "report"-command doesn't need a header-line
             final String key = commandHeaders != null && commandHeaders.size() > j
                     ? commandHeaders.get(j) : "param" + j;
-            testCase.getValues().put(key, testCell);
+            if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
+                    .equalsIgnoreCase(key)) {
+                testCase.setTestCommand(testCell.getValue());
+            } else {
+                testCase.getValues().put(key, testCell);
+            }
 
             // read/parse the "default" commands/parameters
             if (commandHeaders != null && commandHeaders.size() > j) {
