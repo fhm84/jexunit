@@ -62,7 +62,6 @@ public class MultilineTest {
         // Drei Multiline-Zeilen hintereinander
         assertEquals(3, defaultMultilineValues.size());
 
-
         // Sortierung wie im Excel
         assertEquals("Robert", defaultMultilineValues.get(0).get("firstname").getValue());
         assertEquals("Simon", defaultMultilineValues.get(1).get("firstname").getValue());
