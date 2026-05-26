@@ -79,6 +79,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.jexunit</groupId>
+                <artifactId>jexunit-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
