@@ -78,8 +78,8 @@ public class ExcelLoader {
         final Map<String, List<TestCase<ExcelMetadata>>> tests = new LinkedHashMap<>();
 
         String sheet = null;
-        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ)) {
-            final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
+        try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);
+             final XSSFWorkbook workbook = new XSSFWorkbook(pkg)) {
             workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             // iterate through the worksheets
             for (final Sheet worksheet : workbook) {
@@ -198,7 +198,7 @@ public class ExcelLoader {
                     testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
                     testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
 
-                    if (cellList.size() >= 1) {
+                    if (cellList.size() >= 2) {
                         final TestCell testCell = new TestCell();
                         cell = cellList.get(1);
                         testCell.setValue(cellValues2String(cell));

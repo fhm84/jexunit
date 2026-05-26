@@ -32,7 +32,8 @@ public class CommandValidator {
             final Iterator<TestCase<?>> iterator = testCases.iterator();
             while (iterator.hasNext()) {
                 final TestCase<?> testCase = iterator.next();
-                if (!TestCommandScanner.isTestCommandValid(testCase.getTestCommand().toLowerCase())) {
+                final String testCommand = testCase.getTestCommand();
+                if (testCommand == null || !TestCommandScanner.isTestCommandValid(testCommand.toLowerCase())) {
                     if (validationType == ValidationType.WARN) {
                         log.log(Level.WARNING, "TestCommand {0} is not valid. TestCase will be removed! {1} {2}",
                                 new String[]{testCase.getTestCommand(),

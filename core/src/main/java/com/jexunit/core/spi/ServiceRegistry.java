@@ -13,7 +13,7 @@ public class ServiceRegistry {
 
     private static final Map<Class<?>, List<?>> services = new HashMap<>();
 
-    private static ServiceRegistry instance;
+    private static volatile ServiceRegistry instance;
 
     private ServiceRegistry() {
     }

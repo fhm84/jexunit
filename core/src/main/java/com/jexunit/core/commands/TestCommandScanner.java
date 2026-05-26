@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan" will run once, so we
@@ -24,6 +25,8 @@ import java.util.Map;
  * @author fabian
  */
 public class TestCommandScanner implements TypeReporter, MethodReporter {
+
+    private static final Logger LOG = Logger.getLogger(TestCommandScanner.class.getName());
 
     private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
 
@@ -101,9 +104,17 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     }
                     if (method == null) {
                         // test-command is implemented in a class
+                        if (commands.get(command).containsKey(null)) {
+                            LOG.warning("Duplicate test-command registration for command '" + command
+                                    + "' (class-type) — previous registration will be overwritten.");
+                        }
                         commands.get(command).put(null, new Command(command, type, tc.fastFail()));
                     } else {
                         // test-command is a method
+                        if (commands.get(command).containsKey(type)) {
+                            LOG.warning("Duplicate test-command registration for command '" + command
+                                    + "' in type '" + type + "' — previous registration will be overwritten.");
+                        }
                         commands.get(command).put(type, new Command(command, type, method, tc.fastFail()));
                     }
                 }
@@ -199,7 +210,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                                 return c;
                             }
                         }
-                    } while ((cls = cls.getSuperclass()) != Object.class);
+                    } while ((cls = cls.getSuperclass()) != null);
                 }
                 return cmds.get(null);
             }

@@ -65,6 +65,10 @@ public class TestCommandRunner {
 
                 // invoke the test-command
                 testMethod = getSinglePublicMethod(testCommand);
+                if (testMethod == null) {
+                    throw new IllegalArgumentException(
+                            "No public method found in test command class: " + testCommand.getImplementation().getName());
+                }
             } else {
                 throw new IllegalArgumentException("Type of the TestCommand has to be one of 'METHOD' or 'CLASS'!");
             }
@@ -134,6 +138,7 @@ public class TestCommandRunner {
                 parameters.add(TestContextManager.getTestContext());
             } else {
                 if (parameterAnnotations[i].length > 0) {
+                    boolean handled = false;
                     for (final Annotation a : parameterAnnotations[i]) {
                         if (a instanceof Context) {
                             // add an instance out of the test-context
@@ -145,6 +150,7 @@ public class TestCommandRunner {
                             } else {
                                 parameters.add(TestContextManager.get(parameterType, id));
                             }
+                            handled = true;
                             break;
                         } else if (a instanceof TestParam) {
                             // add "single" test-param here
@@ -163,7 +169,11 @@ public class TestCommandRunner {
                                 throw new IllegalArgumentException("Required parameter not found: " + key);
                             }
                             parameters.add(value);
+                            handled = true;
                         }
+                    }
+                    if (!handled) {
+                        parameters.add(TestObjectHelper.createObject(testCase, parameterType));
                     }
                 } else {
                     final Object o = TestObjectHelper.createObject(testCase, parameterType);
@@ -244,7 +254,7 @@ public class TestCommandRunner {
     private void invokeTestCommandMethod(final Command testCommand, final Method method, final Object[] parameters) throws Exception {
         final Object o;
         if (method.getDeclaringClass() == testBase.getClass()) {
-            o = this;
+            o = testBase;
         } else if (Modifier.isStatic(method.getModifiers())) {
             o = null;
         } else {

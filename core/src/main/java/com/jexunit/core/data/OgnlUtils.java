@@ -55,7 +55,7 @@ public class OgnlUtils {
         @SuppressWarnings("rawtypes") final Map context =
                 Ognl.createDefaultContext(
                         obj,
-                        new DefaultMemberAccess(true),
+                        new DefaultMemberAccess(false),
                         new DefaultClassResolver(),
                         new CustomTypeConverter());
 
@@ -71,7 +71,7 @@ public class OgnlUtils {
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
         @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(
                 obj,
-                new DefaultMemberAccess(true),
+                new DefaultMemberAccess(false),
                 new DefaultClassResolver(),
                 new CustomTypeConverter());
 

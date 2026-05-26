@@ -178,7 +178,8 @@ public class JExUnitConfig {
      * @return the configured property value
      */
     public static String getStringProperty(final String key) {
-        return String.valueOf(config.get(key));
+        final Object value = config.get(key);
+        return value != null ? String.valueOf(value) : null;
     }
 
     /**
