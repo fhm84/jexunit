@@ -2,24 +2,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.jexunit</groupId>
+        <artifactId>jexunit</artifactId>
+        <version>0.5.1-SNAPSHOT</version>
+    </parent>
+
     <name>JExUnit examples (simple)</name>
     <description>Here are some simple examples using JExUnit.</description>
 
-    <groupId>com.jexunit</groupId>
     <artifactId>examples-simple</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.jexunit</groupId>
             <artifactId>jexunit-core</artifactId>
-            <version>0.5.1-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
