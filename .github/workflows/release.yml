@@ -22,7 +22,6 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 8
-          distribution: 'adopt'
           server-id: github
           distribution: 'temurin'
       - name: Configure Git user
