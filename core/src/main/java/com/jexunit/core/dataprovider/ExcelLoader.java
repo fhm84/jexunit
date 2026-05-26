@@ -219,7 +219,14 @@ public class ExcelLoader {
                             && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
                         lastTestCase.next();
 
-                        map(commandHeaders, cellList.subList(0, cellList.size()), lastTestCase);
+                        map(commandHeaders, cellList, lastTestCase);
+                    } else if (commandHeaders == null) {
+                        final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
+                        testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
+                        testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
+                        testCase.setTestCommand(cellValue);
+                        map(null, cellList.subList(1, cellList.size()), testCase);
+                        testCases.add(testCase);
                     } else {
                         testCases.addAll(mapTestCases(cellList, commandHeaders));
                     }
