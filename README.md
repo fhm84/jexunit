@@ -6,30 +6,30 @@ jexunit
 ![Java CI with Maven](https://github.com/fhm84/jexunit/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![Release](https://jitpack.io/v/fhm84/jexunit.svg?style=flat-square)](https://jitpack.io/#fhm84/jexunit)
 
-> a Tool for defining JUnit-Tests in Excel Worksheets
+> A tool for defining JUnit tests in Excel worksheets
 
-**JExUnit** is a framework for **"command based testing"** based on the JUnit framework.
-It provides simple mechanisms to define your own commands. The test-data will be defined in Excel-files where each sheet or optionally each "*command*" (row) will be executed as a test-case (in JUnit).
+**JExUnit** is a JUnit-based framework for **command-based testing**.
+It provides simple mechanisms for defining your own commands. Test data is defined in Excel files, where each worksheet — or optionally each individual command row — is executed as a separate test case in JUnit.
 
 
 ## First steps ##
 
-To use the JExUnit framework you have to do only three steps:
+To use JExUnit you only need three steps:
 
 1. Create a test class annotated with
     
         @RunWith(JExUnit.class)
 
-2. Add an attribute of type String, String[] or List<String> (or a static method returning one of these types) representing the excel-file(s) to "execute", annotated with
+2. Add a field of type `String`, `String[]`, or `List<String>` (or a static method returning one of these types) that points to the Excel file(s) to run, annotated with
 
         @ExcelFile
 
-3. Define/Implement your commands. A command will be a "simple" Method annotated with
+3. Implement your commands. A command is any method annotated with
 
         @TestCommand
 
 
-Now you can write your tests in excel-sheets. If you run your test class as JUnit-Test, the JExUnit-framework will automatically load the excel-file(s), "find" and run the commands (in the same order as they are defined in the excel-file(s)).
+Now you can write your tests in Excel sheets. When you run your test class as a JUnit test, JExUnit will automatically load the Excel file(s), find the matching command methods, and run them in the order they appear in the file.
 
 ###### Simple example ######
 
@@ -59,9 +59,9 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 #### @ExcelFile
 
-  The _@ExcelFile_-Annotation is used to define the excel-file(s) to run as test(s). This can be defined by a static attribute or a static method (without parameters). The return type of the method (and the type of the attribute) has to be _String_, _String[]_ or _List&lt;String>_.
+  The `@ExcelFile` annotation defines the Excel file(s) to run as tests. It can be placed on a static field or a static method (without parameters). The type must be `String`, `String[]`, or `List<String>`.
 
-  Per default the JExUnit-framework will run one excel-worksheet as a single test (like one testcase in JUnit). If you are going to run each command in the file as single test (like multiple testcases/-methods in JUnit), there is a flag available for the _@ExcelFile_-Annotation: _worksheetAsTest_. If this is set to false (default value is true), the framework will run each command as a single test!
+  By default, JExUnit runs one Excel worksheet as a single test (like a single test case in JUnit). To run each command row as its own test (like individual test methods in JUnit), use the `worksheetAsTest` flag on the annotation. When set to `false` (the default is `true`), the framework runs each command as a separate test.
 
       @ExcelFile(worksheetAsTest = false)
 	  public static String[] getExcelFiles() {
@@ -73,67 +73,67 @@ Now you can write your tests in excel-sheets. If you run your test class as JUni
 
 #### @TestCommand
 
-  The _@TestCommand_-Annotation is the connector between your business logic and the JExUnit-framework. A test command is a method annotated with _@TestCommand_. There are multiple possibilities to define this method. First of all, it doesn't matter if the method is static or not. The framework will call the static methods as well as the non-static ones.
+  The `@TestCommand` annotation is the connection between your business logic and JExUnit. A test command is any method annotated with `@TestCommand`. The method can be static or non-static — the framework handles both.
 
-  You are mostly allowed defining the methods parameters. The JExUnit-framework will try to "inject" you the correct data. The possible parameters are the following:
+  You have full control over the method's parameters. JExUnit will inject the appropriate values automatically. The supported parameter types are:
 
-  - TestCase: this is the (internal) representation of a testcase. You are allowed to use this type as parameter in your command method.
-  - &lt;you-own-entity&gt;: if you want the framework to create an instance of your business entity out of the parameters in your excel-file, just define your entity as a parameter in your command method. It should also be possible to get multiple entities here (but of different types!).
-  - primitive type annotated with @TestParam: this will get a parameter directly out of the excel-file (but type-safe). The parameter will be looked up either by the parameters name or the id set to the Annotation (e.g. @TestParam("id")).
-  - TestContext: this is the (current) TestContext where you can put (and get) things you want. The TestContext lives as long as your test so you can share data between multiple test commands.
-  - @Context &lt;your-own-entity&gt;: you get the current instance of the given type out of the TestContext. If you want to put multiple instances of the same type into the TestContext you can do this by setting an id. If so, you can get the instance out of the TestContext by id with @Context("&lt;your-id&gt;").
+  - `TestCase`: the internal representation of the current test row. Gives access to all cell values and test flags.
+  - `<YourEntity>`: declare your own class as a parameter and JExUnit will create an instance and populate it from the column values in the Excel row. Multiple entity types are supported, as long as each type appears only once.
+  - Primitive type annotated with `@TestParam`: retrieves a single column value from the Excel row with automatic type conversion. The column is looked up by the parameter's name or by the id given to the annotation (e.g. `@TestParam("id")`).
+  - `TestContext`: the shared test context, where you can store and retrieve values across multiple command invocations within the same test.
+  - `@Context <YourEntity>`: injects an instance of the given type directly from the `TestContext`. If you stored multiple instances of the same type under different IDs, you can specify the ID: `@Context("<your-id>")`.
 
 
 ## The Excel-File ##
 
-  Test(s) will be defined in excel-file(s). Per default, each worksheet will be executed as a single test.
+  Tests are defined in Excel files. By default, each worksheet is executed as a single test.
 
-  For creating the excel-file(s) there are some things to notice:
+  When creating Excel files, keep the following in mind:
 
-  The first column is reserved for the commands. There are some built-in commands you can use:
+  The first column is reserved for commands. There are some built-in commands you can use:
 
-  - _disabled_: if set to true (the value of the next column) this will disable the current worksheet
-  - _report_: this command will write the content of the following columns to the log file
+  - _disabled_: setting the value in the next column to `true` disables the entire worksheet
+  - _report_: writes the content of the following columns to the log output
 
-  If you leave the first column blank, the rest of the row will be ignored, so you can use this "space" for comments inside your excel-file.
+  If the first column is blank, the entire row is ignored — use this for comments inside the Excel file.
 
-  The most important keyword is _COMMAND_. A row starting with the keyword _COMMAND_ will reset and redefine the current temporary headers, meaning all the following data-rows will be mapped to the keys defined in this row! This is made for calling the same command multiple times (with different parameters) without (re-)defining the keys.
+  The most important keyword is _COMMAND_. A row starting with _COMMAND_ resets and redefines the column headers: all subsequent data rows are mapped to the keys defined in that row. This allows calling the same command multiple times with different parameters without repeating the header.
 
-  The _COMMAND_ keyword has to be place in the first column! The other columns in this row will define the keys for mapping the values. For example your keys could be the attributes names of your entities to map the values of the following row to, so you can implement your commands type-safe and use your entites here.
+  The _COMMAND_ keyword must be placed in the first column. The other columns define the keys for mapping values — typically the property names of your entity classes, so the framework can populate them in a type-safe way.
 
-  The row(s) after the "command definition" will "call" the commands.
+  The rows after a command definition row invoke the commands.
 
-  Regardless of the keys used for your commands, there is the _exception_ keyword. If this parameter is set to _true_, the execution of the command will expect an exception (like @Test(expected = Exception.class) in JUnit) and will fail if there is no exception thrown!
+  Regardless of the keys used for your commands, the _exception_ keyword is always available. If this parameter is set to _true_, the framework expects the command to throw an exception — analogous to `@Test(expected = Exception.class)` in JUnit. The test fails if no exception is thrown.
 
-  All the built-in commands and keywords are case-insensitive.
+  All built-in commands and keywords are case-insensitive.
 
-##### Example excel-file #####
+##### Example Excel file #####
 
-  ![Example excel-file](etc/documentation/screenshot_example_excelfile.png)
+  ![Example Excel file](etc/documentation/screenshot_example_excelfile.png)
 
-  This short and very simple example shows the way defining the tests.
-  
-  The first and second row will be ignored because the first column is left blank. So this is used for a comment (in this case this will describe what the test is used for).
+  This example shows how to define tests in an Excel file.
 
-  Cell A3 defines the built-in command to disable a worksheet. The value is set in cell B3.
+  Rows 1 and 2 are ignored because their first column is blank — they serve as comments describing the test's purpose.
 
-  Row 5 is the first command-definition: the keyword COMMAND in cell A5 defines the "new" header-row where the keys are defined. So the next 2 rows (6 and 7) wil "call" the command "ADD" (this is a user-defined command for the test!). The values '1', '1' and '2' and '2', '2' and '4' will be mapped to 'param1', 'param2' and 'param3'.
+  Cell A3 defines the built-in `disabled` command. The value is set in cell B3.
 
-  Cell A9 is another built-in command to log the data of the following cells of row 9.
+  Row 5 is the first command definition: the `COMMAND` keyword in cell A5 defines a new header row. The next two rows (6 and 7) invoke the command `ADD` (a user-defined command). The values `1`, `1`, `2` and `2`, `2`, `4` are mapped to `param1`, `param2`, and `param3`.
 
-  The lines 11 - 19 work the same way as the columns 5 - 7.
+  Cell A9 uses the built-in `report` command to log the content of the following cells in row 9.
 
-  In line 20 there is an exapmle for the built-in keyword _exception_. As you can see, the command named "SUB" will subtract 'param2' from 'param1' and check the 'result', which should fail (3-1 != 0)! To get "a green bar" for this test, an AssertionError should be expected. The parameter 'exception' with value set to _true_ will arrange this behaviour.
+  Rows 11–19 work the same way as rows 5–7.
+
+  Row 20 shows an example of the `exception` keyword. The command `SUB` subtracts `param2` from `param1` and checks the `result`, which is intentionally wrong (3−1 ≠ 0). Setting `exception` to `true` tells JExUnit to expect an `AssertionError`, so the test passes.
 
 
 ## The Test-Commands ##
 
-TODO
+See [docs/test-commands.md](docs/test-commands.md) for the full reference on defining `@TestCommand` methods, parameter injection, standalone command-provider classes, and command discovery settings.
 
 
 ## The TestContext ##
 
-TODO
+See [docs/test-context.md](docs/test-context.md) for the full reference on sharing state between commands using `TestContext` and the `@Context` annotation.
 
 
 ---
@@ -141,27 +141,38 @@ TODO
 
 ## How to debug? ##
 
-If we define our tests in excel files, there is no way to set a breakpoint "inside the excel-file". If you have big excel-test-files with a lot of test-commands inside,  there are posibly multiple uses of the same test-commands. This is very hard to debug if you can only set breakpoint into your test-commands. JExUnit allows you to set a parameter called _breakpoint_ in each of your test-commands inside the excel-file! You can find this flag in the _TestCase_-Instance put as parameter to your test-command-implementation. So it is possible to set a _**conditional breakpoint**_ inside your command-implementation.
+When tests are defined in Excel files, there is no way to set a traditional breakpoint inside the file. In large Excel test files with many command invocations, debugging can be difficult when the only option is a breakpoint in the command implementation itself. JExUnit solves this with a `breakpoint` parameter that can be set on any row in the Excel file. The flag is exposed on the `TestCase` instance passed to the command method, making it possible to set a **conditional breakpoint** in your implementation.
 
 ##### Example #####
 
-TODO
+```java
+@TestCommand("myCommand")
+public void myCommand(TestCase<?> testCase) {
+    if (testCase.isBreakpointEnabled()) {
+        // Set an IDE breakpoint on the line below
+        System.out.println("Breakpoint hit for row: " + testCase);
+    }
+    // ... test logic
+}
+```
+
+In the Excel file, add a column named `breakpoint` and set it to `true` on the row you want to pause at. When you run the test in debug mode your IDE will stop at the conditional breakpoint.
 
 
 ---
 
 ## How to use JExUnit in my own project? ##
 
-The simplest way would be using JExUnit as maven dependency and [jitpack.io](http://jitpack.io) as maven repository.
-Sorry, but I haven't uploaded JExunit to maven central (yet).
-To use jitpack.io, you have to add the repository
+The simplest way is to add JExUnit as a Maven dependency via [jitpack.io](http://jitpack.io).
+
+JExUnit is not yet published to Maven Central. To use jitpack.io, add the following repository to your `pom.xml`:
 
         <repository>
           <id>jitpack.io</id>
           <url>https://jitpack.io</url>
         </repository>
 
-Now you can add the JExUnit dependency
+Then add the JExUnit dependency:
 
         <dependency>
           <groupId>com.github.fhm84</groupId>
@@ -171,6 +182,6 @@ Now you can add the JExUnit dependency
         </dependency>
 
 
-Alternatively you can download the _jexunit-core.jar_ from the release of your choice (I'd recommend to use the latest one) and add it to your project (to classpath). In this case you also have to add all the dependencies of JExUnit!
+Alternatively, you can download `jexunit-core.jar` from the release of your choice and add it to your project's classpath. In that case you also need to include all of JExUnit's transitive dependencies.
 
-Or you can build the current version of JExUnit on your own. Feel free to check out the project!
+Or you can build JExUnit from source yourself — feel free to check out the project!
