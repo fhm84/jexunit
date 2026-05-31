@@ -1,6 +1,7 @@
 package com.jexunit.core;
 
 import com.jexunit.core.commands.DefaultCommands;
+import com.jexunit.core.commands.TestCommandHost;
 import com.jexunit.core.commands.TestCommandRunner;
 import com.jexunit.core.commands.validation.CommandValidator;
 import com.jexunit.core.context.TestContextManager;
@@ -37,7 +38,7 @@ import static org.junit.Assert.fail;
  */
 @Ignore
 @RunWith(Parameterized.class)
-public class JExUnitBase {
+public class JExUnitBase implements TestCommandHost {
 
     private static final Logger log = Logger.getLogger(JExUnitBase.class.getName());
 

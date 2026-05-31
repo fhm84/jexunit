@@ -1,13 +1,12 @@
 package com.jexunit.core.commands;
 
-import com.jexunit.core.JExUnit;
 import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.Command.Type;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
+import com.jexunit.core.dataprovider.ExcelFile;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
-import org.junit.runner.RunWith;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -41,11 +40,8 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         try {
             final Class<?> clazz = getClass().getClassLoader().loadClass(className);
             Class<?> type = null;
-            if (clazz.isAnnotationPresent(RunWith.class)) {
-                final RunWith rwa = clazz.getAnnotation(RunWith.class);
-                if (rwa.value() == JExUnit.class) {
-                    type = clazz;
-                }
+            if (hasExcelFileAnnotation(clazz)) {
+                type = clazz;
             }
 
             if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
@@ -182,6 +178,27 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         }
 
         return numberOfPublicMethods == 1;
+    }
+
+    /**
+     * Check if the given class has any field or method annotated with {@code @ExcelFile}. This is used to identify
+     * test classes that use JExUnit's Excel-based data loading.
+     *
+     * @param clazz Class to check
+     * @return true if the class has a field or method annotated with {@code @ExcelFile}, else false
+     */
+    private boolean hasExcelFileAnnotation(final Class<?> clazz) {
+        for (final java.lang.reflect.Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(ExcelFile.class)) {
+                return true;
+            }
+        }
+        for (final java.lang.reflect.Method method : clazz.getMethods()) {
+            if (method.isAnnotationPresent(ExcelFile.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>jexunit-base</module>
         <module>core</module>
     </modules>
 
@@ -78,6 +79,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.jexunit</groupId>
+                <artifactId>jexunit-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.jexunit</groupId>
                 <artifactId>jexunit-core</artifactId>
@@ -177,6 +183,7 @@
             <id>example-tests</id>
 
             <modules>
+                <module>jexunit-base</module>
                 <module>core</module>
                 <module>examples-simple</module>
                 <module>examples-complex</module>

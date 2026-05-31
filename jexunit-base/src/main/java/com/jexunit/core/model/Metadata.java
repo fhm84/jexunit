@@ -6,7 +6,7 @@ import lombok.Setter;
 /**
  * Container for the metadata of a {@linkplain TestCase}. This can also be provided by a data provider to put additional
  * information to the test case.
- * 
+ *
  * @author fabian
  *
  */
