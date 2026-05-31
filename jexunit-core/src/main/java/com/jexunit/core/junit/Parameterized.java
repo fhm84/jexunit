@@ -8,7 +8,6 @@ import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.spi.ServiceRegistry;
 import com.jexunit.core.spi.data.DataProvider;
-import eu.infomas.annotation.AnnotationDetector;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -20,7 +19,6 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
@@ -169,19 +167,7 @@ public class Parameterized extends Suite {
     private String identifier;
     
     static {
-        // scan classes for test commands
-        final AnnotationDetector detector = new AnnotationDetector(new TestCommandScanner());
-        try {
-            JExUnitConfig.init();
-            final String property = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.ANNOTATION_SCAN_PACKAGE);
-            if (property != null && !property.isEmpty()) {
-                detector.detect(property.split(","));
-            } else {
-                detector.detect();
-            }
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        TestCommandScanner.ensureScanned();
     }
 
 

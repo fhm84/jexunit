@@ -252,8 +252,9 @@ public class TestCommandRunner {
      */
     private void invokeTestCommandMethod(final Command testCommand, final Method method, final Object[] parameters) throws Exception {
         final Object o;
-        if (method.getDeclaringClass() == testBase.getClass()) {
-            o = testBase;
+        final Object hostInstance = testBase.getTestClassInstance(method.getDeclaringClass());
+        if (hostInstance != null) {
+            o = hostInstance;
         } else if (Modifier.isStatic(method.getModifiers())) {
             o = null;
         } else {

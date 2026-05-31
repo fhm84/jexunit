@@ -5,9 +5,11 @@ import com.jexunit.core.commands.Command.Type;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
 import com.jexunit.core.dataprovider.ExcelFile;
+import eu.infomas.annotation.AnnotationDetector;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,6 +30,28 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
     private static final Logger LOG = Logger.getLogger(TestCommandScanner.class.getName());
 
     private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
+
+    private static volatile boolean initialized = false;
+
+    public static void ensureScanned() {
+        if (initialized) return;
+        synchronized (TestCommandScanner.class) {
+            if (initialized) return;
+            final AnnotationDetector detector = new AnnotationDetector(new TestCommandScanner());
+            try {
+                JExUnitConfig.init();
+                final String property = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.ANNOTATION_SCAN_PACKAGE);
+                if (property != null && !property.isEmpty()) {
+                    detector.detect(property.split(","));
+                } else {
+                    detector.detect();
+                }
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+            initialized = true;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     @Override

@@ -213,6 +213,11 @@ public class JExUnitBase implements TestCommandHost {
                 testCase.getTestCommand())));
     }
 
+    @Override
+    public Object getTestClassInstance(final Class<?> declaringClass) throws Exception {
+        return declaringClass == this.getClass() ? this : null;
+    }
+
     @BeforeClass
     public static void initializeTest() throws Exception {
         final String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.BEFORE_EXCEL);
