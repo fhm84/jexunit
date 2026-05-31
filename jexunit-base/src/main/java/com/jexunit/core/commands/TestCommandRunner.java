@@ -1,6 +1,5 @@
 package com.jexunit.core.commands;
 
-import com.jexunit.core.JExUnitBase;
 import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.Command.Type;
 import com.jexunit.core.commands.annotation.TestParam;
@@ -25,9 +24,9 @@ import java.util.List;
  */
 public class TestCommandRunner {
 
-    private final JExUnitBase testBase;
+    private final TestCommandHost testBase;
 
-    public TestCommandRunner(final JExUnitBase testBase) {
+    public TestCommandRunner(final TestCommandHost testBase) {
         this.testBase = testBase;
     }
 
