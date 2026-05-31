@@ -9,3 +9,4 @@
 | [object-mapping.md](object-mapping.md) | OGNL-based Excel-to-Java object mapping via `TestObjectHelper` |
 | [configuration.md](configuration.md) | `jexunit.properties` reference — all keys and defaults |
 | [spi.md](spi.md) | Extension points: `DataProvider`, `BeforeSheet`, `AfterSheet` |
+| [roadmap.md](roadmap.md) | Released milestones and optional future work |
