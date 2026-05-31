@@ -19,6 +19,9 @@ import org.junit.runners.Suite;
  * JUnit-Suite for running the tests with the <code>@RunWith</code>-Annotation.
  *
  * @author fabian
+ * @deprecated Use {@code @ExtendWith(JExUnitExtension.class)} from {@code jexunit-jupiter}
+ *             together with {@code @ExcelTest} instead. This JUnit 4 runner receives no new
+ *             features and will be removed in a future major release.
  */
 public class JExUnit extends Suite {
 

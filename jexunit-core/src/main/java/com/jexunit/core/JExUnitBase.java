@@ -35,6 +35,9 @@ import static org.junit.Assert.fail;
  * something and "expect" an exception. The only thing you have to do is to implement your own commands!
  *
  * @author fabian
+ * @deprecated Extend this class only when targeting JUnit 4. For JUnit 5, annotate your test
+ *             class with {@code @ExtendWith(JExUnitExtension.class)} from {@code jexunit-jupiter}
+ *             — no base class is required.
  */
 @Ignore
 @RunWith(Parameterized.class)
