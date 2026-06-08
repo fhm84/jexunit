@@ -2,7 +2,6 @@
 
 jexunit
 =======
-[![Build Status](https://travis-ci.org/fhm84/jexunit.svg?branch=master&style=flat-square)](https://travis-ci.org/fhm84/jexunit)
 ![Java CI with Maven](https://github.com/fhm84/jexunit/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![Release](https://jitpack.io/v/fhm84/jexunit.svg?style=flat-square)](https://jitpack.io/#fhm84/jexunit)
 
@@ -163,25 +162,53 @@ In the Excel file, add a column named `breakpoint` and set it to `true` on the r
 
 ## How to use JExUnit in my own project? ##
 
-The simplest way is to add JExUnit as a Maven dependency via [jitpack.io](http://jitpack.io).
+### Option A: JitPack (recommended — no authentication required)
 
-JExUnit is not yet published to Maven Central. To use jitpack.io, add the following repository to your `pom.xml`:
+Add the JitPack repository to your `pom.xml`:
 
         <repository>
           <id>jitpack.io</id>
           <url>https://jitpack.io</url>
         </repository>
 
-Then add the JExUnit dependency:
+Then add the dependency for the JUnit 5 module (recommended):
 
         <dependency>
-          <groupId>com.github.fhm84</groupId>
-          <artifactId>jexunit</artifactId>
-          <version>jexunit-0.4.0</version>
+          <groupId>com.github.fhm84.jexunit</groupId>
+          <artifactId>jexunit-jupiter</artifactId>
+          <version>jexunit-0.6.0</version>
           <scope>test</scope>
         </dependency>
 
+Or the legacy JUnit 4 module:
 
-Alternatively, you can download `jexunit-core.jar` from the release of your choice and add it to your project's classpath. In that case you also need to include all of JExUnit's transitive dependencies.
+        <dependency>
+          <groupId>com.github.fhm84.jexunit</groupId>
+          <artifactId>jexunit-core</artifactId>
+          <version>jexunit-0.6.0</version>
+          <scope>test</scope>
+        </dependency>
 
-Or you can build JExUnit from source yourself — feel free to check out the project!
+### Option B: GitHub Packages
+
+Artifacts are also published to GitHub Packages. This requires a GitHub personal access token configured in your `~/.m2/settings.xml` — see the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) for setup instructions.
+
+Add the repository:
+
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/fhm84/jexunit</url>
+        </repository>
+
+Then add the dependency (same artifact coordinates as above, but with groupId `com.jexunit`):
+
+        <dependency>
+          <groupId>com.jexunit</groupId>
+          <artifactId>jexunit-jupiter</artifactId>
+          <version>0.6.0</version>
+          <scope>test</scope>
+        </dependency>
+
+### Build from source
+
+You can also build JExUnit from source yourself — feel free to check out the project!
