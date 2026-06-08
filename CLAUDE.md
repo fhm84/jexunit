@@ -107,3 +107,23 @@ Key differences: no base class needed; `@ExcelTest` replaces the inherited `test
 GitHub Actions workflows in `.github/workflows/`:
 - **`maven.yml`** — runs on every push/PR; executes `mvn clean verify -Pexample-tests` on JDK 8, 11, and 21
 - **`release.yml`** — runs on the `release` branch; uses Maven release plugin and publishes to GitHub Packages
+
+## Releasing
+
+Releases are triggered by pushing to the `release` branch. The Maven Release Plugin then automatically:
+1. Strips `-SNAPSHOT` from the version (e.g. `0.6.0-SNAPSHOT` → `0.6.0`)
+2. Runs the full test suite including examples
+3. Tags the release (e.g. `jexunit-0.6.0`) and pushes it
+4. Deploys artifacts to GitHub Packages
+5. Bumps `master` to the next snapshot version (e.g. `0.7.0-SNAPSHOT`)
+
+```bash
+# Trigger a release from master
+git push origin master:release
+```
+
+After the workflow completes, merge the version-bump commit back into `master`:
+
+```bash
+git pull origin master   # picks up the snapshot version bump
+```

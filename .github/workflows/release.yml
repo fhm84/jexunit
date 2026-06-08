@@ -12,18 +12,16 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v6
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       - name: Setup Java JDK
         uses: actions/setup-java@v5
         with:
           java-version: 8
           server-id: github
           distribution: 'temurin'
+          cache: 'maven'
       - name: Configure Git user
         run: |
           git config user.email "actions@github.com"
