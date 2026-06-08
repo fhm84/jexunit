@@ -9,11 +9,13 @@
 
     <groupId>com.jexunit</groupId>
     <artifactId>jexunit</artifactId>
-    <version>0.5.1-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>
+        <module>jexunit-base</module>
+        <module>jexunit-core</module>
+        <module>jexunit-jupiter</module>
     </modules>
 
     <licenses>
@@ -64,6 +66,9 @@
         <commons-configuration2.version>2.15.0</commons-configuration2.version>
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
 
+        <junit.jupiter.version>5.11.4</junit.jupiter.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
@@ -80,8 +85,28 @@
         <dependencies>
             <dependency>
                 <groupId>com.jexunit</groupId>
+                <artifactId>jexunit-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jexunit</groupId>
                 <artifactId>jexunit-core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jexunit</groupId>
+                <artifactId>jexunit-jupiter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -130,6 +155,11 @@
                     <artifactId>serviceloader-maven-plugin</artifactId>
                     <version>${serviceloader-maven-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -177,8 +207,11 @@
             <id>example-tests</id>
 
             <modules>
-                <module>core</module>
+                <module>jexunit-base</module>
+                <module>jexunit-core</module>
+                <module>jexunit-jupiter</module>
                 <module>examples-simple</module>
+                <module>examples-simple-jupiter</module>
                 <module>examples-complex</module>
             </modules>
         </profile>

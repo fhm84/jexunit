@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>JExUnit core (JUnit 4, legacy)</name>
+	<description>JUnit 4 runner layer for JExUnit — legacy module, no new features. For new projects use jexunit-jupiter with @ExtendWith(JExUnitExtension.class) instead.</description>
+
+	<parent>
+		<groupId>com.jexunit</groupId>
+		<artifactId>jexunit</artifactId>
+		<version>0.6.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jexunit-core</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jexunit</groupId>
+			<artifactId>jexunit-base</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>
