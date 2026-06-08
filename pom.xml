@@ -9,7 +9,7 @@
 
     <groupId>com.jexunit</groupId>
     <artifactId>jexunit</artifactId>
-    <version>0.5.1-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
