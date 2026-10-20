@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -185,9 +186,8 @@ public class ExcelLoader {
                     // iterate through following cells
                     for (int h = 0; h < cellList.size(); h++) {
                         cell = cellList.get(h);
-                        if (cell != null) {
-                            commandHeaders.add(cell.getStringCellValue());
-                        }
+                        // keep a placeholder for missing cells, so the headers stay aligned with the value cells
+                        commandHeaders.add(cell != null ? cell.getStringCellValue() : null);
                     }
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED)
                         .equalsIgnoreCase(cellValue)) {
@@ -297,6 +297,10 @@ public class ExcelLoader {
             // the "report"-command doesn't need a header-line
             final String key = commandHeaders != null && commandHeaders.size() > j
                     ? commandHeaders.get(j) : "param" + j;
+            if (key == null || key.isEmpty()) {
+                // there is no header for this value (empty cell in the header line), so it cannot be mapped
+                continue;
+            }
             if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
                     .equalsIgnoreCase(key)) {
                 testCase.setTestCommand(testCell.getValue());
@@ -385,7 +389,8 @@ public class ExcelLoader {
                 } else {
                     final double number = cell.getNumericCellValue();
                     if ((number == Math.floor(number)) && !Double.isInfinite(number)) {
-                        return String.valueOf(new Double(number).intValue());
+                        // BigDecimal keeps integral values outside the int range intact (and without exponent)
+                        return new BigDecimal(number).toPlainString();
                     }
                     return String.valueOf(number);
                 }

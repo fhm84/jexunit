@@ -32,8 +32,8 @@ String url = JExUnitConfig.getStringProperty("mytest.apiUrl");
 
 | Key | Default | Description |
 |---|---|---|
-| `jexunit.datePattern` | `dd.MM.yyyy` | Pattern used to parse `Date` values from Excel cells |
-| `jexunit.dateTimePattern` | `dd.MM.yyyy hh:mm:ss` | Pattern used to parse `Date`+time values |
+| `jexunit.datePattern` | `dd.MM.yyyy` | Pattern used to format date cells and to parse `Date` values without time |
+| `jexunit.dateTimePattern` | `dd.MM.yyyy HH:mm:ss` | Pattern used to format date-time cells and to parse `Date` values with time (use `HH` for the 24-hour clock) |
 
 ### Built-in Command Names
 
@@ -56,7 +56,7 @@ Example — prefix all built-in keywords with `jx.` and use a US date format:
 ```properties
 jexunit.defaultcommand_prefix=jx.
 jexunit.datePattern=MM/dd/yyyy
-jexunit.dateTimePattern=MM/dd/yyyy hh:mm:ss
+jexunit.dateTimePattern=MM/dd/yyyy HH:mm:ss
 ```
 
 ### Excel Header Keyword
@@ -123,7 +123,7 @@ These can also be registered as SPI services — see [spi.md](spi.md).
 ```properties
 # Date formats
 jexunit.datePattern=MM/dd/yyyy
-jexunit.dateTimePattern=MM/dd/yyyy hh:mm:ss
+jexunit.dateTimePattern=MM/dd/yyyy HH:mm:ss
 
 # Restrict annotation scanning for faster startup
 jexunit.annotation-scan.package=com.example.tests

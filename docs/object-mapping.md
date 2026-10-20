@@ -74,12 +74,12 @@ Object typed = TestObjectHelper.convertPropertyStringToObject(Double.class, "3.1
 | Target type | Conversion |
 |---|---|
 | `String` | Identity |
-| `int`, `Integer` | `Integer.parseInt` |
-| `long`, `Long` | `Long.parseLong` |
+| `int`, `Integer` | Integral value (e.g. `5`, `5.0`); values with a fraction or out of range are rejected |
+| `long`, `Long` | Integral value (e.g. `5`, `5.0`); values with a fraction or out of range are rejected |
 | `double`, `Double` | `Double.parseDouble` |
 | `float`, `Float` | `Float.parseFloat` |
 | `boolean`, `Boolean` | `Boolean.parseBoolean` |
-| `Date` | Parsed with `jexunit.datePattern` or `jexunit.dateTimePattern` |
+| `Date` | Parsed with `jexunit.dateTimePattern`, else `jexunit.datePattern`; the whole value must match |
 | `BigDecimal` | `new BigDecimal(value)` |
 | Enum | `Enum.valueOf(type, value)` |
 
