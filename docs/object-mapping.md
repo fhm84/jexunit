@@ -26,8 +26,11 @@ OGNL supports the full dot-notation for nested objects:
 | `name` | `obj.setName(value)` |
 | `address.street` | `obj.getAddress().setStreet(value)` |
 | `items[0].name` | `obj.getItems().get(0).setName(value)` |
+| `items[id=5].name` | `setName(value)` on the element of `obj.getItems()` whose `id` equals `5` |
 
-Nested objects must already be initialised (not `null`) before OGNL tries to set them. If `order.getAddress()` returns `null`, setting `address.street` will throw. Initialise child objects in the parent constructor or use a custom factory.
+Nested objects that are `null` are created automatically via their default constructor. Collection and map properties declared with an interface type get a default implementation: `List`/`Collection` → `ArrayList`, `Set` → `LinkedHashSet`, `SortedSet` → `TreeSet`, `Map` → `HashMap`, `SortedMap` → `TreeMap`. Indexing a list beyond its size (`items[3].name`) adds new elements up to that index.
+
+In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, booleans, enums, dates, …) before comparing.
 
 ## Manual Mapping via `TestObjectHelper`
 

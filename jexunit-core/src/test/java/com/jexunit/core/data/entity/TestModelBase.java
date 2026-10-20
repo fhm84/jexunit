@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 /**
  * This is the base class of the entity-object-tree for testing the ObjectHelper setting the
@@ -25,6 +27,8 @@ public class TestModelBase {
 	private TestModelSub subEntityAttr2;
 	private List<TestModelSub> subEntityListAttr2;
 	private Map<String, String> mapAttr = new HashMap<>();
+	private Set<TestModelSub> subEntitySetAttr;
+	private SortedMap<String, String> sortedMapAttr;
 
 	public int getIntAttr() {
 		return intAttr;
@@ -112,6 +116,22 @@ public class TestModelBase {
 
 	public void setMapAttr(Map<String, String> mapAttr) {
 		this.mapAttr = mapAttr;
+	}
+
+	public Set<TestModelSub> getSubEntitySetAttr() {
+		return subEntitySetAttr;
+	}
+
+	public void setSubEntitySetAttr(Set<TestModelSub> subEntitySetAttr) {
+		this.subEntitySetAttr = subEntitySetAttr;
+	}
+
+	public SortedMap<String, String> getSortedMapAttr() {
+		return sortedMapAttr;
+	}
+
+	public void setSortedMapAttr(SortedMap<String, String> sortedMapAttr) {
+		this.sortedMapAttr = sortedMapAttr;
 	}
 
 }

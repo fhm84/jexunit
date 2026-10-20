@@ -12,7 +12,12 @@ package com.jexunit.core.context;
  */
 public class TestContextManager {
 
-    private static final ThreadLocal<TestContext> context = InheritableThreadLocal.withInitial(TestContext::new);
+    private static final ThreadLocal<TestContext> context = new InheritableThreadLocal<TestContext>() {
+        @Override
+        protected TestContext initialValue() {
+            return new TestContext();
+        }
+    };
 
     /**
      * Get the TestContext.
@@ -21,6 +26,16 @@ public class TestContextManager {
      */
     public static TestContext getTestContext() {
         return context.get();
+    }
+
+    /**
+     * Start with a new (empty) TestContext for the current thread. This is called by the framework at the beginning of
+     * each test group (worksheet, or single command if not running the worksheet as test), so no state leaks into the
+     * next test group.
+     */
+    public static void reset() {
+        // set a new instance instead of clearing the old one, as other threads may have inherited the old one
+        context.set(new TestContext());
     }
 
     /**

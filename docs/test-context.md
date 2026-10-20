@@ -95,6 +95,8 @@ The annotation is also supported on fields if you extend `JExUnitBase`.
 
 There is one `TestContext` instance per test group; commands within the same group share the same instance.
 
+The new context is created before the `@BeforeEach` methods (JUnit 5) and before the `@Before` methods (JUnit 4, when extending `JExUnitBase`), so values added there are available to the commands. Values added in `@BeforeAll`/`@BeforeClass` are not carried over to the test groups. Threads started by a command inherit the context of the test group.
+
 ## Implementation Notes
 
 The store is backed by a `ConcurrentHashMap`. Keys are either the fully-qualified class name (when stored by type) or the user-supplied string ID. Values stored by type can only have one entry per type — a second `add` for the same type overwrites the first.

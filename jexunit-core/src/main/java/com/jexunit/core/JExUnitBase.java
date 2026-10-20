@@ -13,6 +13,7 @@ import com.jexunit.core.spi.BeforeSheet;
 import com.jexunit.core.spi.data.DataProvider;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
+import org.junit.rules.ExternalResource;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameter;
@@ -47,6 +48,18 @@ public class JExUnitBase implements TestCommandHost {
 
     @Rule
     public ErrorCollector errorCollector = new ErrorCollector();
+
+    /**
+     * Start each test group with a new TestContext. Rules run before the {@code @Before} methods, so they can still put
+     * something into the context.
+     */
+    @Rule
+    public ExternalResource testContextReset = new ExternalResource() {
+        @Override
+        protected void before() {
+            TestContextManager.reset();
+        }
+    };
 
     @Rule
     public TestWatcher watcher;
@@ -154,20 +167,21 @@ public class JExUnitBase implements TestCommandHost {
                             continue testCaseLoop;
                         }
                     } catch (final Exception e) {
+                        if (exceptionExpected) {
+                            // any exception satisfies the expectation
+                            continue testCaseLoop;
+                        }
                         Throwable t = e;
                         while ((t = t.getCause()) != null) {
                             if (t instanceof AssertionError) {
-                                if (!exceptionExpected) {
-                                    errorCollector.addError(new AssertionError(String.format(
-                                            "No Exception expected in TestCommand: %s, %s. %s",
-                                            testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
-                                            testCase.getComment()), t));
-                                    if (testCase.isFastFail()) {
-                                        fail("FastFail attribute forces the complete test sheet to fail.");
-                                    }
-                                } else {
-                                    continue testCaseLoop;
+                                errorCollector.addError(new AssertionError(String.format(
+                                        "No Exception expected in TestCommand: %s, %s. %s",
+                                        testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
+                                        testCase.getComment()), t));
+                                if (testCase.isFastFail()) {
+                                    fail("FastFail attribute forces the complete test sheet to fail.");
                                 }
+                                continue testCaseLoop;
                             }
                         }
                         e.printStackTrace();

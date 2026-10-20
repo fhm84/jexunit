@@ -39,13 +39,42 @@ public class CollectionPropertyHelper {
         for (final Object obj : target) {
             final Object currentValue = Ognl.getValue(expression, context, obj);
             // if we found the object out of the collection with the expected value ...
-            if (currentValue != null && currentValue.equals(expectedValue)) {
+            if (isEqual(currentValue, expectedValue)) {
                 // ... return the current object out of the collection
                 return obj;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Check if the current value equals the expected value (out of the condition). The expected value is converted to
+     * the type of the current value, so conditions also work on non-string properties (numbers, enums, ...).
+     *
+     * @param currentValue  the value of the collection element
+     * @param expectedValue the expected value (as string)
+     * @return true, if the values are equal, else false
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static boolean isEqual(final Object currentValue, final String expectedValue) {
+        if (currentValue == null) {
+            return false;
+        }
+        if (currentValue instanceof String) {
+            return currentValue.equals(expectedValue);
+        }
+        try {
+            final Object converted = PropertyUtils.convertPropertyStringToObject(currentValue.getClass(), expectedValue);
+            if (converted instanceof Comparable && converted.getClass() == currentValue.getClass()) {
+                // compareTo (instead of equals) to ignore the scale of BigDecimals
+                return ((Comparable) converted).compareTo(currentValue) == 0;
+            }
+            return currentValue.equals(converted);
+        } catch (final Exception e) {
+            // the expected value cannot be converted to the type of the current value, so they can't be equal
+            return false;
+        }
     }
 
 }
