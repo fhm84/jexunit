@@ -3,6 +3,8 @@ package com.jexunit.core.spi;
 import com.jexunit.core.spi.data.DataProvider;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * ServiceRegistry (Singleton) for loading and registering extensions like data providers.
@@ -10,6 +12,8 @@ import java.util.*;
  * @author fabian
  */
 public class ServiceRegistry {
+
+    private static final Logger LOG = Logger.getLogger(ServiceRegistry.class.getName());
 
     private static final Map<Class<?>, List<?>> services = new HashMap<>();
 
@@ -23,8 +27,10 @@ public class ServiceRegistry {
      */
     public static synchronized void initialize() {
         if (instance == null) {
-            instance = new ServiceRegistry();
-            instance.loadExtensions(DataProvider.class);
+            // publish the instance only after loading the extensions, as getInstance() doesn't synchronize
+            final ServiceRegistry registry = new ServiceRegistry();
+            registry.loadExtensions(DataProvider.class);
+            instance = registry;
         }
     }
 
@@ -59,6 +65,37 @@ public class ServiceRegistry {
     @SuppressWarnings("unchecked")
     public <T> List<T> getServicesFor(final Class<T> type) {
         return (List<T>) services.get(type);
+    }
+
+    /**
+     * Create the DataProvider for the given test class. The registered DataProviders are asked in the order they were
+     * found, and the last one that can provide the test data for the test class is used. A new instance of it is
+     * created, as the DataProvider holds the state of the test class it is initialized for.
+     *
+     * @param testClass the test class to create the DataProvider for
+     * @return a new (not yet initialized) instance of the DataProvider for the test class (or the registered instance
+     * itself, if it has no accessible no-arg constructor), or <code>null</code> if no DataProvider can provide the test
+     * data
+     */
+    public DataProvider createDataProvider(final Class<?> testClass) {
+        DataProvider dataProvider = null;
+        final List<DataProvider> dataProviders = getServicesFor(DataProvider.class);
+        if (dataProviders != null) {
+            for (final DataProvider dp : dataProviders) {
+                if (dp.canProvide(testClass)) {
+                    dataProvider = dp;
+                }
+            }
+        }
+        if (dataProvider == null) {
+            return null;
+        }
+        try {
+            return dataProvider.getClass().getDeclaredConstructor().newInstance();
+        } catch (final ReflectiveOperationException e) {
+            LOG.log(Level.FINE, "DataProvider cannot be instantiated, using the registered instance", e);
+            return dataProvider;
+        }
     }
 
     /**

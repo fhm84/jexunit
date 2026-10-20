@@ -15,8 +15,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -55,7 +57,8 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     detector.detect();
                 }
             } catch (final IOException e) {
-                e.printStackTrace();
+                // without the scan there are no test commands, so don't continue silently
+                throw new IllegalStateException("Scanning the classpath for test commands failed", e);
             }
             initialized = true;
         }
@@ -73,7 +76,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
             return;
         }
         try {
-            final Class<?> clazz = getClass().getClassLoader().loadClass(className);
+            final Class<?> clazz = loadClass(className);
             Class<?> type = null;
             if (hasExcelFileAnnotation(clazz)) {
                 type = clazz;
@@ -85,15 +88,15 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     registerCommands(testCommands, type, m);
                 }
             }
-        } catch (final ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (final ClassNotFoundException | LinkageError e) {
+            LOG.log(Level.WARNING, "Test commands of class " + className + " are skipped, the class cannot be loaded", e);
         }
     }
 
     @Override
     public void reportTypeAnnotation(final Class<? extends Annotation> annotation, final String className) {
         try {
-            final Class<?> clazz = getClass().getClassLoader().loadClass(className);
+            final Class<?> clazz = loadClass(className);
 
             if (annotation.isAnnotation() && (annotation == TestCommand.class || annotation == TestCommands.class)) {
                 if (!checkTestCommandClass(clazz)) {
@@ -104,9 +107,24 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                 final TestCommand[] testCommands = clazz.getDeclaredAnnotationsByType(TestCommand.class);
                 registerCommands(testCommands, clazz, null);
             }
-        } catch (final ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (final ClassNotFoundException | LinkageError e) {
+            LOG.log(Level.WARNING, "Test commands of class " + className + " are skipped, the class cannot be loaded", e);
         }
+    }
+
+    /**
+     * Load the class reported by the annotation scan. The scan finds the classes via the context class loader (if set),
+     * so they are loaded the same way.
+     *
+     * @param className the name of the class to load
+     * @return the loaded class
+     * @throws ClassNotFoundException if the class cannot be found
+     */
+    private static Class<?> loadClass(final String className) throws ClassNotFoundException {
+        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader classLoader =
+                contextClassLoader != null ? contextClassLoader : TestCommandScanner.class.getClassLoader();
+        return classLoader.loadClass(className);
     }
 
     /**
@@ -129,7 +147,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     }
                 }
                 for (String command : commandNames) {
-                    command = command.toLowerCase();
+                    command = command.toLowerCase(Locale.ROOT);
                     if (!commands.containsKey(command)) {
                         commands.put(command, new HashMap<>());
                     }
@@ -164,10 +182,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = type.getSimpleName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_CLASS_POSTFIX);
-        if (prefix != null && name.toLowerCase().startsWith(prefix.toLowerCase())) {
+        if (prefix != null && name.toLowerCase(Locale.ROOT).startsWith(prefix.toLowerCase(Locale.ROOT))) {
             name = name.substring(prefix.length());
         }
-        if (postfix != null && name.toLowerCase().endsWith(postfix.toLowerCase())) {
+        if (postfix != null && name.toLowerCase(Locale.ROOT).endsWith(postfix.toLowerCase(Locale.ROOT))) {
             name = name.substring(0, name.length() - postfix.length());
         }
 
@@ -185,10 +203,10 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
         String name = m.getName();
         final String prefix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_PREFIX);
         final String postfix = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_METHOD_POSTFIX);
-        if (prefix != null && name.toLowerCase().startsWith(prefix.toLowerCase())) {
+        if (prefix != null && name.toLowerCase(Locale.ROOT).startsWith(prefix.toLowerCase(Locale.ROOT))) {
             name = name.substring(prefix.length());
         }
-        if (postfix != null && name.toLowerCase().endsWith(postfix.toLowerCase())) {
+        if (postfix != null && name.toLowerCase(Locale.ROOT).endsWith(postfix.toLowerCase(Locale.ROOT))) {
             name = name.substring(0, name.length() - postfix.length());
         }
 
