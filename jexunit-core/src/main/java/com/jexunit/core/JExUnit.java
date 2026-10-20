@@ -21,7 +21,8 @@ import org.junit.runners.Suite;
  * @author fabian
  * @deprecated Use {@code @ExtendWith(JExUnitExtension.class)} from {@code jexunit-jupiter}
  *             together with {@code @ExcelTest} instead. This JUnit 4 runner receives no new
- *             features and will be removed in a future major release.
+ *             features and will be removed in a future major release. See the
+ *             <a href="https://github.com/fhm84/jexunit/blob/master/docs/migration-junit5.md">migration guide</a>.
  */
 public class JExUnit extends Suite {
 

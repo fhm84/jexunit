@@ -4,6 +4,7 @@ import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.dataprovider.ExcelFile;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +51,11 @@ class JExUnitExtensionTest {
         assertInstanceOf(MultipleFailuresError.class, failure);
         // the failed assertion before and the missing implementation
         assertEquals(2, ((MultipleFailuresError) failure).getFailures().size());
+    }
+
+    @Test
+    void shouldAbortOnAssumptionInCommand() {
+        execute(AssumptionTest.class).assertStatistics(stats -> stats.started(1).aborted(1).failed(0));
     }
 
     private static Events execute(final Class<?> testClass) {
@@ -116,6 +122,24 @@ class JExUnitExtensionTest {
 
         @TestCommand("otherTestClassCommand")
         public static void otherTestClassCommand() {
+        }
+    }
+
+    @ExtendWith(JExUnitExtension.class)
+    public static class AssumptionTest {
+
+        @ExcelFile
+        public static String excelFile() {
+            return ExcelTestFile.create(new String[][]{{"command"}, {"assumeFalse"}});
+        }
+
+        @ExcelTest
+        void test() {
+        }
+
+        @TestCommand("assumeFalse")
+        public static void assumeFalse() {
+            Assumptions.assumeTrue(false, "not applicable");
         }
     }
 

@@ -3,6 +3,7 @@ package com.jexunit.core;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.dataprovider.ExcelFile;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -82,6 +83,29 @@ public class JExUnitTest {
         assertEquals(2, result.getRunCount());
         assertEquals(String.valueOf(result.getFailures()), 0, result.getFailureCount());
         assertEquals(2, InheritedTest.INVOCATIONS.get());
+    }
+
+    @Test
+    public void shouldSkipTestOnAssumptionInCommand() {
+        final Result result = JUnitCore.runClasses(AssumptionTest.class);
+
+        assertEquals(1, result.getRunCount());
+        assertEquals(String.valueOf(result.getFailures()), 0, result.getFailureCount());
+        assertEquals(1, result.getAssumptionFailureCount());
+    }
+
+    @RunWith(JExUnit.class)
+    public static class AssumptionTest {
+
+        @ExcelFile
+        public static String excelFile() {
+            return ExcelTestFile.create(new String[][]{{"command"}, {"assumeFalse"}});
+        }
+
+        @TestCommand("assumeFalse")
+        public static void assumeFalse() {
+            Assume.assumeTrue("not applicable", false);
+        }
     }
 
     @RunWith(JExUnit.class)

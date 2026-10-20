@@ -98,7 +98,7 @@ public class MyTest extends JExUnitBase {  public class MyTest {
 }                                          }
 ```
 
-Key differences: no base class needed; `@ExcelTest` replaces the inherited `test()` method; `@Before`/`@After` become standard JUnit 5 `@BeforeEach`/`@AfterEach`.
+Key differences: no base class needed; `@ExcelTest` replaces the inherited `test()` method; `@Before`/`@After` become standard JUnit 5 `@BeforeEach`/`@AfterEach`. The user-facing guide (incl. `runCommand` overrides and behaviour differences) is `docs/migration-junit5.md`.
 
 ### SPI Extension Points
 

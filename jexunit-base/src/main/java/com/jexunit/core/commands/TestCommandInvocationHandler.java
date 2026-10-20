@@ -42,12 +42,14 @@ public class TestCommandInvocationHandler implements Invocable {
             e.printStackTrace();
             throw e;
         } catch (final InvocationTargetException e) {
-            Throwable t = e;
-            while (t.getCause() != null) {
-                t = t.getCause();
+            // throw what the command threw (not the reflection wrapper), so the runners can tell assertion failures,
+            // assumptions (skipping the test) and other exceptions apart
+            final Throwable cause = e.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             }
-            if (t instanceof AssertionError) {
-                throw (AssertionError) t;
+            if (cause instanceof Error) {
+                throw (Error) cause;
             }
             throw e;
         }
