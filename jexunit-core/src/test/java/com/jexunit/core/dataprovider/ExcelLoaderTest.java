@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
@@ -21,6 +22,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
@@ -86,6 +88,14 @@ public class ExcelLoaderTest {
         assertEquals(3, testCases.size());
         assertEquals("test", testCases.get(0).getTestCommand());
         assertEquals(4, testCases.get(0).getValues().size());
+    }
+
+    @Test
+    public void shouldReportMissingExcelFile() {
+        final FileNotFoundException e = assertThrows(FileNotFoundException.class,
+                () -> new ExcelLoader().readExcel("does/not/exist.xlsx"));
+
+        assertThat(e.getMessage(), containsString("Excel-file 'does/not/exist.xlsx' not found!"));
     }
 
     @Test

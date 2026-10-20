@@ -181,7 +181,7 @@ Control what happens when a command name in the Excel file has no matching imple
 | `FAIL` | The whole test fails before any command runs |
 | `IGNORE` | No validation; rows without implementation fail when they are executed |
 
-The values are case-sensitive (upper case). Validation only checks that *some* implementation of the command exists on the classpath, not that it is reachable from the current test class.
+The values are case-insensitive. Validation only checks that *some* implementation of the command exists on the classpath, not that it is reachable from the current test class.
 
 ### Name Prefix/Postfix
 

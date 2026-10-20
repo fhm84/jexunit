@@ -182,19 +182,9 @@ public class Parameterized extends Suite {
 
         ServiceRegistry.initialize();
 
-        DataProvider dataprovider = null;
-
-        final List<DataProvider> dataproviders = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
-        if (dataproviders != null) {
-            for (final DataProvider dp : dataproviders) {
-                if (dp.canProvide(clazz)) {
-                    dataprovider = dp;
-                }
-            }
-        }
-
+        final DataProvider dataprovider = ServiceRegistry.getInstance().createDataProvider(clazz);
         if (dataprovider == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("No DataProvider found for: " + clazz.getName());
         }
 
         TestContextManager.add(DataProvider.class, dataprovider);

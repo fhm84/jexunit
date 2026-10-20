@@ -43,7 +43,7 @@ com.example.tests.MyCustomDataProvider
 
 ### Selection
 
-When multiple `DataProvider` implementations are on the classpath, the runner calls `canProvide(testClass)` on each one in discovery order and uses the **last** one that returns `true`. The provider instances are shared by all test classes. The built-in `ExcelDataProvider` returns `true` when the test class has exactly one `@ExcelFile`-annotated static field or public static method.
+When multiple `DataProvider` implementations are on the classpath, the runner calls `canProvide(testClass)` on each one in discovery order and uses the **last** one that returns `true`. A new instance of that provider is created for each test class (via its public no-arg constructor), so providers can keep per-class state. The built-in `ExcelDataProvider` returns `true` when the test class has exactly one `@ExcelFile`-annotated static field or public static method.
 
 ## `BeforeSheet` — Before Hook
 
