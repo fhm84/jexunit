@@ -25,7 +25,7 @@ These are handled by the framework and do not require any `@TestCommand` method.
 
 ### `disabled`
 
-Placed as a row command with `true` in the next column to **disable the entire worksheet**. The worksheet is skipped and reported as ignored.
+Placed as a row command with `true` in the next column to **disable the entire worksheet**: the remaining rows of the worksheet are not executed. With JUnit 5 the worksheet is reported as skipped (aborted), with JUnit 4 as passed. Rows above the `disabled` row are still executed, so put it at the top of the worksheet.
 
 ```
 disabled | true

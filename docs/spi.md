@@ -1,6 +1,6 @@
 # SPI Extension Points
 
-JExUnit uses Java's `ServiceLoader` mechanism to discover extensions. Implementations are registered by creating a plain-text service descriptor under `src/main/resources/META-INF/services/`.
+JExUnit uses Java's `ServiceLoader` mechanism to discover data providers. Implementations are registered by creating a plain-text service descriptor under `src/main/resources/META-INF/services/`. The lifecycle hooks (`BeforeSheet`, `AfterSheet`) are configured via `jexunit.properties` instead.
 
 ## `DataProvider` — Custom Data Sources
 
@@ -43,13 +43,13 @@ com.example.tests.MyCustomDataProvider
 
 ### Selection
 
-When multiple `DataProvider` implementations are on the classpath, `ServiceRegistry` calls `canProvide(testClass)` on each one in discovery order and uses the first that returns `true`. The built-in `ExcelDataProvider` returns `true` when the test class has an `@ExcelFile`-annotated field or method.
+When multiple `DataProvider` implementations are on the classpath, the runner calls `canProvide(testClass)` on each one in discovery order and uses the **last** one that returns `true`. The provider instances are shared by all test classes. The built-in `ExcelDataProvider` returns `true` when the test class has exactly one `@ExcelFile`-annotated static field or public static method.
 
-## `BeforeSheet` — Pre-Worksheet Hook
+## `BeforeSheet` — Before Hook
 
 `com.jexunit.core.spi.BeforeSheet`
 
-Runs once **before** each worksheet is executed. Use it to reset shared state, truncate database tables, or log worksheet boundaries.
+Runs once **before** the worksheets are executed: with JUnit 5 once per test class, with JUnit 4 once per Excel file. Use it to prepare shared state, e.g. truncate database tables.
 
 ```java
 public interface BeforeSheet {
@@ -64,34 +64,24 @@ public class DbResetHook implements BeforeSheet {
     @Override
     public void run() {
         Database.truncateAll();
-        System.out.println("DB reset before sheet");
+        System.out.println("DB reset before the worksheets");
     }
 }
 ```
 
 ### Registration
 
-Via SPI service descriptor:
-
-```
-src/main/resources/META-INF/services/com.jexunit.core.spi.BeforeSheet
-```
-
-```
-com.example.tests.DbResetHook
-```
-
-Or via `jexunit.properties` (single implementation, no SPI file needed):
+Via `jexunit.properties` (a single implementation with a public no-arg constructor):
 
 ```properties
 jexunit.sheet.before=com.example.tests.DbResetHook
 ```
 
-## `AfterSheet` — Post-Worksheet Hook
+## `AfterSheet` — After Hook
 
 `com.jexunit.core.spi.AfterSheet`
 
-Runs once **after** each worksheet finishes. Use it for cleanup, reporting, or releasing resources.
+Runs once **after** the worksheets are executed: with JUnit 5 once per test class, with JUnit 4 once per Excel file. Use it for cleanup, reporting, or releasing resources.
 
 ```java
 public interface AfterSheet {
@@ -105,24 +95,14 @@ public interface AfterSheet {
 public class LoggingHook implements AfterSheet {
     @Override
     public void run() {
-        System.out.println("Sheet completed");
+        System.out.println("Worksheets completed");
     }
 }
 ```
 
 ### Registration
 
-Via SPI service descriptor:
-
-```
-src/main/resources/META-INF/services/com.jexunit.core.spi.AfterSheet
-```
-
-```
-com.example.tests.LoggingHook
-```
-
-Or via `jexunit.properties`:
+Via `jexunit.properties` (a single implementation with a public no-arg constructor):
 
 ```properties
 jexunit.sheet.after=com.example.tests.LoggingHook
@@ -130,7 +110,7 @@ jexunit.sheet.after=com.example.tests.LoggingHook
 
 ## Using the `serviceloader-maven-plugin`
 
-The `core` module uses the `serviceloader-maven-plugin` to auto-generate the SPI descriptor for `ExcelDataProvider`. If you use the same plugin in your project, annotate your implementation and the descriptor is written for you at build time:
+The `jexunit-base` module uses the `serviceloader-maven-plugin` to generate the SPI descriptor for `ExcelDataProvider` at build time. If you use the same plugin in your project, it finds the implementations of the configured interfaces in your compiled classes and writes the descriptor for you:
 
 ```xml
 <plugin>

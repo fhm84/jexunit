@@ -4,8 +4,6 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
@@ -101,9 +99,8 @@ public class ExcelLoader {
         final List<List<Cell>> cells = new ArrayList<>();
 
         if (transpose) {
-            final Pair<Integer, Integer> lastRowColumn = getLastRowAndLastColumn(worksheet);
-            final int lastRow = lastRowColumn.getLeft();
-            final int lastColumn = lastRowColumn.getRight();
+            final int lastRow = worksheet.getLastRowNum();
+            final int lastColumn = getLastColumn(worksheet);
 
             for (int rowNum = 0; rowNum <= lastRow; rowNum++) {
                 final Row row = worksheet.getRow(rowNum);
@@ -139,13 +136,12 @@ public class ExcelLoader {
         return mapCells(cells);
     }
 
-    private Pair<Integer, Integer> getLastRowAndLastColumn(final Sheet sheet) {
-        final int lastRow = sheet.getLastRowNum();
+    private int getLastColumn(final Sheet sheet) {
         int lastColumn = 0;
         for (final Row row : sheet) {
             lastColumn = Math.max(lastColumn, row.getLastCellNum());
         }
-        return new ImmutablePair<>(lastRow, lastColumn);
+        return lastColumn;
     }
 
     /**
