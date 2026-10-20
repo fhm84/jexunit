@@ -96,6 +96,16 @@ class JExUnitInterceptor implements InvocationInterceptor, BeforeEachCallback {
                             if (isFastFail(testCase)) { abort = true; continue outerLoop; }
                         }
                         continue;
+                    } catch (final VirtualMachineError e) {
+                        throw e;
+                    } catch (final Error e) {
+                        // e.g. NoSuchMethodError for a command without implementation; an error (other than an
+                        // assertion) never satisfies an expected exception
+                        errors.add(new AssertionError(String.format(
+                                "Error in TestCommand: %s, %s. (Error: %s) %s",
+                                cmd, testCase.getMetadata().getDetailedIdentifier(), e, testCase.getComment()), e));
+                        if (isFastFail(testCase)) { abort = true; }
+                        continue;
                     } catch (final Exception e) {
                         if (exceptionExpected) {
                             // any exception satisfies the expectation

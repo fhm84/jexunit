@@ -32,7 +32,7 @@ Nested objects that are `null` are created automatically via their default const
 
 In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, booleans, enums, dates, …) before comparing.
 
-> **Security note:** the column headers are evaluated as OGNL expressions, and OGNL can call public (static) methods. A header like `@java.lang.Runtime@getRuntime().exec('…').x` runs a program while the row is mapped, even though mapping the value fails afterwards. Treat Excel test files like test code: only run files from trusted sources. The cell *values* are not evaluated.
+> **Security note:** the column headers are evaluated as OGNL expressions. By default, only property access is allowed in them (as in the table above); headers with method calls, static access (e.g. `@java.lang.Runtime@getRuntime().exec('…').x`), constructors or assignments are rejected and the row fails. If you need full OGNL expressions, set `jexunit.ognl.property_access_only=false` — OGNL can then call any public (static) method, so only run Excel files from trusted sources. The cell *values* are never evaluated.
 
 ## Manual Mapping via `TestObjectHelper`
 

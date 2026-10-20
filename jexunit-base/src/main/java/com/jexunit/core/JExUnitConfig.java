@@ -69,7 +69,14 @@ public class JExUnitConfig {
          * Limit annotation scan (for command implementations) to given packages and sub-packages.
          * Multiple packages can be split by "<code>,</code>" (comma).
          */
-        ANNOTATION_SCAN_PACKAGE("jexunit.annotation-scan.package", "");
+        ANNOTATION_SCAN_PACKAGE("jexunit.annotation-scan.package", ""),
+
+        /**
+         * Only allow property access in the (OGNL) expressions of the column headers, like <code>address.street</code>
+         * or <code>items[0].name</code>. Method calls, static access, constructors, assignments and so on are
+         * rejected. Set to <code>false</code> to allow any OGNL expression.
+         */
+        OGNL_PROPERTY_ACCESS_ONLY("jexunit.ognl.property_access_only", "true");
 
         private final String key;
         private final String defaultConfig;

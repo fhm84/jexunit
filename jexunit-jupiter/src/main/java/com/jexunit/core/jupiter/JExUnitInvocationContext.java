@@ -19,7 +19,7 @@ class JExUnitInvocationContext implements TestTemplateInvocationContext {
 
     @Override
     public String getDisplayName(final int invocationIndex) {
-        final String name = identifier.substring(identifier.lastIndexOf('/') + 1);
+        final String name = identifier.substring(Math.max(identifier.lastIndexOf('/'), identifier.lastIndexOf('\\')) + 1);
         if (testCases != null && !testCases.isEmpty() && testCases.get(0).getMetadata() != null) {
             return "[" + name + " - " + testCases.get(0).getMetadata().getTestGroup() + "]";
         }
