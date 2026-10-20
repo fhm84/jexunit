@@ -7,10 +7,13 @@ import com.jexunit.core.dataprovider.ExcelFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.testkit.engine.EngineTestKit;
 import org.junit.platform.testkit.engine.Events;
+import org.opentest4j.MultipleFailuresError;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
@@ -34,6 +37,19 @@ class JExUnitExtensionTest {
     @Test
     void shouldStartEachWorksheetWithNewTestContext() {
         execute(TestContextResetTest.class).assertStatistics(stats -> stats.started(2).succeeded(2));
+    }
+
+    @Test
+    void shouldKeepCollectedFailuresOnMissingCommandImplementation() {
+        final Events events = execute(MissingImplementationTest.class);
+
+        events.assertStatistics(stats -> stats.started(1).failed(1));
+        final Throwable failure = events.failed().list().get(0)
+                .getPayload(TestExecutionResult.class).flatMap(TestExecutionResult::getThrowable)
+                .orElseThrow(IllegalStateException::new);
+        assertInstanceOf(MultipleFailuresError.class, failure);
+        // the failed assertion before and the missing implementation
+        assertEquals(2, ((MultipleFailuresError) failure).getFailures().size());
     }
 
     private static Events execute(final Class<?> testClass) {
@@ -63,6 +79,43 @@ class JExUnitExtensionTest {
         @TestCommand("failAssertion")
         public static void failAssertion() {
             fail("expected");
+        }
+    }
+
+    @ExtendWith(JExUnitExtension.class)
+    public static class MissingImplementationTest {
+
+        @ExcelFile
+        public static String excelFile() {
+            // the second command is implemented for another test class only, so it passes the validation
+            return ExcelTestFile.create(new String[][]{
+                    {"command"},
+                    {"failAssertion"},
+                    {"otherTestClassCommand"}});
+        }
+
+        @ExcelTest
+        void test() {
+        }
+
+        @TestCommand("failAssertion")
+        public static void failAssertion() {
+            fail("expected");
+        }
+    }
+
+    /**
+     * Not run, only provides a command implementation for this test class.
+     */
+    public static class OtherTestClass {
+
+        @ExcelFile
+        public static String excelFile() {
+            return ExcelTestFile.create(new String[][]{{"command"}, {"otherTestClassCommand"}});
+        }
+
+        @TestCommand("otherTestClassCommand")
+        public static void otherTestClassCommand() {
         }
     }
 

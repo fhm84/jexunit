@@ -1,5 +1,6 @@
 package com.jexunit.core.data;
 
+import com.jexunit.core.JExUnitConfig;
 import ognl.*;
 
 import java.util.List;
@@ -59,10 +60,39 @@ public class OgnlUtils {
                         new DefaultClassResolver(),
                         new CustomTypeConverter());
 
-        final String propertyExpression = prepareExpression(propName);
-        final Object expr = Ognl.parseExpression(propertyExpression);
+        final Object expr = parseExpression(propName);
 
         Ognl.setValue(expr, context, obj, propValue);
+    }
+
+    /**
+     * Parse the given (property-)expression. Unless configured otherwise
+     * ({@link JExUnitConfig.ConfigKey#OGNL_PROPERTY_ACCESS_ONLY}), only property access is allowed, because the
+     * expressions come from the excel files.
+     *
+     * @param propName the (property-)expression
+     * @return the parsed expression
+     * @throws OgnlException if the expression cannot be parsed or is not allowed
+     */
+    static Object parseExpression(final String propName) throws OgnlException {
+        final Object expr = Ognl.parseExpression(prepareExpression(propName));
+        if (Boolean.parseBoolean(
+                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.OGNL_PROPERTY_ACCESS_ONLY))) {
+            checkPropertyAccessOnly((Node) expr, propName);
+        }
+        return expr;
+    }
+
+    private static void checkPropertyAccessOnly(final Node node, final String propName) throws OgnlException {
+        if (!(node instanceof ASTChain || node instanceof ASTProperty || node instanceof ASTConst)) {
+            throw new OgnlException(String.format(
+                    "Expression '%s' is not allowed: only property access is supported (found %s). Set '%s' to "
+                            + "false to allow any OGNL expression.", propName, node.getClass().getSimpleName(),
+                    JExUnitConfig.ConfigKey.OGNL_PROPERTY_ACCESS_ONLY.getKey()));
+        }
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            checkPropertyAccessOnly(node.jjtGetChild(i), propName);
+        }
     }
 
     public static Object getProperty(final Object obj, final String propName) throws OgnlException {
@@ -75,8 +105,7 @@ public class OgnlUtils {
                 new DefaultClassResolver(),
                 new CustomTypeConverter());
 
-        final String propertyExpression = prepareExpression(propName);
-        final Object expr = Ognl.parseExpression(propertyExpression);
+        final Object expr = parseExpression(propName);
 
         return Ognl.getValue(expr, context, obj);
     }

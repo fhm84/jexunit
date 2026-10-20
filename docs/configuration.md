@@ -109,6 +109,12 @@ Allowed values (upper case):
 | `FAIL` | The test fails before any command runs |
 | `IGNORE` | No validation; rows without implementation fail when they are executed |
 
+### Object Mapping
+
+| Key | Default | Description |
+|---|---|---|
+| `jexunit.ognl.property_access_only` | `true` | Only allow property access in the column headers (OGNL expressions). Set to `false` to allow any OGNL expression, incl. method calls — see the security note in [object-mapping.md](object-mapping.md) |
+
 ### Lifecycle Hooks
 
 | Key | Default | Description |

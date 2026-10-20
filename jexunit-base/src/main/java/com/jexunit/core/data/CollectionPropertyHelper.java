@@ -35,9 +35,12 @@ public class CollectionPropertyHelper {
             expectedValue = m.group(2);
         }
 
+        // the condition is part of the column header, so it has to pass the same checks as the header itself
+        final Object parsedExpression = OgnlUtils.parseExpression(expression);
+
         // iterate through the collection
         for (final Object obj : target) {
-            final Object currentValue = Ognl.getValue(expression, context, obj);
+            final Object currentValue = Ognl.getValue(parsedExpression, context, obj);
             // if we found the object out of the collection with the expected value ...
             if (isEqual(currentValue, expectedValue)) {
                 // ... return the current object out of the collection
