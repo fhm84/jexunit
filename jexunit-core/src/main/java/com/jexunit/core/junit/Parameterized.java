@@ -76,7 +76,7 @@ public class Parameterized extends Suite {
                         annotatedFieldsByParameter.size(), fParameters.length));
             }
             final Object testClassInstance = getTestClass().getJavaClass().newInstance();
-            if (getTestClass().getJavaClass() == JExUnitBase.class) {
+            if (testClassInstance instanceof JExUnitBase) {
                 ((JExUnitBase) testClassInstance).setTestType(testType);
             }
             for (final FrameworkField each : annotatedFieldsByParameter) {
@@ -200,8 +200,12 @@ public class Parameterized extends Suite {
         TestContextManager.add(DataProvider.class, dataprovider);
         dataprovider.initialize(clazz);
 
+        // the test class extends JExUnitBase, so it is the type the test commands are looked up for
+        this.testType = clazz;
         final Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-        createRunnersForParameters(allParameters(0), parameters.name());
+        for (int i = 0; i < dataprovider.numberOfTests(); i++) {
+            createRunnersForParameters(allParameters(i), parameters.name(), dataprovider.getIdentifier(i));
+        }
     }
 
     public Parameterized(final Class<?> clazz, final Class<?> testType, final int testNumber, final String identifier) throws Throwable {
@@ -210,7 +214,7 @@ public class Parameterized extends Suite {
         this.identifier = identifier;
 
         final Parameters parameters = getParametersMethod().getAnnotation(Parameters.class);
-        createRunnersForParameters(allParameters(testNumber), parameters.name());
+        createRunnersForParameters(allParameters(testNumber), parameters.name(), identifier);
     }
 
     @Override
@@ -222,7 +226,7 @@ public class Parameterized extends Suite {
     protected String getName() {
         final StringBuilder sb = new StringBuilder();
         if (identifier != null) {
-            sb.append(getSimpleExcelFileName());
+            sb.append(getSimpleExcelFileName(identifier));
         } else {
             sb.append(super.getName());
         }
@@ -250,12 +254,12 @@ public class Parameterized extends Suite {
         throw new Exception("No public static parameters method on class " + getTestClass().getName());
     }
 
-    private void createRunnersForParameters(final Iterable<Object[]> allParameters, final String namePattern)
-            throws InitializationError, Exception {
+    private void createRunnersForParameters(final Iterable<Object[]> allParameters, final String namePattern,
+                                            final String excelFile) throws InitializationError, Exception {
         try {
             int i = 0;
             for (final Object[] parametersOfSingleTest : allParameters) {
-                final String name = nameFor(namePattern, i, parametersOfSingleTest);
+                final String name = nameFor(namePattern, i, parametersOfSingleTest, excelFile);
                 final TestClassRunnerForParameters runner = new TestClassRunnerForParameters(getTestClass().getJavaClass(),
                         parametersOfSingleTest, name, testType);
                 runners.add(runner);
@@ -266,12 +270,12 @@ public class Parameterized extends Suite {
         }
     }
 
-    private String nameFor(final String namePattern, final int index, final Object[] parameters) {
+    private String nameFor(final String namePattern, final int index, final Object[] parameters, final String excelFile) {
         String finalPattern;
-        if (getSimpleExcelFileName() != null) {
+        if (excelFile != null) {
             // change the name of the test to be unique in case of excelFileName is set (i.e. for
             // mass tests)
-            finalPattern = getSimpleExcelFileName() + " - " + namePattern;
+            finalPattern = getSimpleExcelFileName(excelFile) + " - " + namePattern;
         } else {
             finalPattern = namePattern;
         }
@@ -298,14 +302,11 @@ public class Parameterized extends Suite {
     /**
      * Get the simple filename of the excel file (without the path).
      *
+     * @param excelFile the excel file (incl. path)
      * @return the simple name of the excel file
      */
-    private String getSimpleExcelFileName() {
-        if (identifier != null) {
-            return identifier.substring(identifier.lastIndexOf("/") + 1);
-        } else {
-            return null;
-        }
+    private static String getSimpleExcelFileName(final String excelFile) {
+        return excelFile.substring(Math.max(excelFile.lastIndexOf('/'), excelFile.lastIndexOf('\\')) + 1);
     }
 
     private Exception parametersMethodReturnedWrongType() throws Exception {

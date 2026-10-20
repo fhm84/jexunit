@@ -14,7 +14,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -30,6 +32,12 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
     private static final Logger LOG = Logger.getLogger(TestCommandScanner.class.getName());
 
     private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
+
+    /**
+     * Classes whose command methods are registered already. The scan reports each annotated method, but all the
+     * command methods of a class are registered at once.
+     */
+    private static final Set<String> scannedMethodClasses = new HashSet<>();
 
     private static volatile boolean initialized = false;
 
@@ -61,6 +69,9 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 
     @Override
     public void reportMethodAnnotation(final Class<? extends Annotation> annotation, final String className, final String methodName) {
+        if (!scannedMethodClasses.add(className)) {
+            return;
+        }
         try {
             final Class<?> clazz = getClass().getClassLoader().loadClass(className);
             Class<?> type = null;

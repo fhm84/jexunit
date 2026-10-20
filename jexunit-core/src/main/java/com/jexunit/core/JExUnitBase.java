@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.fail;
-
 /**
  * BaseClass for the Tests (BusinessTransactionTests or simple unit-tests).<br>
  * This class is used to read the excel-file and "create" the separated junit-tests for each worksheet. Each test will
@@ -126,11 +124,9 @@ public class JExUnitBase implements TestCommandHost {
                     if (testCase.isDisabled()) {
                         log.info(String.format("Testsheet disabled! (%s)",
                                 testCase.getMetadata().getDetailedIdentifier()));
-                        // if the testsheet is disabled, ignore the junit-test (assume will pass the
-                        // test)
+                        // if the testsheet is disabled, report the junit-test as skipped
                         Assume.assumeTrue(String.format("Testsheet disabled! (%s)",
-                                testCase.getMetadata().getDetailedIdentifier()), true);
-                        return;
+                                testCase.getMetadata().getDetailedIdentifier()), false);
                     }
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
                         .equalsIgnoreCase(testCase.getTestCommand())) {
@@ -142,30 +138,37 @@ public class JExUnitBase implements TestCommandHost {
                     // "report"-command
                     continue testCaseLoop;
                 } else {
+                    if (testCase.isDisabled()) {
+                        log.info(String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
+                                testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()));
+                        continue testCaseLoop;
+                    }
                     try {
-                        if (testCase.isDisabled()) {
-                            log.info(String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
-                                    testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()));
-                            // if the testCase is disabled, ignore it (assume will pass the test)
-                            Assume.assumeTrue(
-                                    String.format("Testcase disabled! (command: %s, %s) %s", testCase.getTestCommand(),
-                                            testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()),
-                                    true);
-                            continue testCaseLoop;
-                        }
                         // run the test-command
                         testCommandRunner.runTestCommand(testCase);
+                    } catch (final AssumptionViolatedException e) {
+                        throw e;
                     } catch (final AssertionError e) {
                         if (!exceptionExpected) {
                             errorCollector.addError(new AssertionError(String.format(
                                     "No Exception expected in TestCommand: %s, %s. %s", testCase.getTestCommand(),
                                     testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), e));
                             if (testCase.isFastFail()) {
-                                fail("FastFail attribute forces the complete test sheet to fail.");
+                                break testCaseLoop;
                             }
-                        } else {
-                            continue testCaseLoop;
                         }
+                        continue testCaseLoop;
+                    } catch (final VirtualMachineError e) {
+                        throw e;
+                    } catch (final Error e) {
+                        // an error (other than an assertion) never satisfies an expected exception
+                        errorCollector.addError(new AssertionError(String.format(
+                                "Error in TestCommand: %s, %s. (Error: %s) %s", testCase.getTestCommand(),
+                                testCase.getMetadata().getDetailedIdentifier(), e, testCase.getComment()), e));
+                        if (testCase.isFastFail()) {
+                            break testCaseLoop;
+                        }
+                        continue testCaseLoop;
                     } catch (final Exception e) {
                         if (exceptionExpected) {
                             // any exception satisfies the expectation
@@ -179,15 +182,20 @@ public class JExUnitBase implements TestCommandHost {
                                         testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
                                         testCase.getComment()), t));
                                 if (testCase.isFastFail()) {
-                                    fail("FastFail attribute forces the complete test sheet to fail.");
+                                    break testCaseLoop;
                                 }
                                 continue testCaseLoop;
                             }
                         }
                         e.printStackTrace();
-                        fail(String.format("Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s) %s",
+                        errorCollector.addError(new AssertionError(String.format(
+                                "Unexpected Exception thrown in TestCommand: %s, %s. (Exception: %s) %s",
                                 testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(), e,
-                                testCase.getComment()));
+                                testCase.getComment()), e));
+                        if (testCase.isFastFail()) {
+                            break testCaseLoop;
+                        }
+                        continue testCaseLoop;
                     }
                 }
 
@@ -199,16 +207,18 @@ public class JExUnitBase implements TestCommandHost {
 
                     if (testCase.isFastFail()) {
                         log.log(Level.FINE, "FastFail activated");
-                        fail("FastFail attribute forces the complete test sheet to fail.");
-                        return;
+                        break testCaseLoop;
                     }
                 }
+            } catch (final AssumptionViolatedException e) {
+                throw e;
             } catch (final Exception e) {
                 log.log(Level.WARNING, "TestException", e);
                 if (!exceptionExpected) {
-                    fail(String.format("Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
+                    errorCollector.addError(new AssertionError(String.format(
+                            "Unexpected Exception thrown (%s)! in TestCommand: %s, %s. %s", e,
                             testCase.getTestCommand(), testCase.getMetadata().getDetailedIdentifier(),
-                            testCase.getComment()));
+                            testCase.getComment()), e));
                 }
             }
         }
@@ -232,7 +242,8 @@ public class JExUnitBase implements TestCommandHost {
 
     @Override
     public Object getTestClassInstance(final Class<?> declaringClass) throws Exception {
-        return declaringClass == this.getClass() ? this : null;
+        // commands declared in the (sub)class of the running test are invoked on the test instance
+        return declaringClass.isInstance(this) ? this : null;
     }
 
     @BeforeClass
