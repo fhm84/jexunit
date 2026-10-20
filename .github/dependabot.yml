@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # one PR for all minor and patch updates, major updates get their own PRs
+      maven-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # JUnit 6 requires Java 17, JExUnit targets Java 8 (see docs/roadmap.md)
+      - dependency-name: "org.junit.jupiter:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.junit.platform:*"
+        update-types: ["version-update:semver-major"]
+      # OGNL 3.3+ changed the extension API, the migration is tracked in #40
+      - dependency-name: "ognl:ognl"
+        versions: [">= 3.3"]
+      # the 4.x versions of these plugins are pre-releases (beta/milestones) and target Maven 4
+      - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.apache.maven.plugins:maven-site-plugin"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
