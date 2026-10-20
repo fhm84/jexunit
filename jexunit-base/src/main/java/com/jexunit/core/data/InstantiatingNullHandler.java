@@ -1,7 +1,7 @@
 package com.jexunit.core.data;
 
 import ognl.NullHandler;
-import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 
 import java.beans.PropertyDescriptor;
@@ -67,7 +67,8 @@ public class InstantiatingNullHandler implements NullHandler {
 
             final Object param = createObject(clazz);
 
-            Ognl.setValue(propName, context, target, param);
+            // set the property directly (Ognl.setValue would replace the root object of the context)
+            OgnlRuntime.setProperty((OgnlContext) context, target, propName, param);
 
             return param;
         } catch (final Exception e) {
