@@ -52,6 +52,14 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    public void shouldIgnoreWhitespaceAroundDateValues() throws Exception {
+        assertEquals(date(2026, Calendar.OCTOBER, 20, 0, 0, 0),
+                PropertyUtils.convertPropertyStringToObject(Date.class, " 20.10.2026 "));
+        assertEquals(date(2026, Calendar.OCTOBER, 20, 14, 30, 15),
+                PropertyUtils.convertPropertyStringToObject(Date.class, "20.10.2026 14:30:15 "));
+    }
+
+    @Test
     public void shouldRejectDateValuesWithTrailingText() {
         assertThrows(ParseException.class,
                 () -> PropertyUtils.convertPropertyStringToObject(Date.class, "20.10.2026 tomorrow"));
