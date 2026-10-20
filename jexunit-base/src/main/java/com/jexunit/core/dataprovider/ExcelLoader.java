@@ -169,8 +169,9 @@ public class ExcelLoader {
 
         // this is always the current cell (use for detailed exception message in case of an exception)
         Cell cell = null;
-        // marker for "newly defined" command line (to e.g. reset the multiline flag
-        boolean commandLine = false;
+        // the test cases of the previous line per command block (index of the command cell), to continue multiline
+        // test cases (reset by a new header line, so a multiline test case does not continue after it)
+        Map<Integer, TestCase<ExcelMetadata>> previousLine = new HashMap<>();
         try {
             for (final List<Cell> cellList : cells) {
                 if (cellList.isEmpty()) {
@@ -184,7 +185,7 @@ public class ExcelLoader {
                 } else if (JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_STATEMENT)
                         .equalsIgnoreCase(cellValue)) {
                     commandHeaders = new ArrayList<>();
-                    commandLine = true;
+                    previousLine = new HashMap<>();
 
                     // iterate through following cells
                     for (int h = 0; h < cellList.size(); h++) {
@@ -212,29 +213,20 @@ public class ExcelLoader {
                         testCase.setDisabled(Boolean.parseBoolean(testCell.getValue()));
                     }
                     testCases.add(testCase);
-                    commandLine = false;
+                    previousLine = new HashMap<>();
                 } else if (commandHeaders != null || JExUnitConfig
                         .getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cellValue)) {
-                    final TestCase<ExcelMetadata> lastTestCase =
-                            testCases.isEmpty() ? null : testCases.get(testCases.size() - 1);
-
-                    if (!commandLine && lastTestCase != null && lastTestCase.isMultiline()
-                            && cellValue.equalsIgnoreCase(lastTestCase.getTestCommand())) {
-                        lastTestCase.next();
-
-                        map(commandHeaders, cellList, lastTestCase);
-                    } else if (commandHeaders == null) {
+                    if (commandHeaders == null) {
                         final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
                         testCase.getMetadata().setSheet(cell.getSheet().getSheetName());
                         testCase.getMetadata().setIdentifier(cell.getAddress().formatAsString());
                         testCase.setTestCommand(cellValue);
                         map(null, cellList.subList(1, cellList.size()), testCase);
                         testCases.add(testCase);
+                        previousLine = new HashMap<>();
                     } else {
-                        testCases.addAll(mapTestCases(cellList, commandHeaders));
+                        previousLine = mapLine(cellList, commandHeaders, previousLine, testCases);
                     }
-
-                    commandLine = false;
                 }
             }
         } catch (final Exception e) {
@@ -249,10 +241,23 @@ public class ExcelLoader {
         return testCases;
     }
 
-    private List<TestCase<ExcelMetadata>> mapTestCases(final List<Cell> cellList, final List<String> commandHeaders) {
-        final List<TestCase<ExcelMetadata>> testCases = new ArrayList<>();
-        if (commandHeaders == null || commandHeaders.isEmpty()) {
-            return testCases;
+    /**
+     * Map the given line to test cases: one per command block of the line (a line can contain multiple commands). A
+     * command block continues the multiline test case of the same block of the previous line, if it is the same
+     * command. Otherwise a new test case is added.
+     *
+     * @param cellList       the cells of the line
+     * @param commandHeaders the headers (of the last header line)
+     * @param previousLine   the test cases of the previous line per command block (index of the command cell)
+     * @param testCases      the test cases of the worksheet (to add the new test cases to)
+     * @return the test cases of this line per command block (index of the command cell)
+     */
+    private Map<Integer, TestCase<ExcelMetadata>> mapLine(final List<Cell> cellList, final List<String> commandHeaders,
+                                                          final Map<Integer, TestCase<ExcelMetadata>> previousLine,
+                                                          final List<TestCase<ExcelMetadata>> testCases) {
+        final Map<Integer, TestCase<ExcelMetadata>> currentLine = new HashMap<>();
+        if (commandHeaders.isEmpty()) {
+            return currentLine;
         }
 
         int nextCommandIndex = 0;
@@ -268,22 +273,32 @@ public class ExcelLoader {
                 continue;
             }
 
-            final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
-            testCase.setTestCommand(command);
-            testCase.getMetadata().setSheet(commandCell.getSheet().getSheetName());
-            testCase.getMetadata().setIdentifier(commandCell.getAddress().formatAsString());
-
             // map the values of the block with the headers of the same block (the line may be shorter than the headers)
             final List<String> blockHeaders = commandHeaders.subList(lastCommandIndex,
                     nextCommandIndex > -1 ? nextCommandIndex : commandHeaders.size());
             final List<Cell> commandValueCells = cellList.subList(lastCommandIndex,
                     nextCommandIndex > -1 ? Math.min(nextCommandIndex, cellList.size()) : cellList.size());
+
+            final TestCase<ExcelMetadata> previous = previousLine.get(lastCommandIndex);
+            if (previous != null && previous.isMultiline() && command.equalsIgnoreCase(previous.getTestCommand())) {
+                // continue the multiline test case of the same command block of the previous line
+                previous.next();
+                map(blockHeaders, commandValueCells, previous);
+                currentLine.put(lastCommandIndex, previous);
+                continue;
+            }
+
+            final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
+            testCase.setTestCommand(command);
+            testCase.getMetadata().setSheet(commandCell.getSheet().getSheetName());
+            testCase.getMetadata().setIdentifier(commandCell.getAddress().formatAsString());
             map(blockHeaders, commandValueCells, testCase);
 
             testCases.add(testCase);
+            currentLine.put(lastCommandIndex, testCase);
         } while (nextCommandIndex != -1 && nextCommandIndex < cellList.size());
 
-        return testCases;
+        return currentLine;
     }
 
     private int getNextCommandIndex(final List<String> commandHeaders, final int lastIndex) {

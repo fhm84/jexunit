@@ -104,7 +104,17 @@ Any command listed here is always treated as multiline.
 
 ### Enabling Multiline Per Row
 
-Add a `multiline` column and set it to `true` for any row that should start or continue a multiline block.
+Add a `multiline` column and set it to `true` in the first row of a multiline block. The following rows with the same command continue the block.
+
+### Where a Multiline Block Ends
+
+A multiline block collects consecutive rows with the same command. It ends at:
+
+- a row with a different command
+- a new `COMMAND` header row
+- a `disabled` or `report` row
+
+Comment rows (blank first column) don't end a block.
 
 ### Accessing Multiline Data
 
@@ -122,6 +132,27 @@ public void createPerson(TestCase<?> testCase) {
 ```
 
 `getMultilineValues()` also works for single-line commands — it returns a list with one entry (the current row), so you can write command implementations that handle both cases uniformly.
+
+## Multiple Commands per Row
+
+A header row can contain the `COMMAND` keyword several times. Each occurrence starts a new *command block*, with its own parameter columns up to the next `COMMAND` column:
+
+| | | | |
+|---|---|---|---|
+| `COMMAND` | `name` | `COMMAND` | `street` |
+| `createPerson` | `John` | `addAddress` | `Main Street` |
+
+Each block of a data row is a separate test case, executed from left to right: here `createPerson` with `name = John`, then `addAddress` with `street = Main Street`. A block with an empty command cell is skipped, and rows may be shorter than the header row.
+
+Multiline commands work per block: a block continues the multiline block of the same column in the previous row if it has the same command. In the following example, with `jexunit.multiline_commands=addAddress`, `addAddress` receives both streets as one multiline test case, while `createPerson` runs twice (for `John` and for `Jane`):
+
+| | | | |
+|---|---|---|---|
+| `COMMAND` | `name` | `COMMAND` | `street` |
+| `createPerson` | `John` | `addAddress` | `Main Street` |
+| `createPerson` | `Jane` | `addAddress` | `Second Street` |
+
+The resulting order is: `createPerson` (John), `addAddress` (both rows), `createPerson` (Jane). A multiline test case runs at the position of its first row.
 
 ## Transposed Layout (Column-Wise)
 
