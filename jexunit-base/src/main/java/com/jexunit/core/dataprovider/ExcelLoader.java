@@ -259,14 +259,23 @@ public class ExcelLoader {
             final Cell commandCell = cellList.get(lastCommandIndex);
             nextCommandIndex = getNextCommandIndex(commandHeaders, nextCommandIndex);
 
+            final String command = cellValues2String(commandCell);
+            if (command == null || command.isEmpty()) {
+                // no command set for this block of the line
+                continue;
+            }
+
             final TestCase<ExcelMetadata> testCase = new TestCase<>(new ExcelMetadata());
-            testCase.setTestCommand(cellValues2String(commandCell));
+            testCase.setTestCommand(command);
             testCase.getMetadata().setSheet(commandCell.getSheet().getSheetName());
             testCase.getMetadata().setIdentifier(commandCell.getAddress().formatAsString());
 
-            final List<Cell> commandValueCells =
-                    cellList.subList(lastCommandIndex, nextCommandIndex > -1 ? nextCommandIndex : cellList.size());
-            map(commandHeaders, commandValueCells, testCase);
+            // map the values of the block with the headers of the same block (the line may be shorter than the headers)
+            final List<String> blockHeaders = commandHeaders.subList(lastCommandIndex,
+                    nextCommandIndex > -1 ? nextCommandIndex : commandHeaders.size());
+            final List<Cell> commandValueCells = cellList.subList(lastCommandIndex,
+                    nextCommandIndex > -1 ? Math.min(nextCommandIndex, cellList.size()) : cellList.size());
+            map(blockHeaders, commandValueCells, testCase);
 
             testCases.add(testCase);
         } while (nextCommandIndex != -1 && nextCommandIndex < cellList.size());
@@ -345,10 +354,11 @@ public class ExcelLoader {
         }
 
         if (testCase.getMultiline() == null) {
+            // these are user command names, so the default command prefix does not apply
             final String[] commands =
-                    JExUnitConfig.getDefaultCommandProperty(DefaultCommands.MULTILINE_COMMANDS).split(",");
+                    JExUnitConfig.getStringProperty(DefaultCommands.MULTILINE_COMMANDS.getConfigKey()).split(",");
             for (final String command : commands) {
-                if (command.equalsIgnoreCase(testCase.getTestCommand())) {
+                if (command.trim().equalsIgnoreCase(testCase.getTestCommand())) {
                     testCase.setMultiline(true);
                 }
             }

@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -283,6 +285,27 @@ public class TestObjectHelperTest {
         assertThat(actual.getMapAttr().get("myKey"), is(equalTo("Hello")));
         assertThat(actual.getMapAttr().get("yourKey"), is(equalTo("world")));
         assertThat(actual.getMapAttr().get("ourKey"), is(equalTo("yeah!")));
+    }
+
+    /**
+     * Test instantiating a <code>null</code> collection attribute with an implementation matching the declared type.
+     *
+     * @throws Exception in case that something goes wrong
+     */
+    @Test
+    public void testCreateObject_instantiateCollectionsMatchingDeclaredType() throws Exception {
+        // prepare
+        final TestCase<?> testCase = new TestCase<>();
+        testCase.getValues().put("sortedMapAttr.myKey", new TestCell("A", "Hello"));
+
+        // act
+        final TestModelBase actual = TestObjectHelper.createObject(testCase, TestModelBase.class);
+
+        // assert
+        assertThat(actual.getSortedMapAttr(), is(instanceOf(TreeMap.class)));
+        assertThat(actual.getSortedMapAttr().get("myKey"), is(equalTo("Hello")));
+        assertThat(TestObjectHelper.getProperty(actual, "subEntitySetAttr.size"), is(equalTo(0)));
+        assertThat(actual.getSubEntitySetAttr(), is(instanceOf(Set.class)));
     }
 
 }

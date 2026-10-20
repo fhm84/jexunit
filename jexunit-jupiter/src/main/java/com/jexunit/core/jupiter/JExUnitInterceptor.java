@@ -3,8 +3,10 @@ package com.jexunit.core.jupiter;
 import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandRunner;
+import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
@@ -18,7 +20,7 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class JExUnitInterceptor implements InvocationInterceptor {
+class JExUnitInterceptor implements InvocationInterceptor, BeforeEachCallback {
 
     private static final Logger log = Logger.getLogger(JExUnitInterceptor.class.getName());
 
@@ -28,6 +30,15 @@ class JExUnitInterceptor implements InvocationInterceptor {
     JExUnitInterceptor(final List<TestCase<?>> testCases, final String identifier) {
         this.testCases = testCases;
         this.identifier = identifier;
+    }
+
+    /**
+     * Start each test group with a new TestContext. This runs before the {@code @BeforeEach} methods of the test, so
+     * they can still put something into the context.
+     */
+    @Override
+    public void beforeEach(final ExtensionContext context) {
+        TestContextManager.reset();
     }
 
     @Override
@@ -86,27 +97,25 @@ class JExUnitInterceptor implements InvocationInterceptor {
                         }
                         continue;
                     } catch (final Exception e) {
-                        boolean handled = false;
+                        if (exceptionExpected) {
+                            // any exception satisfies the expectation
+                            continue;
+                        }
                         Throwable t = e;
                         while ((t = t.getCause()) != null) {
                             if (t instanceof AssertionError) {
-                                if (!exceptionExpected) {
-                                    errors.add(new AssertionError(String.format(
-                                            "No Exception expected in TestCommand: %s, %s. %s",
-                                            cmd, testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), t));
-                                    if (isFastFail(testCase)) { abort = true; continue outerLoop; }
-                                }
-                                handled = true;
+                                errors.add(new AssertionError(String.format(
+                                        "No Exception expected in TestCommand: %s, %s. %s",
+                                        cmd, testCase.getMetadata().getDetailedIdentifier(), testCase.getComment()), t));
+                                if (isFastFail(testCase)) { abort = true; }
                                 continue outerLoop;
                             }
                         }
-                        if (!handled) {
-                            e.printStackTrace();
-                            errors.add(new AssertionError(String.format(
-                                    "Unexpected Exception in TestCommand: %s, %s. (Exception: %s) %s",
-                                    cmd, testCase.getMetadata().getDetailedIdentifier(), e, testCase.getComment()), e));
-                            if (isFastFail(testCase)) { abort = true; continue outerLoop; }
-                        }
+                        e.printStackTrace();
+                        errors.add(new AssertionError(String.format(
+                                "Unexpected Exception in TestCommand: %s, %s. (Exception: %s) %s",
+                                cmd, testCase.getMetadata().getDetailedIdentifier(), e, testCase.getComment()), e));
+                        if (isFastFail(testCase)) { abort = true; }
                         continue;
                     }
                 }
