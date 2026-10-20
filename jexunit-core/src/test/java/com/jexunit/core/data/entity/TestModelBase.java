@@ -29,6 +29,8 @@ public class TestModelBase {
 	private Map<String, String> mapAttr = new HashMap<>();
 	private Set<TestModelSub> subEntitySetAttr;
 	private SortedMap<String, String> sortedMapAttr;
+	private List<String> stringListAttr;
+	private List<Integer> integerListAttr;
 
 	public int getIntAttr() {
 		return intAttr;
@@ -132,6 +134,22 @@ public class TestModelBase {
 
 	public void setSortedMapAttr(SortedMap<String, String> sortedMapAttr) {
 		this.sortedMapAttr = sortedMapAttr;
+	}
+
+	public List<String> getStringListAttr() {
+		return stringListAttr;
+	}
+
+	public void setStringListAttr(List<String> stringListAttr) {
+		this.stringListAttr = stringListAttr;
+	}
+
+	public List<Integer> getIntegerListAttr() {
+		return integerListAttr;
+	}
+
+	public void setIntegerListAttr(List<Integer> integerListAttr) {
+		this.integerListAttr = integerListAttr;
 	}
 
 }

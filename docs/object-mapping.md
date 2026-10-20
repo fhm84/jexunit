@@ -27,10 +27,24 @@ OGNL supports the full dot-notation for nested objects:
 | `address.street` | `obj.getAddress().setStreet(value)` |
 | `items[0].name` | `obj.getItems().get(0).setName(value)` |
 | `items[id=5].name` | `setName(value)` on the element of `obj.getItems()` whose `id` equals `5` |
+| `tags[0]` | `obj.getTags().set(0, value)` (converted to the element type, e.g. `List<Integer>`) |
+| `map.key` | `obj.getMap().put("key", value)` |
 
-Nested objects that are `null` are created automatically via their default constructor. Collection and map properties declared with an interface type get a default implementation: `List`/`Collection` → `ArrayList`, `Set` → `LinkedHashSet`, `SortedSet` → `TreeSet`, `Map` → `HashMap`, `SortedMap` → `TreeMap`. Indexing a list beyond its size (`items[3].name`) adds new elements up to that index.
+Nested objects that are `null` are created automatically via their default constructor, at every level of the path. Collection and map properties declared with an interface type get a default implementation: `List`/`Collection` → `ArrayList`, `Set` → `LinkedHashSet`, `SortedSet` → `TreeSet`, `Map` → `HashMap`, `SortedMap` → `TreeMap`.
 
 In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, booleans, enums, dates, …) before comparing.
+
+### Collections
+
+| Type | Supported |
+|---|---|
+| `List` (of entities) | Indexing beyond the size (`items[3].name`) adds new elements of the element type up to that index (they need a default constructor). Works for lists declared in a superclass and in sub-entities (`customer.addresses[0].street`) |
+| `List` (of simple values) | `tags[0]`, `numbers[2]`: missing elements up to the index are filled with `null`, the value is converted to the element type (`String`, numbers, `Date`, enums, …) |
+| `Set` | Only conditions on existing elements (`items[name=a].qty`); a set has no order, so there is no index access |
+| `Map` | Simple values (`map.key`). Entity values are **not** created: `map.key.name` only works if the map already contains an entry for `key` |
+| Arrays | **Not** created or enlarged: `array[0].name` / `array[0]` only work for an existing array, within its length |
+
+The element type is taken from the generic type of the property (e.g. `List<Item>`). For raw or otherwise unresolvable types (`List`, `List<T>`), new list elements are `null` and simple values are not converted.
 
 > **Security note:** the column headers are evaluated as OGNL expressions. By default, only property access is allowed in them (as in the table above); headers with method calls, static access (e.g. `@java.lang.Runtime@getRuntime().exec('…').x`), constructors or assignments are rejected and the row fails. If you need full OGNL expressions, set `jexunit.ognl.property_access_only=false` — OGNL can then call any public (static) method, so only run Excel files from trusted sources. The cell *values* are never evaluated.
 

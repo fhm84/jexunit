@@ -1,6 +1,7 @@
 package com.jexunit.core.data;
 
 import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
 
 import java.util.Collection;
@@ -38,14 +39,22 @@ public class CollectionPropertyHelper {
         // the condition is part of the column header, so it has to pass the same checks as the header itself
         final Object parsedExpression = OgnlUtils.parseExpression(expression);
 
-        // iterate through the collection
-        for (final Object obj : target) {
-            final Object currentValue = Ognl.getValue(parsedExpression, context, obj);
-            // if we found the object out of the collection with the expected value ...
-            if (isEqual(currentValue, expectedValue)) {
-                // ... return the current object out of the collection
-                return obj;
+        // Ognl.getValue replaces the root object of the context, so restore it afterwards (it's still needed to resolve
+        // the property types of the rest of the expression)
+        final OgnlContext ognlContext = (OgnlContext) context;
+        final Object root = ognlContext.getRoot();
+        try {
+            // iterate through the collection
+            for (final Object obj : target) {
+                final Object currentValue = Ognl.getValue(parsedExpression, context, obj);
+                // if we found the object out of the collection with the expected value ...
+                if (isEqual(currentValue, expectedValue)) {
+                    // ... return the current object out of the collection
+                    return obj;
+                }
             }
+        } finally {
+            ognlContext.setRoot(root);
         }
 
         return null;

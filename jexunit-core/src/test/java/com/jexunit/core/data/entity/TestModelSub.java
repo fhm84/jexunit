@@ -10,6 +10,7 @@ public class TestModelSub {
 	private boolean boolAttr;
 	private TestEnum enumAttr;
 	private List<TestModelSub> subListAttr = new ArrayList<>();
+	private List<TestModelSub> lazyListAttr;
 
 	public String getStringAttr() {
 		return stringAttr;
@@ -49,6 +50,14 @@ public class TestModelSub {
 
 	public void setSubListAttr(List<TestModelSub> subListAttr) {
 		this.subListAttr = subListAttr;
+	}
+
+	public List<TestModelSub> getLazyListAttr() {
+		return lazyListAttr;
+	}
+
+	public void setLazyListAttr(List<TestModelSub> lazyListAttr) {
+		this.lazyListAttr = lazyListAttr;
 	}
 
 }

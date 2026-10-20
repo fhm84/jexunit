@@ -14,31 +14,29 @@ import java.util.regex.Pattern;
  */
 public class OgnlUtils {
 
-    private static final String REGEX_EXPRESSION = "^(.*)(\\[)(.*)=(.*)(\\].*)";
+    private static final NullHandler NULL_HANDLER = new InstantiatingNullHandler();
 
+    /**
+     * A condition inside of brackets, like <code>[name=John]</code> (but not an already quoted one like
+     * <code>['name=John']</code>).
+     */
+    private static final Pattern CONDITION = Pattern.compile("\\[([^\\[\\]=']+)=([^\\[\\]]*)\\]");
+
+    /**
+     * Prepare the given expression for OGNL: conditions like <code>items[name=John]</code> are quoted
+     * (<code>items['name=John']</code>), so OGNL passes them as a string to the collection property accessors.
+     *
+     * @param expression the expression (out of the column header)
+     * @return the expression with quoted conditions
+     */
     public static String prepareExpression(final String expression) {
-        final Pattern pattern = Pattern.compile(REGEX_EXPRESSION);
-        final Matcher m = pattern.matcher(expression);
-
-        if (m.matches()) {
-            final StringBuilder sb = new StringBuilder(m.group(1));
-            sb.append(m.group(2));
-            final String expr = m.group(3);
-            if (!expr.startsWith("'")) {
-                sb.append("'");
-            }
-            sb.append(expr);
-            sb.append("=");
-            final String val = m.group(4);
-            sb.append(m.group(4));
-            if (!val.endsWith("'")) {
-                sb.append("'");
-            }
-            sb.append(m.group(5));
-            return sb.toString();
-        } else {
-            return expression;
+        final Matcher m = CONDITION.matcher(expression);
+        final StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement("['" + m.group(1) + "=" + m.group(2) + "']"));
         }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     /**
@@ -50,7 +48,6 @@ public class OgnlUtils {
      * @throws OgnlException in case that something goes wrong
      */
     public static void setPropertyToObject(final Object obj, final String propName, final String propValue) throws OgnlException {
-        OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
         @SuppressWarnings("rawtypes") final Map context =
@@ -61,8 +58,27 @@ public class OgnlUtils {
                         new CustomTypeConverter());
 
         final Object expr = parseExpression(propName);
+        registerNullHandlers(obj.getClass(), (Node) expr);
 
         Ognl.setValue(expr, context, obj, propValue);
+    }
+
+    /**
+     * Register the null handler for the type of the root object and the types of the (sub-)entities along the given
+     * expression, so <code>null</code> (sub-)entities are created at every level of the expression.
+     *
+     * @param rootType   the type of the root object
+     * @param expression the (parsed) expression
+     */
+    private static void registerNullHandlers(final Class<?> rootType, final Node expression) {
+        OgnlRuntime.setNullHandler(rootType, NULL_HANDLER);
+        for (int i = 1; i < PropertyTypes.length(expression); i++) {
+            final Class<?> type = PropertyTypes.rawClass(PropertyTypes.resolve(rootType, expression, i));
+            // only for the classes of the model, as the null handler is registered globally (not for the JDK classes)
+            if (type != null && type.getClassLoader() != null) {
+                OgnlRuntime.setNullHandler(type, NULL_HANDLER);
+            }
+        }
     }
 
     /**
@@ -96,7 +112,6 @@ public class OgnlUtils {
     }
 
     public static Object getProperty(final Object obj, final String propName) throws OgnlException {
-        OgnlRuntime.setNullHandler(obj.getClass(), new InstantiatingNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
         @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(
@@ -106,6 +121,7 @@ public class OgnlUtils {
                 new CustomTypeConverter());
 
         final Object expr = parseExpression(propName);
+        registerNullHandlers(obj.getClass(), (Node) expr);
 
         return Ognl.getValue(expr, context, obj);
     }
