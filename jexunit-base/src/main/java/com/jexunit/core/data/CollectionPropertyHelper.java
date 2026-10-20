@@ -1,5 +1,6 @@
 package com.jexunit.core.data;
 
+import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -39,10 +40,11 @@ public class CollectionPropertyHelper {
         // the condition is part of the column header, so it has to pass the same checks as the header itself
         final Object parsedExpression = OgnlUtils.parseExpression(expression);
 
-        // Ognl.getValue replaces the root object of the context, so restore it afterwards (it's still needed to resolve
-        // the property types of the rest of the expression)
+        // Ognl.getValue replaces the root object and the current node of the context, so restore them afterwards (they
+        // are still needed to resolve the property types of the rest of the expression and for error messages)
         final OgnlContext ognlContext = (OgnlContext) context;
         final Object root = ognlContext.getRoot();
+        final Node currentNode = ognlContext.getCurrentNode();
         try {
             // iterate through the collection
             for (final Object obj : target) {
@@ -55,6 +57,7 @@ public class CollectionPropertyHelper {
             }
         } finally {
             ognlContext.setRoot(root);
+            ognlContext.setCurrentNode(currentNode);
         }
 
         return null;

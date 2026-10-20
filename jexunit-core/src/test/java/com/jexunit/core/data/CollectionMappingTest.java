@@ -5,15 +5,20 @@ import com.jexunit.core.data.entity.TestModelChild;
 import com.jexunit.core.data.entity.TestModelSub;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
+import ognl.OgnlException;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Tests for filling lists of the entities out of the excel file (column headers like <code>items[0].name</code>).
@@ -81,6 +86,51 @@ public class CollectionMappingTest {
         OgnlUtils.setPropertyToObject(tmb, "subEntitySetAttr[stringAttr=a].intAttr", "4");
 
         assertEquals(4, element.getIntAttr());
+    }
+
+    @Test
+    public void shouldReportConditionWithoutMatchingElement() {
+        final Exception e = assertThrows(Exception.class, () -> createObject(TestModelBase.class,
+                "subEntityAttr.lazyListAttr[0].stringAttr", "a",
+                "subEntityAttr.lazyListAttr[stringAttr=x].intAttr", "1"));
+
+        final NoSuchCollectionElementException cause = findCause(e, NoSuchCollectionElementException.class);
+        assertNotNull(String.valueOf(e), cause);
+        assertEquals("lazyListAttr", cause.getTargetCollection());
+        assertEquals("stringAttr=x", cause.getCollectionExpression());
+    }
+
+    @Test
+    public void shouldRejectHugeIndex() {
+        final Exception simpleValue = assertThrows(Exception.class,
+                () -> createObject(TestModelBase.class, "stringListAttr[50000000]", "x"));
+        final Exception entity = assertThrows(Exception.class,
+                () -> createObject(TestModelBase.class, "subEntityListAttr[50000000].intAttr", "1"));
+
+        assertThat(causes(simpleValue).toString(), containsString("is too large"));
+        assertThat(causes(entity).toString(), containsString("is too large"));
+    }
+
+    private static <T extends Throwable> T findCause(final Throwable throwable, final Class<T> type) {
+        for (final Throwable t : causes(throwable)) {
+            if (type.isInstance(t)) {
+                return type.cast(t);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the given throwable and all its causes (OGNL keeps the cause as "reason").
+     */
+    private static List<Throwable> causes(final Throwable throwable) {
+        final List<Throwable> causes = new ArrayList<>();
+        for (Throwable t = throwable; t != null && !causes.contains(t); ) {
+            causes.add(t);
+            t = t instanceof OgnlException && ((OgnlException) t).getReason() != null
+                    ? ((OgnlException) t).getReason() : t.getCause();
+        }
+        return causes;
     }
 
     private static <T> T createObject(final Class<T> type, final String... keyValues) throws Exception {
