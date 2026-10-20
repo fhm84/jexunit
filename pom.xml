@@ -67,6 +67,7 @@
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
 
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
+        <junit.platform.version>1.11.4</junit.platform.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
 
         <!-- Plugin versions -->

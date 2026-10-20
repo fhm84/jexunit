@@ -270,14 +270,9 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
             return true;
         }
 
-        boolean isDefaultCommand = false;
-        for (final DefaultCommands defaultCommands : DefaultCommands.values()) {
-            isDefaultCommand = defaultCommands.getDefaultValue().equals(s);
-            if (isDefaultCommand) {
-                break;
-            }
-        }
-        return isDefaultCommand;
+        // the built-in commands (respecting the configured names and prefix)
+        return JExUnitConfig.getDefaultCommandProperty(DefaultCommands.DISABLED).equalsIgnoreCase(s)
+                || JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(s);
     }
 
 }

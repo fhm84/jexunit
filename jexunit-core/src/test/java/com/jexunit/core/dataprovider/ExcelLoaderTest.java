@@ -1,5 +1,7 @@
 package com.jexunit.core.dataprovider;
 
+import com.jexunit.core.JExUnitConfig;
+import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.model.TestCase;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -115,26 +117,10 @@ public class ExcelLoaderTest {
 
     @Test
     public void shouldKeepHeadersAlignedWithValuesOnEmptyHeaderCells() throws Exception {
-        final File excelFile = tempFolder.newFile("header-gap.xlsx");
-        try (final XSSFWorkbook workbook = new XSSFWorkbook()) {
-            final Sheet sheet = workbook.createSheet("worksheet1");
-            // header line with an empty (not existing) cell in column C
-            final Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("command");
-            header.createCell(1).setCellValue("val1");
-            header.createCell(3).setCellValue("val3");
-            final Row values = sheet.createRow(1);
-            values.createCell(0).setCellValue("test");
-            values.createCell(1).setCellValue("1");
-            values.createCell(2).setCellValue("2");
-            values.createCell(3).setCellValue("3");
-            try (final OutputStream out = new FileOutputStream(excelFile)) {
-                workbook.write(out);
-            }
-        }
-
-        final List<TestCase<ExcelMetadata>> testCases =
-                new ExcelLoader().readExcel(excelFile.getAbsolutePath()).get("worksheet1");
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheet(
+                // header line with an empty (not existing) cell in column C
+                new String[]{"command", "val1", null, "val3"},
+                new String[]{"test", "1", "2", "3"});
 
         assertEquals(1, testCases.size());
         final TestCase<ExcelMetadata> testCase = testCases.get(0);
@@ -143,6 +129,97 @@ public class ExcelLoaderTest {
         assertEquals("3", testCase.getValues().get("val3").getValue());
         // the value without header is not mapped at all
         assertEquals(2, testCase.getValues().size());
+    }
+
+    @Test
+    public void shouldMapMultipleCommandsPerLineWithTheirOwnHeaders() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheet(
+                new String[]{"command", "val1", "val2", "command", "other"},
+                new String[]{"first", "1", "2", "second", "3"});
+
+        assertEquals(2, testCases.size());
+        assertEquals("first", testCases.get(0).getTestCommand());
+        assertEquals(2, testCases.get(0).getValues().size());
+        assertEquals("1", testCases.get(0).getValues().get("val1").getValue());
+        assertEquals("2", testCases.get(0).getValues().get("val2").getValue());
+        assertEquals("second", testCases.get(1).getTestCommand());
+        assertEquals(1, testCases.get(1).getValues().size());
+        assertEquals("3", testCases.get(1).getValues().get("other").getValue());
+    }
+
+    @Test
+    public void shouldMapLinesShorterThanTheHeaderLine() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheet(
+                new String[]{"command", "val1", "val2", "command", "other"},
+                new String[]{"first", "1"});
+
+        assertEquals(1, testCases.size());
+        assertEquals("first", testCases.get(0).getTestCommand());
+        assertEquals("1", testCases.get(0).getValues().get("val1").getValue());
+    }
+
+    @Test
+    public void shouldSkipEmptyCommandsInLine() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheet(
+                new String[]{"command", "val1", "command", "other", "command", "last"},
+                new String[]{"first", "1", null, "2", "third", "3"});
+
+        assertEquals(2, testCases.size());
+        assertEquals("first", testCases.get(0).getTestCommand());
+        assertEquals("third", testCases.get(1).getTestCommand());
+        assertEquals("3", testCases.get(1).getValues().get("last").getValue());
+    }
+
+    @Test
+    public void shouldDetectMultilineCommandsWithDefaultCommandPrefix() throws Exception {
+        final String prefixKey = JExUnitConfig.ConfigKey.DEFAULTCOMMAND_PREFIX.getKey();
+        final String multilineKey = DefaultCommands.MULTILINE_COMMANDS.getConfigKey();
+        JExUnitConfig.setConfigProperty(prefixKey, "jx.");
+        JExUnitConfig.setConfigProperty(multilineKey, "createPerson, createOrder");
+        try {
+            final List<TestCase<ExcelMetadata>> testCases = readWorksheet(
+                    new String[]{"command", "name"},
+                    new String[]{"createPerson", "John"},
+                    new String[]{"createPerson", "Jane"},
+                    new String[]{"createOrder", "1"},
+                    new String[]{"createOrder", "2"});
+
+            assertEquals(2, testCases.size());
+            assertTrue(testCases.get(0).isMultiline());
+            assertEquals(2, testCases.get(0).getMultilineValues().size());
+            assertEquals("Jane", testCases.get(0).getValues().get("name").getValue());
+            assertTrue(testCases.get(1).isMultiline());
+            assertEquals(2, testCases.get(1).getMultilineValues().size());
+        } finally {
+            JExUnitConfig.setConfigProperty(prefixKey, JExUnitConfig.ConfigKey.DEFAULTCOMMAND_PREFIX.getDefaultConfig());
+            JExUnitConfig.setConfigProperty(multilineKey, DefaultCommands.MULTILINE_COMMANDS.getDefaultValue());
+        }
+    }
+
+    /**
+     * Write the given lines to a worksheet "worksheet1" of a new excel file and read it.
+     *
+     * @param lines the cell values per line (<code>null</code> for a not existing cell)
+     * @return the test cases read from the worksheet
+     * @throws Exception in case that something goes wrong
+     */
+    private List<TestCase<ExcelMetadata>> readWorksheet(final String[]... lines) throws Exception {
+        final File excelFile = File.createTempFile("worksheet", ".xlsx", tempFolder.getRoot());
+        try (final XSSFWorkbook workbook = new XSSFWorkbook()) {
+            final Sheet sheet = workbook.createSheet("worksheet1");
+            for (int i = 0; i < lines.length; i++) {
+                final Row row = sheet.createRow(i);
+                for (int j = 0; j < lines[i].length; j++) {
+                    if (lines[i][j] != null) {
+                        row.createCell(j).setCellValue(lines[i][j]);
+                    }
+                }
+            }
+            try (final OutputStream out = new FileOutputStream(excelFile)) {
+                workbook.write(out);
+            }
+        }
+        return new ExcelLoader().readExcel(excelFile.getAbsolutePath()).get("worksheet1");
     }
 
     private Cell numericCell(final Row row, final int column, final double value) {

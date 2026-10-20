@@ -5,10 +5,15 @@ import ognl.Ognl;
 import ognl.OgnlRuntime;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,10 +79,19 @@ public class InstantiatingNullHandler implements NullHandler {
 
     @SuppressWarnings("rawtypes")
     private <T> Object createObject(final Class<T> clazz) {
-        if (Collection.class.isAssignableFrom(clazz)) {
-            return new ArrayList<T>();
-        } else if (clazz == Map.class) {
-            return new HashMap();
+        if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+            // choose a default implementation matching the declared type
+            if (clazz.isAssignableFrom(ArrayList.class)) {
+                return new ArrayList<T>();
+            } else if (clazz.isAssignableFrom(TreeSet.class) && SortedSet.class.isAssignableFrom(clazz)) {
+                return new TreeSet<T>();
+            } else if (clazz.isAssignableFrom(LinkedHashSet.class)) {
+                return new LinkedHashSet<T>();
+            } else if (clazz.isAssignableFrom(TreeMap.class) && SortedMap.class.isAssignableFrom(clazz)) {
+                return new TreeMap();
+            } else if (clazz.isAssignableFrom(HashMap.class)) {
+                return new HashMap();
+            }
         }
 
         try {
