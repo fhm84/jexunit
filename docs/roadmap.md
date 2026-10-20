@@ -2,6 +2,10 @@
 
 ## Released
 
+### Code audit fixes, list mapping, multiline commands per block (v0.7.0)
+
+Fixes from a full code audit (data loss when reading Excel values, `TestContext` lifetime, expected exceptions, runner error reporting, OGNL headers restricted to property access), filling lists from Excel (#4), multiline commands with multiple commands per row (#28), and a [migration guide](migration-junit5.md) from JUnit 4 to JUnit 5. See the release notes of v0.7.0 for the behaviour changes to check when upgrading.
+
 ### JUnit 5 support (v0.6.0)
 
 Added a `jexunit-jupiter` module with a native JUnit 5 extension. JUnit 4 support remains in `jexunit-core` (legacy, no new features).
