@@ -70,6 +70,8 @@ The JUnit 4 runner in `jexunit-core` is still available, but receives no new fea
 
 `@ExcelFile`, `@TestCommand`, `@TestParam`, `@Context`, the Excel format and `jexunit.properties` are the same for both.
 
+See the [migration guide](docs/migration-junit5.md) for the details: dependencies, migrating step by step, classes overriding `runCommand(...)`, and the behaviour differences between both runners.
+
 ---
 
 #### @ExcelFile

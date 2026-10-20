@@ -6,7 +6,7 @@
 
 Added a `jexunit-jupiter` module with a native JUnit 5 extension. JUnit 4 support remains in `jexunit-core` (legacy, no new features).
 
-**Migration:** See the side-by-side table in the [README](../README.md#junit-4-legacy).
+**Migration:** See the [migration guide](migration-junit5.md).
 
 ---
 
