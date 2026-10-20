@@ -206,6 +206,66 @@ public class ExcelLoaderTest {
         }
     }
 
+    @Test
+    public void shouldContinueMultilineCommandsPerCommandBlock() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheetWithMultilineCommands("createPerson, addAddress",
+                new String[]{"command", "name", "command", "street"},
+                new String[]{"createPerson", "John", "addAddress", "Main Street"},
+                new String[]{"createPerson", "Jane", "addAddress", "Second Street"});
+
+        assertEquals(2, testCases.size());
+        assertMultilineValues(testCases.get(0), "createPerson", "name", "John", "Jane");
+        assertMultilineValues(testCases.get(1), "addAddress", "street", "Main Street", "Second Street");
+    }
+
+    @Test
+    public void shouldStartNewTestCasesForCommandBlocksThatAreNotMultiline() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheetWithMultilineCommands("addAddress",
+                new String[]{"command", "name", "command", "street"},
+                new String[]{"createPerson", "John", "addAddress", "Main Street"},
+                new String[]{"createPerson", "Jane", "addAddress", "Second Street"});
+
+        assertEquals(3, testCases.size());
+        assertMultilineValues(testCases.get(0), "createPerson", "name", "John");
+        assertMultilineValues(testCases.get(1), "addAddress", "street", "Main Street", "Second Street");
+        assertMultilineValues(testCases.get(2), "createPerson", "name", "Jane");
+    }
+
+    @Test
+    public void shouldContinueMultilineCommandAcrossCommentLinesButNotAcrossHeaderLines() throws Exception {
+        final List<TestCase<ExcelMetadata>> testCases = readWorksheetWithMultilineCommands("createPerson",
+                new String[]{"command", "name"},
+                new String[]{"createPerson", "John"},
+                new String[]{null, "a comment line"},
+                new String[]{"createPerson", "Jane"},
+                new String[]{"command", "name"},
+                new String[]{"createPerson", "Max"});
+
+        assertEquals(2, testCases.size());
+        assertMultilineValues(testCases.get(0), "createPerson", "name", "John", "Jane");
+        assertMultilineValues(testCases.get(1), "createPerson", "name", "Max");
+    }
+
+    private List<TestCase<ExcelMetadata>> readWorksheetWithMultilineCommands(final String multilineCommands,
+                                                                           final String[]... lines) throws Exception {
+        final String multilineKey = DefaultCommands.MULTILINE_COMMANDS.getConfigKey();
+        JExUnitConfig.setConfigProperty(multilineKey, multilineCommands);
+        try {
+            return readWorksheet(lines);
+        } finally {
+            JExUnitConfig.setConfigProperty(multilineKey, DefaultCommands.MULTILINE_COMMANDS.getDefaultValue());
+        }
+    }
+
+    private void assertMultilineValues(final TestCase<ExcelMetadata> testCase, final String command, final String key,
+                                       final String... values) {
+        assertEquals(command, testCase.getTestCommand());
+        assertEquals(values.length, testCase.getMultilineValues().size());
+        for (int i = 0; i < values.length; i++) {
+            assertEquals(values[i], testCase.getMultilineValues().get(i).get(key).getValue());
+        }
+    }
+
     /**
      * Write the given lines to a worksheet "worksheet1" of a new excel file and read it.
      *
