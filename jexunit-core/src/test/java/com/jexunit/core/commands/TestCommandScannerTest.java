@@ -2,12 +2,17 @@ package com.jexunit.core.commands;
 
 import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.commands.validation.CommandValidator;
+import com.jexunit.core.model.Metadata;
+import com.jexunit.core.model.TestCase;
 import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -64,6 +69,60 @@ public class TestCommandScannerTest {
     }
 
     @Test
+    public void shouldLoadReportedClassesWithContextClassLoader() {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader original = thread.getContextClassLoader();
+        final RecordingClassLoader recordingClassLoader = new RecordingClassLoader(original);
+        thread.setContextClassLoader(recordingClassLoader);
+        try {
+            new TestCommandScanner().reportTypeAnnotation(TestCommand.class, TypeCommandFixture.class.getName());
+        } finally {
+            thread.setContextClassLoader(original);
+        }
+
+        assertTrue(recordingClassLoader.loadedClasses.contains(TypeCommandFixture.class.getName()));
+    }
+
+    @Test
+    public void shouldFindCommandsIndependentOfDefaultLocale() throws Exception {
+        new TestCommandScanner().reportMethodAnnotation(TestCommand.class, CommandFixture.class.getName(), "first");
+        final TestCase<Metadata> testCase = new TestCase<>(new Metadata());
+        // upper case "I" is lower cased to the dotless "ı" in the turkish locale
+        testCase.setTestCommand("SCANNERFIXTUREFIRST");
+        final List<TestCase<?>> testCases = new ArrayList<>(Collections.singletonList(testCase));
+        final AtomicBoolean notFound = new AtomicBoolean();
+        final TestCommandHost host = new TestCommandHost() {
+            @Override
+            public Class<?> getTestType() {
+                return null;
+            }
+
+            @Override
+            public void runCommand(final TestCase<?> testCase) {
+                notFound.set(true);
+            }
+
+            @Override
+            public Object getTestClassInstance(final Class<?> declaringClass) {
+                return null;
+            }
+        };
+
+        final Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(new Locale("tr", "TR"));
+        try {
+            CommandValidator.validateCommands(Collections.singletonList(new Object[]{testCases}));
+            new TestCommandRunner(host).runTestCommand(testCase);
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+
+        // the command is neither removed by the validation, nor missing when running it
+        assertEquals(1, testCases.size());
+        assertFalse(notFound.get());
+    }
+
+    @Test
     public void shouldAcceptBuiltInCommands() {
         assertTrue(TestCommandScanner.isTestCommandValid("disabled"));
         assertTrue(TestCommandScanner.isTestCommandValid("report"));
@@ -96,6 +155,28 @@ public class TestCommandScannerTest {
 
         @TestCommand("scannerFixtureSecond")
         public void second() {
+        }
+    }
+
+    @TestCommand("scannerTypeFixture")
+    public static class TypeCommandFixture {
+
+        public void run() {
+        }
+    }
+
+    private static class RecordingClassLoader extends ClassLoader {
+
+        private final List<String> loadedClasses = new ArrayList<>();
+
+        RecordingClassLoader(final ClassLoader parent) {
+            super(parent);
+        }
+
+        @Override
+        protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+            loadedClasses.add(name);
+            return super.loadClass(name, resolve);
         }
     }
 

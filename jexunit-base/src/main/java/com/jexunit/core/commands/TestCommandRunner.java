@@ -16,6 +16,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Helper class for running the test-commands.
@@ -42,7 +43,7 @@ public class TestCommandRunner {
         removeFrameworkParameters(testCase);
 
         // check, which method to run for the current TestCommand
-        final Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(),
+        final Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(Locale.ROOT),
                 testBase.getTestType());
         if (testCommand != null) {
             // set the default value for fastFail if not set in the testCase

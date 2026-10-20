@@ -9,6 +9,7 @@ import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -76,6 +77,13 @@ public class ExcelLoader {
     Map<String, List<TestCase<ExcelMetadata>>> readExcel(final String excelFilePath) throws Exception {
         final Map<String, List<TestCase<ExcelMetadata>>> tests = new LinkedHashMap<>();
 
+        // POI does not report a missing file as such, so check it here
+        final File file = new File(excelFilePath);
+        if (!file.isFile()) {
+            throw new FileNotFoundException(String.format("Excel-file '%s' not found! (absolute path: %s)",
+                    excelFilePath, file.getAbsolutePath()));
+        }
+
         String sheet = null;
         try (final OPCPackage pkg = OPCPackage.open(excelFilePath, PackageAccess.READ);
              final XSSFWorkbook workbook = new XSSFWorkbook(pkg)) {
@@ -87,10 +95,9 @@ public class ExcelLoader {
 
                 tests.put(worksheet.getSheetName(), testCases);
             }
-        } catch (final FileNotFoundException e) {
-            throw new Exception(String.format("Excel-file '%s' not found!", excelFilePath), e);
         } catch (final Exception e) {
-            throw new Exception(String.format("Error while reading the excel-file! - worksheet: %s", sheet), e);
+            throw new Exception(String.format("Error while reading the excel-file '%s'! - worksheet: %s",
+                    excelFilePath, sheet), e);
         }
         return tests;
     }
@@ -383,7 +390,7 @@ public class ExcelLoader {
                     final Date value = cell.getDateCellValue();
                     // Test if date is datetime. Does format contain letter h?
                     if (cell.getCellStyle().getDataFormatString() != null &&
-                            cell.getCellStyle().getDataFormatString().toLowerCase().contains("h")) {
+                            cell.getCellStyle().getDataFormatString().toLowerCase(Locale.ROOT).contains("h")) {
                         return new SimpleDateFormat(
                                 JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
                                 .format(value);

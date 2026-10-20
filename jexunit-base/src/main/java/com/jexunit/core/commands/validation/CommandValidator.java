@@ -7,6 +7,7 @@ import com.jexunit.core.model.TestCase;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +22,7 @@ public class CommandValidator {
      */
     public static void validateCommands(final Collection<Object[]> testData) {
         final ValidationType validationType = ValidationType
-                .valueOf(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_VALIDATION_TYPE));
+                .parse(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.COMMAND_VALIDATION_TYPE));
         if (validationType == ValidationType.IGNORE) {
             return;
         }
@@ -31,7 +32,7 @@ public class CommandValidator {
             while (iterator.hasNext()) {
                 final TestCase<?> testCase = iterator.next();
                 final String testCommand = testCase.getTestCommand();
-                if (testCommand == null || !TestCommandScanner.isTestCommandValid(testCommand.toLowerCase())) {
+                if (testCommand == null || !TestCommandScanner.isTestCommandValid(testCommand.toLowerCase(Locale.ROOT))) {
                     if (validationType == ValidationType.WARN) {
                         log.log(Level.WARNING, "TestCommand {0} is not valid. TestCase will be removed! {1} {2}",
                                 new String[]{testCase.getTestCommand(),

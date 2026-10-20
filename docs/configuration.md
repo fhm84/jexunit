@@ -101,7 +101,7 @@ Prefix and postfix settings allow shorter command names in Excel by matching aga
 |---|---|---|
 | `jexunit.command.validation.type` | `WARN` | What to do when an Excel command has no matching implementation |
 
-Allowed values (upper case):
+Allowed values (case-insensitive):
 
 | Value | Behaviour |
 |---|---|

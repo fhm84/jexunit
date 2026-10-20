@@ -55,15 +55,7 @@ public class JExUnitExtension implements TestTemplateInvocationContextProvider, 
 
         ServiceRegistry.initialize();
 
-        DataProvider dataProvider = null;
-        final List<DataProvider> providers = ServiceRegistry.getInstance().getServicesFor(DataProvider.class);
-        if (providers != null) {
-            for (final DataProvider dp : providers) {
-                if (dp.canProvide(testClass)) {
-                    dataProvider = dp;
-                }
-            }
-        }
+        final DataProvider dataProvider = ServiceRegistry.getInstance().createDataProvider(testClass);
         if (dataProvider == null) {
             throw new IllegalStateException("No DataProvider found for: " + testClass.getName());
         }
