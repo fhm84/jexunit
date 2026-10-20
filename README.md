@@ -13,52 +13,68 @@ It provides simple mechanisms for defining your own commands. Test data is defin
 
 ## First steps ##
 
-To use JExUnit you only need three steps:
+To use JExUnit (with JUnit 5, recommended) you only need four steps:
 
-1. Create a test class annotated with
-    
-        @RunWith(JExUnit.class)
+1. Annotate your test class with
 
-2. Add a field of type `String`, `String[]`, or `List<String>` (or a static method returning one of these types) that points to the Excel file(s) to run, annotated with
+        @ExtendWith(JExUnitExtension.class)
+
+2. Add a static field of type `String`, `String[]`, or `List<String>` (or a public static method returning one of these types) that points to the Excel file(s) to run, annotated with
 
         @ExcelFile
 
-3. Implement your commands. A command is any method annotated with
+3. Add one (empty) method annotated with
+
+        @ExcelTest
+
+4. Implement your commands. A command is any method annotated with
 
         @TestCommand
 
 
-Now you can write your tests in Excel sheets. When you run your test class as a JUnit test, JExUnit will automatically load the Excel file(s), find the matching command methods, and run them in the order they appear in the file.
+Now you can write your tests in Excel sheets. When you run your test class, JExUnit will automatically load the Excel file(s), find the matching command methods, and run them in the order they appear in the file.
 
 ###### Simple example ######
 
-    @RunWith(JExUnit.class)
+    @ExtendWith(JExUnitExtension.class)
     public class ArithmeticalTest {
 
-        private static Logger log = Logger.getLogger(ArithmeticalTest.class.getName());
+        @ExcelFile
+        static String[] excelFiles = new String[] { "src/test/resources/ArithmeticalTests.xlsx",
+                "src/test/resources/ArithmeticalTests2.xlsx" };
 
-	    @ExcelFile
-	    static String[] excelFiles = new String[] { "src/test/resources/ArithmeticalTests.xlsx",
-			"src/test/resources/ArithmeticalTests2.xlsx" };
+        @ExcelTest
+        void test() {}
 
-	    @TestCommand(value = "mul")
-	    public static void runMulCommand(TestCase testCase, ArithmeticalTestObject testObject) throws Exception {
-		    log.log(Level.INFO, "in test command: MUL!");
-	 	    assertThat(testObject.getParam1() * testObject.getParam2(), equalTo(testObject.getResult()));
-	    }
+        @TestCommand("mul")
+        public static void runMulCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) {
+            assertEquals(testObject.getParam1() * testObject.getParam2(), testObject.getResult());
+        }
 
-	    @TestCommand(value = "div")
-	    public static void runDivCommand(TestCase testCase, ArithmeticalTestObject testObject) throws Exception {
-		    log.log(Level.INFO, "in test command: DIV!");
-		    assertThat(testObject.getParam1() / testObject.getParam2(), equalTo(testObject.getResult()));
-	    }
+        @TestCommand("div")
+        public static void runDivCommand(TestCase<?> testCase, ArithmeticalTestObject testObject) {
+            assertEquals(testObject.getParam1() / testObject.getParam2(), testObject.getResult());
+        }
     }
+
+###### JUnit 4 (legacy) ######
+
+The JUnit 4 runner in `jexunit-core` is still available, but receives no new features. To migrate a JUnit 4 test to JUnit 5:
+
+| JUnit 4 (`jexunit-core`) | JUnit 5 (`jexunit-jupiter`) |
+|---|---|
+| `@RunWith(JExUnit.class)` | `@ExtendWith(JExUnitExtension.class)` |
+| `extends JExUnitBase` (optional) | no base class needed |
+| inherited `test()` method | one method annotated with `@ExcelTest` |
+| `@Before` / `@After` | `@BeforeEach` / `@AfterEach` |
+
+`@ExcelFile`, `@TestCommand`, `@TestParam`, `@Context`, the Excel format and `jexunit.properties` are the same for both.
 
 ---
 
 #### @ExcelFile
 
-  The `@ExcelFile` annotation defines the Excel file(s) to run as tests. It can be placed on a static field or a static method (without parameters). The type must be `String`, `String[]`, or `List<String>`.
+  The `@ExcelFile` annotation defines the Excel file(s) to run as tests. It can be placed on a static field or a public static method (without parameters). The type must be `String`, `String[]`, or `List<String>`.
 
   By default, JExUnit runs one Excel worksheet as a single test (like a single test case in JUnit). To run each command row as its own test (like individual test methods in JUnit), use the `worksheetAsTest` flag on the annotation. When set to `false` (the default is `true`), the framework runs each command as a separate test.
 

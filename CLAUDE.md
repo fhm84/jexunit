@@ -30,9 +30,11 @@ mvn test -f jexunit-core/pom.xml -Dtest=ExcelLoaderTest#testMethodName
 - **`jexunit-base/`** — JUnit-agnostic shared kernel: Excel parsing, OGNL mapping, command dispatch, SPI, configuration
 - **`jexunit-core/`** — JUnit 4 runner layer (legacy); depends on `jexunit-base`
 - **`jexunit-jupiter/`** — JUnit 5 Jupiter extension; depends on `jexunit-base`
-- **`examples-simple/`** — JUnit 4 example tests (always included)
-- **`examples-simple-jupiter/`** — JUnit 5 example tests (always included)
-- **`examples-complex/`** — Additional JUnit 4 examples (only with `-Pexample-tests` Maven profile)
+- **`examples-simple/`** — JUnit 4 example tests
+- **`examples-simple-jupiter/`** — JUnit 5 example tests
+- **`examples-complex/`** — Additional JUnit 4 examples
+
+The example modules are only built with the `-Pexample-tests` Maven profile.
 
 Java source compatibility target is **Java 8**.
 
@@ -68,7 +70,7 @@ JUnit 4 (legacy):                         JUnit 5 (recommended):
 | `TestCommandScanner` | `jexunit-base` | Scans classpath for `@TestCommand`-annotated methods |
 | `TestObjectHelper` | `jexunit-base` | Creates/populates Java objects from TestCell map via OGNL |
 | `TestContext` | `jexunit-base` | Fluent, thread-safe store for sharing data between command invocations |
-| `JExUnitConfig` | `jexunit-base` | Configuration via Apache Commons Configuration (reads `jexunit.properties`) |
+| `JExUnitConfig` | `jexunit-base` | Static configuration map (defaults, `jexunit.properties`, programmatic overrides) |
 
 ### Key Annotations
 
@@ -79,7 +81,7 @@ JUnit 4 (legacy):                         JUnit 5 (recommended):
 | `@ExcelFile` | Field / Method | Specifies the Excel file(s) to load |
 | `@ExcelTest` | Method | **JUnit 5** — marks the single template entry-point method |
 | `@TestCommand` | Method / Class | Marks a method as a dispatchable command; `value` is the Excel command name |
-| `@TestParam` | Parameter / Field | Maps a named Excel column to a method parameter |
+| `@TestParam` | Parameter | Maps a named Excel column to a method parameter |
 
 ### Migration: JUnit 4 → JUnit 5
 
@@ -100,7 +102,7 @@ Key differences: no base class needed; `@ExcelTest` replaces the inherited `test
 
 ### SPI Extension Points
 
-`jexunit-base/src/main/resources/META-INF/services/` contains service descriptors. Custom `DataProvider`, `BeforeSheet`, or `AfterSheet` implementations are discovered via Java's `ServiceLoader`.
+Custom `DataProvider` implementations are discovered via Java's `ServiceLoader`. The descriptor for the built-in `ExcelDataProvider` is generated at build time by the `serviceloader-maven-plugin` (configured in `jexunit-base/pom.xml`; there is no checked-in `META-INF/services` file). `BeforeSheet`/`AfterSheet` hooks are not loaded via `ServiceLoader` but configured via `jexunit.sheet.before`/`jexunit.sheet.after` in `jexunit.properties`.
 
 ## CI
 
@@ -112,18 +114,20 @@ GitHub Actions workflows in `.github/workflows/`:
 
 Releases are triggered by pushing to the `release` branch. The Maven Release Plugin then automatically:
 1. Strips `-SNAPSHOT` from the version (e.g. `0.6.0-SNAPSHOT` → `0.6.0`)
-2. Runs the full test suite including examples
+2. Runs the tests of the framework modules (the example modules are not part of the release build)
 3. Tags the release (e.g. `jexunit-0.6.0`) and pushes it
 4. Deploys artifacts to GitHub Packages
-5. Bumps `master` to the next snapshot version (e.g. `0.7.0-SNAPSHOT`)
+5. Commits the next snapshot version (e.g. `0.7.0-SNAPSHOT`) to the `release` branch
 
 ```bash
 # Trigger a release from master
 git push origin master:release
 ```
 
-After the workflow completes, merge the version-bump commit back into `master`:
+After the workflow completes, merge the release commits (incl. the snapshot version bump) back into `master`:
 
 ```bash
-git pull origin master   # picks up the snapshot version bump
+git checkout master
+git pull origin release   # picks up the release and snapshot version bump commits
+git push origin master
 ```

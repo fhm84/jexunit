@@ -85,7 +85,7 @@ The `@Context` annotation can be applied to method parameters in `@TestCommand` 
 @Context("myId") MyEntity entity
 ```
 
-The annotation is also supported on fields if you extend `JExUnitBase`.
+`@Context` is only supported on parameters of command methods (field injection is not supported).
 
 ## Lifetime
 

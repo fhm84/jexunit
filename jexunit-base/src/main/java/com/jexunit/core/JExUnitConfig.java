@@ -15,8 +15,7 @@ import java.util.logging.Logger;
  * JExUnit configuration. This will give access to the configuration running JExUnit. It's possible to override the
  * default configuration from a <i>"jexunit.properties"</i> file or via configuration set for example in the
  * <code>@BeforeClass</code>-method of the test. The same way you can add your own/customized configuration to the
- * JExUnitConfig to get unified access to the whole test-configuration.<br>
- * For the internal representation <i>apache commons configuration</i> is used. So it should be easy to extend.
+ * JExUnitConfig to get unified access to the whole test-configuration.
  *
  * @author fabian
  */
