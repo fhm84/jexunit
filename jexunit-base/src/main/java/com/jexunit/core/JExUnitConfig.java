@@ -33,7 +33,7 @@ public class JExUnitConfig {
 
         AFTER_EXCEL("jexunit.sheet.after", ""),
 
-        DATETIME_PATTERN("jexunit.dateTimePattern", "dd.MM.yyyy hh:mm:ss"),
+        DATETIME_PATTERN("jexunit.dateTimePattern", "dd.MM.yyyy HH:mm:ss"),
         /**
          * keyword for identifying a command
          */

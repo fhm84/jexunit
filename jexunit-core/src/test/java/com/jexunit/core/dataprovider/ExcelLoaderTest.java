@@ -1,9 +1,21 @@
 package com.jexunit.core.dataprovider;
 
 import com.jexunit.core.model.TestCase;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +24,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 public class ExcelLoaderTest {
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
     public void type() throws Exception {
@@ -69,6 +84,71 @@ public class ExcelLoaderTest {
         assertEquals(3, testCases.size());
         assertEquals("test", testCases.get(0).getTestCommand());
         assertEquals(4, testCases.get(0).getValues().size());
+    }
+
+    @Test
+    public void shouldKeepIntegralNumbersOutsideIntRange() throws Exception {
+        try (final XSSFWorkbook workbook = new XSSFWorkbook()) {
+            final Row row = workbook.createSheet().createRow(0);
+            final ExcelLoader target = new ExcelLoader();
+
+            assertEquals("5", target.cellValues2String(numericCell(row, 0, 5)));
+            assertEquals("-7", target.cellValues2String(numericCell(row, 1, -7)));
+            assertEquals("3000000000", target.cellValues2String(numericCell(row, 2, 3_000_000_000d)));
+            assertEquals("12345678901234", target.cellValues2String(numericCell(row, 3, 12_345_678_901_234d)));
+            assertEquals("1.5", target.cellValues2String(numericCell(row, 4, 1.5)));
+        }
+    }
+
+    @Test
+    public void shouldFormatDateTimeCellsWith24HourClock() throws Exception {
+        try (final XSSFWorkbook workbook = new XSSFWorkbook()) {
+            final CellStyle dateTimeStyle = workbook.createCellStyle();
+            dateTimeStyle.setDataFormat(workbook.createDataFormat().getFormat("dd.mm.yyyy hh:mm:ss"));
+            final Cell cell = workbook.createSheet().createRow(0).createCell(0);
+            cell.setCellValue(new GregorianCalendar(2026, Calendar.OCTOBER, 20, 14, 30, 0).getTime());
+            cell.setCellStyle(dateTimeStyle);
+
+            assertEquals("20.10.2026 14:30:00", new ExcelLoader().cellValues2String(cell));
+        }
+    }
+
+    @Test
+    public void shouldKeepHeadersAlignedWithValuesOnEmptyHeaderCells() throws Exception {
+        final File excelFile = tempFolder.newFile("header-gap.xlsx");
+        try (final XSSFWorkbook workbook = new XSSFWorkbook()) {
+            final Sheet sheet = workbook.createSheet("worksheet1");
+            // header line with an empty (not existing) cell in column C
+            final Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("command");
+            header.createCell(1).setCellValue("val1");
+            header.createCell(3).setCellValue("val3");
+            final Row values = sheet.createRow(1);
+            values.createCell(0).setCellValue("test");
+            values.createCell(1).setCellValue("1");
+            values.createCell(2).setCellValue("2");
+            values.createCell(3).setCellValue("3");
+            try (final OutputStream out = new FileOutputStream(excelFile)) {
+                workbook.write(out);
+            }
+        }
+
+        final List<TestCase<ExcelMetadata>> testCases =
+                new ExcelLoader().readExcel(excelFile.getAbsolutePath()).get("worksheet1");
+
+        assertEquals(1, testCases.size());
+        final TestCase<ExcelMetadata> testCase = testCases.get(0);
+        assertEquals("test", testCase.getTestCommand());
+        assertEquals("1", testCase.getValues().get("val1").getValue());
+        assertEquals("3", testCase.getValues().get("val3").getValue());
+        // the value without header is not mapped at all
+        assertEquals(2, testCase.getValues().size());
+    }
+
+    private Cell numericCell(final Row row, final int column, final double value) {
+        final Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        return cell;
     }
 
 }

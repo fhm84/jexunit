@@ -5,6 +5,7 @@ import com.jexunit.core.JExUnitConfig;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -18,6 +19,12 @@ import java.util.logging.Logger;
 class PropertyUtils {
 
     private static final Logger log = Logger.getLogger(PropertyUtils.class.getName());
+
+    /**
+     * Patterns to parse dates with, in order. The date-time pattern comes first, as a date-only value cannot match it.
+     */
+    private static final JExUnitConfig.ConfigKey[] DATE_PATTERNS = {
+            JExUnitConfig.ConfigKey.DATETIME_PATTERN, JExUnitConfig.ConfigKey.DATE_PATTERN};
 
     /**
      * Convert the given (property-)value (a string) to the given type.
@@ -37,11 +44,11 @@ class PropertyUtils {
         }
         try {
             if (clazz == Integer.class || clazz == int.class) {
-                return Double.valueOf(value).intValue();
+                return toIntegral(clazz, value);
             } else if (clazz == Double.class || clazz == double.class) {
                 return Double.parseDouble(value);
             } else if (clazz == Long.class || clazz == long.class) {
-                return Double.valueOf(value).longValue();
+                return toIntegral(clazz, value);
             } else if (clazz == Float.class || clazz == float.class) {
                 return Float.parseFloat(value);
             } else if (clazz == Boolean.class || clazz == boolean.class) {
@@ -50,8 +57,7 @@ class PropertyUtils {
                 return new BigDecimal(value);
             } else if (clazz == Date.class) {
                 // TODO: Add possibility to parse Timestamps
-                return new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
-                        .parse(value);
+                return toDate(value);
             } else if (clazz.isEnum()) {
                 return clazz.getMethod("valueOf", String.class).invoke(clazz, value);
             }
@@ -60,6 +66,48 @@ class PropertyUtils {
             log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[]{clazz, value});
             throw e;
         }
+    }
+
+    /**
+     * Convert the given value to an int or long. Integral values with a zero fraction or in exponent notation (like
+     * "5.0" or "1e3") are accepted, but values with a fraction or out of range are rejected instead of being truncated.
+     *
+     * @param clazz the integral type to convert to (int/Integer or long/Long)
+     * @param value the property-value (as string)
+     * @return the value as Integer or Long
+     * @throws NumberFormatException if the value is not a valid integral value of the given type
+     */
+    private static Number toIntegral(final Class<?> clazz, final String value) {
+        final BigDecimal number = new BigDecimal(value.trim());
+        try {
+            if (clazz == Long.class || clazz == long.class) {
+                return number.longValueExact();
+            }
+            return number.intValueExact();
+        } catch (final ArithmeticException e) {
+            throw new NumberFormatException(String.format("'%s' is not a valid %s value", value, clazz.getName()));
+        }
+    }
+
+    /**
+     * Convert the given value to a date. The value has to match the configured date-time pattern or the configured
+     * date pattern completely (ignoring surrounding whitespace), so the time of a date-time value is not dropped
+     * silently.
+     *
+     * @param value the property-value (as string)
+     * @return the parsed date
+     * @throws ParseException if the value matches none of the configured patterns
+     */
+    private static Date toDate(final String value) throws ParseException {
+        final String trimmed = value.trim();
+        for (final JExUnitConfig.ConfigKey key : DATE_PATTERNS) {
+            final ParsePosition position = new ParsePosition(0);
+            final Date date = new SimpleDateFormat(JExUnitConfig.getStringProperty(key)).parse(trimmed, position);
+            if (date != null && position.getIndex() == trimmed.length()) {
+                return date;
+            }
+        }
+        throw new ParseException(String.format("Unparseable date: '%s'", value), 0);
     }
 
 }
