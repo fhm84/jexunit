@@ -60,6 +60,22 @@ public class ArithmeticalTest {
 }
 ```
 
+## Command Classes
+
+`@TestCommand` can also be placed on a class. The class must declare exactly one public method, which is invoked for the command. A new instance is created for each invocation:
+
+```java
+@TestCommand(value = "fail", fastFail = true)
+public class FailCommand {
+
+    public void runFailCommand() {
+        fail("Fail command will always fail ;)");
+    }
+}
+```
+
+The public method's parameters are injected the same way as for command methods (see below).
+
 ## Parameter Injection
 
 JExUnit resolves command method parameters by type and annotation. You can declare any combination of the following:
@@ -104,9 +120,9 @@ public void calculate(@TestParam("param1") double a,
 ```
 
 - The `value` attribute specifies the column name. If omitted the Java parameter name is used (requires `-parameters` compiler flag).
-- `required = false` makes the injection optional (parameter receives `null`/default if the column is absent).
+- `required = false` makes the injection optional: the parameter receives `null` if the column is absent. Use a wrapper type (`Integer`, `Double`, …) for optional parameters — a primitive parameter cannot receive `null`, so the invocation fails.
 
-Supported types: primitives and their wrappers, `String`, `Date`, `BigDecimal`, enums, and any type registered via custom `PropertyUtils` conversion.
+Supported types: `int`, `long`, `double`, `float`, `boolean` and their wrappers, `String`, `Date`, `BigDecimal` and enums (see [object-mapping.md](object-mapping.md#supported-type-conversions)). Values for other parameter types are not converted (the raw `String` is passed), so the invocation fails unless the parameter accepts a `String`.
 
 ### `TestContext`
 
@@ -161,19 +177,21 @@ Control what happens when a command name in the Excel file has no matching imple
 
 | `jexunit.command.validation.type` | Behaviour |
 |---|---|
-| `WARN` (default) | Logs a warning; the row is skipped |
-| `FAIL` | Throws an exception; the whole test fails |
-| `NONE` | Silently skips unmatched rows |
+| `WARN` (default) | Logs a warning; the row is removed before the test runs |
+| `FAIL` | The whole test fails before any command runs |
+| `IGNORE` | No validation; rows without implementation fail when they are executed |
+
+The values are case-sensitive (upper case). Validation only checks that *some* implementation of the command exists on the classpath, not that it is reachable from the current test class.
 
 ### Name Prefix/Postfix
 
-If all your command classes or methods follow a naming convention you can configure prefixes/postfixes so shorter names can be used in Excel:
+If `@TestCommand` is used without a name, the command name is derived from the method name (or, for [command classes](#command-classes), the simple class name). Prefixes/postfixes configured for your naming convention are stripped from these names (case-insensitive):
 
 ```properties
 jexunit.command.class_prefix=Test
-jexunit.command.class_postfix=Commands
+jexunit.command.class_postfix=Command
 jexunit.command.method_prefix=run
 jexunit.command.method_postfix=Command
 ```
 
-With the above settings a method named `runAddCommand` in class `TestArithmeticCommands` is reachable by the Excel command name `add` in the `arithmetic` class.
+With the above settings, `@TestCommand public void runAddCommand(...)` is reachable by the Excel command name `add`, and `@TestCommand public class TestSubtractCommand` by `subtract`. Names given explicitly (`@TestCommand("add")`) are used as they are.

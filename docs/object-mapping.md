@@ -1,6 +1,6 @@
 # Object Mapping (OGNL)
 
-JExUnit uses [OGNL](https://commons.apache.org/proper/commons-ognl/) (Object-Graph Navigation Language) to map Excel column values to Java object properties. This happens automatically when you declare a non-framework type as a parameter in a `@TestCommand` method, and can also be triggered manually via `TestObjectHelper`.
+JExUnit uses [OGNL](https://github.com/orphan-oss/ognl) (Object-Graph Navigation Language) to map Excel column values to Java object properties. This happens automatically when you declare a non-framework type as a parameter in a `@TestCommand` method, and can also be triggered manually via `TestObjectHelper`.
 
 ## Automatic Mapping
 
@@ -31,6 +31,8 @@ OGNL supports the full dot-notation for nested objects:
 Nested objects that are `null` are created automatically via their default constructor. Collection and map properties declared with an interface type get a default implementation: `List`/`Collection` → `ArrayList`, `Set` → `LinkedHashSet`, `SortedSet` → `TreeSet`, `Map` → `HashMap`, `SortedMap` → `TreeMap`. Indexing a list beyond its size (`items[3].name`) adds new elements up to that index.
 
 In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, booleans, enums, dates, …) before comparing.
+
+> **Security note:** the column headers are evaluated as OGNL expressions, and OGNL can call public (static) methods. A header like `@java.lang.Runtime@getRuntime().exec('…').x` runs a program while the row is mapped, even though mapping the value fails afterwards. Treat Excel test files like test code: only run files from trusted sources. The cell *values* are not evaluated.
 
 ## Manual Mapping via `TestObjectHelper`
 

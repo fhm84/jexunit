@@ -2,11 +2,11 @@
 
 ## Released
 
-### JUnit 5 support (v0.5.x)
+### JUnit 5 support (v0.6.0)
 
 Added a `jexunit-jupiter` module with a native JUnit 5 extension. JUnit 4 support remains in `jexunit-core` (legacy, no new features).
 
-**Migration:** See the [migration guide in CLAUDE.md](../CLAUDE.md) or the side-by-side table in [architecture.md](architecture.md).
+**Migration:** See the side-by-side table in the [README](../README.md#junit-4-legacy).
 
 ---
 

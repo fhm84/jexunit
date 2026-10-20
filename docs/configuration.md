@@ -1,6 +1,6 @@
 # Configuration Reference
 
-JExUnit is configured through a `jexunit.properties` file placed on the classpath (e.g. `src/test/resources/jexunit.properties`). All settings have defaults and can also be changed programmatically at runtime.
+JExUnit is configured through a `jexunit.properties` file placed on the classpath (e.g. `src/test/resources/jexunit.properties`). All settings have defaults and can also be changed programmatically at runtime (see [when programmatic changes take effect](#when-programmatic-changes-take-effect)).
 
 ## Programmatic Configuration
 
@@ -25,6 +25,13 @@ Custom keys are also accessible later:
 ```java
 String url = JExUnitConfig.getStringProperty("mytest.apiUrl");
 ```
+
+### When programmatic changes take effect
+
+Some settings are read before your setup methods run, so set them in `jexunit.properties` instead:
+
+- **Command discovery** (`jexunit.annotation-scan.package`, `jexunit.command.*_prefix`/`*_postfix`): the classpath is scanned once per JVM, before any `@BeforeAll`/`@BeforeClass` method runs.
+- **Reading the Excel file** (date patterns, `jexunit.command_statement`, built-in command names, `jexunit.multiline_commands`): with JUnit 5, changes in `@BeforeAll` apply. With JUnit 4, the Excel files are read when the runner is created, before `@BeforeClass` — so changes there only affect the conversion of values when the commands run, which can then mismatch the formatting used when reading the file.
 
 ## Framework Configuration Keys
 
@@ -94,20 +101,22 @@ Prefix and postfix settings allow shorter command names in Excel by matching aga
 |---|---|---|
 | `jexunit.command.validation.type` | `WARN` | What to do when an Excel command has no matching implementation |
 
-Allowed values:
+Allowed values (upper case):
 
 | Value | Behaviour |
 |---|---|
-| `WARN` | Log a warning; the row is skipped |
-| `FAIL` | Throw an exception; the test fails immediately |
-| `NONE` | Silently skip unmatched rows |
+| `WARN` | Log a warning; the row is removed before the test runs |
+| `FAIL` | The test fails before any command runs |
+| `IGNORE` | No validation; rows without implementation fail when they are executed |
 
-### Sheet Lifecycle Hooks
+### Lifecycle Hooks
 
 | Key | Default | Description |
 |---|---|---|
-| `jexunit.sheet.before` | *(empty)* | Fully-qualified class name of a `BeforeSheet` implementation to run before each worksheet |
-| `jexunit.sheet.after` | *(empty)* | Fully-qualified class name of an `AfterSheet` implementation to run after each worksheet |
+| `jexunit.sheet.before` | *(empty)* | Fully-qualified class name of a `BeforeSheet` implementation |
+| `jexunit.sheet.after` | *(empty)* | Fully-qualified class name of an `AfterSheet` implementation |
+
+Despite the names, the hooks do not run per worksheet: with JUnit 5 they run once per test class (before/after all worksheets of all its Excel files); with JUnit 4 they run once per Excel file. See [spi.md](spi.md).
 
 Example:
 
@@ -115,8 +124,6 @@ Example:
 jexunit.sheet.before=com.example.tests.SetupHook
 jexunit.sheet.after=com.example.tests.TeardownHook
 ```
-
-These can also be registered as SPI services — see [spi.md](spi.md).
 
 ## Complete Example `jexunit.properties`
 
@@ -134,7 +141,7 @@ jexunit.command.validation.type=FAIL
 # Commands that always receive all their rows as a multiline block
 jexunit.multiline_commands=createUser,createOrder
 
-# Sheet hooks
+# Lifecycle hooks
 jexunit.sheet.before=com.example.tests.DbResetHook
 jexunit.sheet.after=com.example.tests.LoggingHook
 ```
