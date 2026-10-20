@@ -91,17 +91,19 @@ class PropertyUtils {
 
     /**
      * Convert the given value to a date. The value has to match the configured date-time pattern or the configured
-     * date pattern completely, so the time of a date-time value is not dropped silently.
+     * date pattern completely (ignoring surrounding whitespace), so the time of a date-time value is not dropped
+     * silently.
      *
      * @param value the property-value (as string)
      * @return the parsed date
      * @throws ParseException if the value matches none of the configured patterns
      */
     private static Date toDate(final String value) throws ParseException {
+        final String trimmed = value.trim();
         for (final JExUnitConfig.ConfigKey key : DATE_PATTERNS) {
             final ParsePosition position = new ParsePosition(0);
-            final Date date = new SimpleDateFormat(JExUnitConfig.getStringProperty(key)).parse(value, position);
-            if (date != null && position.getIndex() == value.length()) {
+            final Date date = new SimpleDateFormat(JExUnitConfig.getStringProperty(key)).parse(trimmed, position);
+            if (date != null && position.getIndex() == trimmed.length()) {
                 return date;
             }
         }
