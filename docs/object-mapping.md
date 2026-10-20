@@ -44,6 +44,8 @@ In a condition like `items[id=5]`, the value is converted to the type of the pro
 | `Map` | Simple values (`map.key`). Entity values are **not** created: `map.key.name` only works if the map already contains an entry for `key` |
 | Arrays | **Not** created or enlarged: `array[0].name` / `array[0]` only work for an existing array, within its length |
 
+An index may extend a list by at most 10,000 elements at once; larger indexes (e.g. a typo like `tags[50000000]`) fail the row instead of filling the memory. If a condition matches no element, the row fails with a `NoSuchCollectionElementException` naming the list and the condition (e.g. `favourites[name=x]`).
+
 The element type is taken from the generic type of the property (e.g. `List<Item>`). For raw or otherwise unresolvable types (`List`, `List<T>`), new list elements are `null` and simple values are not converted.
 
 > **Security note:** the column headers are evaluated as OGNL expressions. By default, only property access is allowed in them (as in the table above); headers with method calls, static access (e.g. `@java.lang.Runtime@getRuntime().exec('…').x`), constructors or assignments are rejected and the row fails. If you need full OGNL expressions, set `jexunit.ognl.property_access_only=false` — OGNL can then call any public (static) method, so only run Excel files from trusted sources. The cell *values* are never evaluated.

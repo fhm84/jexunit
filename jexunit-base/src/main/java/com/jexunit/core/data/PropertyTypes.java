@@ -66,20 +66,49 @@ final class PropertyTypes {
      * @return the element type or <code>null</code>, if it cannot be resolved
      */
     static Class<?> resolveElementType(final Class<?> rootType, final Node node) {
-        Node indexNode = node;
-        while (indexNode != null && !(indexNode.jjtGetParent() instanceof ASTChain)) {
-            indexNode = indexNode.jjtGetParent();
-        }
+        final Node indexNode = getChainElement(node);
         if (indexNode == null) {
             return null;
         }
-        final Node chain = indexNode.jjtGetParent();
+        final int position = getPosition(indexNode);
+        return position < 0 ? null : rawClass(elementType(resolve(rootType, indexNode.jjtGetParent(), position)));
+    }
+
+    /**
+     * Get the name of the collection property, that is accessed by the given index node (like <code>items</code> for
+     * <code>order.items[0]</code>).
+     *
+     * @param node the index node (or a node inside of it)
+     * @return the name of the collection property or <code>null</code>, if there is no property before the index
+     */
+    static String getCollectionPropertyName(final Node node) {
+        final Node indexNode = getChainElement(node);
+        final int position = indexNode == null ? -1 : getPosition(indexNode);
+        return position > 0 ? indexNode.jjtGetParent().jjtGetChild(position - 1).toString() : null;
+    }
+
+    /**
+     * Get the element of the chain, the given node belongs to (the node itself or one of its parents).
+     */
+    private static Node getChainElement(final Node node) {
+        Node chainElement = node;
+        while (chainElement != null && !(chainElement.jjtGetParent() instanceof ASTChain)) {
+            chainElement = chainElement.jjtGetParent();
+        }
+        return chainElement;
+    }
+
+    /**
+     * Get the position of the given element in its chain.
+     */
+    private static int getPosition(final Node chainElement) {
+        final Node chain = chainElement.jjtGetParent();
         for (int i = 0; i < chain.jjtGetNumChildren(); i++) {
-            if (chain.jjtGetChild(i) == indexNode) {
-                return rawClass(elementType(resolve(rootType, chain, i)));
+            if (chain.jjtGetChild(i) == chainElement) {
+                return i;
             }
         }
-        return null;
+        return -1;
     }
 
     /**

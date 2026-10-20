@@ -1,7 +1,6 @@
 package com.jexunit.core.data;
 
 import ognl.ListPropertyAccessor;
-import ognl.Node;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 
@@ -19,6 +18,11 @@ import java.util.logging.Logger;
 public class CustomListPropertyAccessor extends ListPropertyAccessor {
 
     private static final Logger log = Logger.getLogger(CustomListPropertyAccessor.class.getName());
+
+    /**
+     * The maximum number of elements added to a list at once (for accessing an index beyond its size).
+     */
+    static final int MAX_NEW_ELEMENTS = 10_000;
 
     @Override
     public Object getProperty(@SuppressWarnings("rawtypes") final Map context, final Object target, final Object name)
@@ -38,8 +42,8 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
 
             if (result == null) {
                 final OgnlContext ctx = (OgnlContext) context;
-                final Node currentNode = ctx.getCurrentNode().jjtGetParent().jjtGetParent();
-                throw new NoSuchCollectionElementException(currentNode.jjtGetChild(0).toString(), propertyName);
+                throw new NoSuchCollectionElementException(
+                        PropertyTypes.getCollectionPropertyName(ctx.getCurrentNode()), propertyName);
             } else {
                 return result;
             }
@@ -51,6 +55,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
                 return list.get(index);
             } else {
                 // here we have to add new elements to the list!
+                checkNewElements(list, index);
                 final Class<?> elementType = getElementType((OgnlContext) context);
                 for (int i = list.size(); i <= index; i++) {
                     list.add(createNewInstance(elementType));
@@ -78,6 +83,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
             final Object element = elementType == null || value == null
                     ? value
                     : ctx.getTypeConverter().convertValue(context, target, null, null, value, elementType);
+            checkNewElements(list, index);
             while (list.size() <= index) {
                 list.add(null);
             }
@@ -85,6 +91,22 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
             return;
         }
         super.setProperty(context, target, name, value);
+    }
+
+    /**
+     * Check the number of elements to add to the list for the given index. A (mistyped) huge index in the excel file
+     * would otherwise fill the memory with <code>null</code> elements.
+     *
+     * @param list  the list
+     * @param index the index to access
+     * @throws OgnlException if more than {@link #MAX_NEW_ELEMENTS} elements would be added
+     */
+    private static void checkNewElements(final List<?> list, final int index) throws OgnlException {
+        if (index - list.size() >= MAX_NEW_ELEMENTS) {
+            throw new OgnlException(String.format(
+                    "Index %d is too large: the list (size %d) is extended by at most %d elements at once", index,
+                    list.size(), MAX_NEW_ELEMENTS));
+        }
     }
 
     /**
