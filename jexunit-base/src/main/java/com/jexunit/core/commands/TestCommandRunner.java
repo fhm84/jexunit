@@ -8,6 +8,7 @@ import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.model.TestCase;
+import ognl.MethodFailedException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -37,7 +38,8 @@ public class TestCommandRunner {
      * Get the method for the current testCommand (via the {@code @TestCommand}-Annotation) and call it.
      *
      * @param testCase the current testCase to run
-     * @throws Exception in case that something goes wrong
+     * @throws Exception             what the command throws
+     * @throws TestCommandSetupError if the command could not be prepared (so it didn't run)
      */
     @SuppressWarnings("unchecked")
     public void runTestCommand(final TestCase<?> testCase) throws Exception {
@@ -55,36 +57,75 @@ public class TestCommandRunner {
                 testCase.setFastFail(testCommand.isFastFail());
             }
 
-            // prepare the test-method
-            final Method testMethod;
-            if (testCommand.getType() == Type.METHOD) {
-                testMethod = testCommand.getMethod();
-            } else if (testCommand.getType() == Type.CLASS) {
-                // prepare and run test-command defined by a class
-                final Object testCommandInstance = testCommand.getImplementation().newInstance();
-                TestContextManager.add((Class<Object>) testCommand.getImplementation(), testCommandInstance);
+            // prepare the call: a failure here means the command didn't run, so it must not satisfy an expected
+            // exception (the runners never count an Error as expected exception)
+            final Invocable invocation;
+            final List<Object> parameters;
+            try {
+                // prepare the test-method
+                final Method testMethod;
+                if (testCommand.getType() == Type.METHOD) {
+                    testMethod = testCommand.getMethod();
+                } else if (testCommand.getType() == Type.CLASS) {
+                    // prepare and run test-command defined by a class
+                    final Object testCommandInstance = testCommand.getImplementation().newInstance();
+                    TestContextManager.add((Class<Object>) testCommand.getImplementation(), testCommandInstance);
 
-                // inject Test-Parameters (and -Context) to the class
-                injectTestParams(testCase, testCommandInstance);
+                    // inject Test-Parameters (and -Context) to the class
+                    injectTestParams(testCase, testCommandInstance);
 
-                // invoke the test-command
-                testMethod = getSinglePublicMethod(testCommand);
-                if (testMethod == null) {
-                    throw new IllegalArgumentException(
-                            "No public method found in test command class: " + testCommand.getImplementation().getName());
+                    // invoke the test-command
+                    testMethod = getSinglePublicMethod(testCommand);
+                    if (testMethod == null) {
+                        throw new IllegalArgumentException("No public method found in test command class: "
+                                + testCommand.getImplementation().getName());
+                    }
+                } else {
+                    throw new IllegalArgumentException("Type of the TestCommand has to be one of 'METHOD' or 'CLASS'!");
                 }
-            } else {
-                throw new IllegalArgumentException("Type of the TestCommand has to be one of 'METHOD' or 'CLASS'!");
+
+                // prepare the parameters
+                parameters = prepareParameters(testCase, testMethod);
+
+                invocation = TestCommandInvocationHandler.getInvocationHandler(testCommand, testMethod,
+                        getCommandInstance(testMethod));
+            } catch (final Exception e) {
+                // an exception of the user's model (e.g. a setter validating its value) is thrown by the code under
+                // test, not by JExUnit, so it counts like an exception of the command
+                final Throwable modelException = getModelException(e);
+                if (modelException instanceof Exception) {
+                    throw (Exception) modelException;
+                }
+                if (modelException instanceof Error) {
+                    throw (Error) modelException;
+                }
+                throw new TestCommandSetupError(String.format("Test command '%s' could not be prepared: %s",
+                        testCase.getTestCommand(), e), e);
             }
 
-            // prepare the parameters
-            final List<Object> parameters = prepareParameters(testCase, testMethod);
-
             // invoke the method with the parameters
-            invokeTestCommandMethod(testCommand, testMethod, parameters.toArray());
+            invocation.invoke(parameters.toArray());
         } else {
             testBase.runCommand(testCase);
         }
+    }
+
+    /**
+     * Find an exception thrown by a method of the user's model (e.g. a setter validating its value) while the entity
+     * parameters were mapped. OGNL reports it as {@link MethodFailedException} with the exception as cause.
+     *
+     * @param throwable the exception thrown while preparing the command
+     * @return the exception thrown by the model, or <code>null</code> if there is none
+     */
+    private static Throwable getModelException(final Throwable throwable) {
+        for (Throwable t = throwable; t != null; t = t.getCause()) {
+            if (t instanceof MethodFailedException) {
+                final Throwable cause = t.getCause();
+                // OGNL also reports a method it cannot call (not found, not accessible) this way
+                return cause instanceof ReflectiveOperationException ? null : cause;
+            }
+        }
+        return null;
     }
 
     /**
@@ -96,9 +137,7 @@ public class TestCommandRunner {
      * @param testCase        the current test case
      * @param implementations the implementations of the command
      * @return the implementation to run
-     * @throws NoSuchMethodError if no implementation can run, or several match equally well. Like a missing
-     *                            implementation, this is an error (not an exception), so it never satisfies an
-     *                            expected exception
+     * @throws TestCommandSetupError if no implementation can run, or several match equally well
      */
     private Command selectImplementation(final TestCase<?> testCase, final List<Command> implementations) {
         if (implementations.size() == 1) {
@@ -122,12 +161,12 @@ public class TestCommandRunner {
         }
 
         if (best.isEmpty()) {
-            throw new NoSuchMethodError(String.format(
+            throw new TestCommandSetupError(String.format(
                     "No implementation of test command '%s' has values for all its required parameters: %s",
                     testCase.getTestCommand(), describe(implementations)));
         }
         if (best.size() > 1) {
-            throw new NoSuchMethodError(String.format(
+            throw new TestCommandSetupError(String.format(
                     "Test command '%s' is ambiguous, several implementations match the values equally well: %s",
                     testCase.getTestCommand(), describe(best)));
         }
@@ -358,35 +397,29 @@ public class TestCommandRunner {
     }
 
     /**
-     * Invoke the given method (representing the implementation of the test-command) with the given parameters. This
-     * will invoke the method static, on the current test-class or on the instance out of the test-context. If there is
-     * no instance in the test-context, a new instance will be created an put to the test-context.
+     * Get the instance to invoke the given method (representing the implementation of the test-command) on: the
+     * current test-class, none for a static method, or the instance out of the test-context. If there is no instance
+     * in the test-context, a new instance will be created an put to the test-context.
      *
-     * @param method     the method to invoke
-     * @param parameters the parameters for the method
-     * @throws Exception in case that something goes wrong
+     * @param method the method to invoke
+     * @return the instance to invoke the method on (<code>null</code> for a static method)
+     * @throws Exception in case that the instance cannot be created
      */
-    private void invokeTestCommandMethod(final Command testCommand, final Method method, final Object[] parameters) throws Exception {
-        final Object o;
+    private Object getCommandInstance(final Method method) throws Exception {
         final Object hostInstance = testBase.getTestClassInstance(method.getDeclaringClass());
         if (hostInstance != null) {
-            o = hostInstance;
+            return hostInstance;
         } else if (Modifier.isStatic(method.getModifiers())) {
-            o = null;
-        } else {
-            // create new instance of the Command-Class and put it to the test-context
-            @SuppressWarnings("unchecked") final Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
-            Object instance = TestContextManager.get(clazz);
-            if (instance == null) {
-                instance = clazz.newInstance();
-                TestContextManager.add(clazz, instance);
-            }
-            o = instance;
+            return null;
         }
-
-        // invoke via TestCommandInvocationHandler to be able to proxy the call
-        final Invocable invocationHandler = TestCommandInvocationHandler.getInvocationHandler(testCommand, method, o);
-        invocationHandler.invoke(parameters);
+        // create new instance of the Command-Class and put it to the test-context
+        @SuppressWarnings("unchecked") final Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
+        Object instance = TestContextManager.get(clazz);
+        if (instance == null) {
+            instance = clazz.newInstance();
+            TestContextManager.add(clazz, instance);
+        }
+        return instance;
     }
 
 }

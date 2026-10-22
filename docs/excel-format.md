@@ -56,6 +56,8 @@ These column names are reserved and handled by the framework.
 
 If `true`, the framework expects the command to throw any exception. The test **passes** if an exception is thrown and **fails** if no exception is thrown — analogous to `@Test(expected = Exception.class)`.
 
+Only exceptions thrown by the command itself count, and exceptions of your model while the row is mapped to an entity parameter (e.g. a setter validating its value). If the command can't be prepared, it doesn't run and the row **fails**, also with `exception = true`: e.g. a missing implementation, no unique implementation for the row, a required `@TestParam` without value, a value that can't be converted, or a column header that can't be mapped (or isn't allowed, see `jexunit.ognl.property_access_only`). Exceptions of the *constructors* of entities can't be told apart from these and also fail the row.
+
 ```
 COMMAND | param1 | param2 | result | exception
 div     | 1      | 0      |        | true

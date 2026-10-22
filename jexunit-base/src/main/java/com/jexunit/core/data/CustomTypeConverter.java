@@ -42,7 +42,7 @@ public class CustomTypeConverter extends DefaultTypeConverter {
             return PropertyUtils.convertPropertyStringToObject(toType, stringValue);
         } catch (final ParseException | IllegalArgumentException | SecurityException |
                 IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[]{toType, value});
+            log.log(Level.WARNING, "Cannot convert {1} to {0}", new Object[]{toType, value});
         }
 
         return super.convertValue(context, target, member, propertyName, value, toType);
