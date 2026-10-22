@@ -36,7 +36,7 @@ mvn test -f jexunit-core/pom.xml -Dtest=ExcelLoaderTest#testMethodName
 
 The example modules are only built with the `-Pexample-tests` Maven profile.
 
-Java source compatibility target is **Java 8**.
+Java source compatibility target is **Java 8** (the 0.x line). 1.x will require **Java 21** (#54); the 0.x line then continues on a `0.x` branch (#52).
 
 ## Architecture
 
@@ -110,7 +110,7 @@ GitHub Actions workflows in `.github/workflows/`:
 - **`maven.yml`** — runs on every push/PR; executes `mvn clean verify -Pexample-tests` on JDK 8, 11, and 21
 - **`release.yml`** — runs on the `release` branch; uses Maven release plugin and publishes to GitHub Packages
 
-`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17, decision in #46), OGNL ≥ 3.3 (API migration, #40) and the 4.x pre-releases of the compiler/site plugins are ignored.
+`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17+; ignored until the Java 21 baseline #54), OGNL ≥ 3.3 (API migration, #40) and the 4.x pre-releases of the compiler/site plugins are ignored.
 
 ## Roadmap & Issues
 

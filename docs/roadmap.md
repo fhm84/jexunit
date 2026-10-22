@@ -4,31 +4,35 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 
 ## Planned
 
-### [0.8.0](https://github.com/fhm84/jexunit/milestone/1): maintenance on the Java 8 line
+**Java versions** (decided in [#46](https://github.com/fhm84/jexunit/issues/46)): **1.x requires Java 21**. **0.x stays the Java 8 line** and only gets bug fixes and security updates after 0.8.0. JUnit 6 and Apache POI 6 both need Java 17+, and POI is used by `jexunit-base`, so the whole framework moves instead of adding a separate `jexunit-jupiter6` module (the previous plan).
 
-- Decide on a Java 17 baseline: JUnit 6 and Apache POI 6 both need Java 17 ([#46](https://github.com/fhm84/jexunit/issues/46))
+### [0.8.0](https://github.com/fhm84/jexunit/milestone/1): last feature release on Java 8
+
 - Migrate to OGNL 3.4 ([#40](https://github.com/fhm84/jexunit/issues/40))
 - Field injection for command classes: implement or remove ([#37](https://github.com/fhm84/jexunit/issues/37))
 - Overloaded command methods ([#3](https://github.com/fhm84/jexunit/issues/3))
 - Mark the JUnit 4 runner as deprecated ([#48](https://github.com/fhm84/jexunit/issues/48))
 
-### [1.0.0](https://github.com/fhm84/jexunit/milestone/2): API clean-up
+### [1.0.0](https://github.com/fhm84/jexunit/milestone/2): Java 21, Maven Central
 
+- Set up the 0.x maintenance line ([#52](https://github.com/fhm84/jexunit/issues/52))
+- Raise the minimum Java version to 21 ([#54](https://github.com/fhm84/jexunit/issues/54))
+- Upgrade to Apache POI 6 ([#47](https://github.com/fhm84/jexunit/issues/47)) and JUnit 6 ([#53](https://github.com/fhm84/jexunit/issues/53))
 - Remove the JUnit 4 runner `jexunit-core` ([#49](https://github.com/fhm84/jexunit/issues/49))
-- Upgrade to Apache POI 6, depends on #46 ([#47](https://github.com/fhm84/jexunit/issues/47))
+- Change the groupId to `io.github.fhm84` ([#55](https://github.com/fhm84/jexunit/issues/55)); the Java packages stay `com.jexunit.*`
+- Release on Maven Central ([#12](https://github.com/fhm84/jexunit/issues/12)). Until then, JExUnit is available via JitPack (no authentication) and GitHub Packages, see the README
 
 ### [Later](https://github.com/fhm84/jexunit/milestone/3)
 
 - Object mapping: create entity values in maps and enlarge arrays ([#50](https://github.com/fhm84/jexunit/issues/50))
-- Release on Maven Central ([#12](https://github.com/fhm84/jexunit/issues/12)). Until then, JExUnit is available via JitPack (no authentication) and GitHub Packages, see the README
 
-### Java 17 ideas
+### Java 21 ideas
 
-If #46 moves JExUnit to Java 17, these become possible. A separate `jexunit-jupiter6` module next to the Java 8 modules (the previous plan) wouldn't be enough: POI 6 is used by `jexunit-base`, which all modules share.
+Possible once 1.x is on Java 21 (#54), each in its own PR:
 
 - **Records** for `TestCase` / `TestCell` model classes (immutable, compact syntax)
-- **`@ParameterizedClass`** hooks (if JUnit 6 exposes them) for cleaner sheet-per-class parameterization
-- **Sealed interfaces** for command dispatch result types
+- **`@ParameterizedClass`** hooks (JUnit 6) for cleaner sheet-per-class parameterization
+- **Sealed interfaces** and **pattern matching for `switch`** for command dispatch result types
 
 ---
 
