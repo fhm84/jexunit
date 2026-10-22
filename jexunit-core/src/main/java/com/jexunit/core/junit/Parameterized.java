@@ -32,7 +32,11 @@ import java.util.List;
  * the test-class.
  *
  * @author fabian
+ * @deprecated Part of the JUnit 4 runner, which will be removed in 1.0.0. Use {@code @ExtendWith(JExUnitExtension.class)}
+ *             from {@code jexunit-jupiter} instead. See the
+ *             <a href="https://github.com/fhm84/jexunit/blob/master/docs/migration-junit5.md">migration guide</a>.
  */
+@Deprecated
 public class Parameterized extends Suite {
 
     /**

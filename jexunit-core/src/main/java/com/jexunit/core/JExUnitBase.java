@@ -36,9 +36,10 @@ import java.util.logging.Logger;
  * @author fabian
  * @deprecated Extend this class only when targeting JUnit 4. For JUnit 5, annotate your test
  *             class with {@code @ExtendWith(JExUnitExtension.class)} from {@code jexunit-jupiter}
- *             — no base class is required. See the
+ *             — no base class is required. The JUnit 4 runner will be removed in 1.0.0. See the
  *             <a href="https://github.com/fhm84/jexunit/blob/master/docs/migration-junit5.md">migration guide</a>.
  */
+@Deprecated
 @Ignore
 @RunWith(Parameterized.class)
 public class JExUnitBase implements TestCommandHost {

@@ -59,7 +59,7 @@ Now you can write your tests in Excel sheets. When you run your test class, JExU
 
 ###### JUnit 4 (legacy) ######
 
-The JUnit 4 runner in `jexunit-core` is still available, but receives no new features. To migrate a JUnit 4 test to JUnit 5:
+The JUnit 4 runner in `jexunit-core` is deprecated: it receives no new features and will be removed in 1.0.0 (JUnit 4 users can stay on the 0.x line). To migrate a JUnit 4 test to JUnit 5:
 
 | JUnit 4 (`jexunit-core`) | JUnit 5 (`jexunit-jupiter`) |
 |---|---|

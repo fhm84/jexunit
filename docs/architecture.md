@@ -35,7 +35,7 @@ JUnit 5: @ExtendWith(JExUnitExtension.class)     JUnit 4: @RunWith(JExUnit.class
 |---|---|---|
 | `jexunit-base/` | `jexunit-base` | JUnit-agnostic kernel: Excel parsing, OGNL mapping, command dispatch, SPI, configuration |
 | `jexunit-jupiter/` | `jexunit-jupiter` | JUnit 5 extension (recommended) |
-| `jexunit-core/` | `jexunit-core` | JUnit 4 runner (legacy, no new features) |
+| `jexunit-core/` | `jexunit-core` | JUnit 4 runner (deprecated, removed in 1.0.0) |
 | `examples-simple/` | — | JUnit 4 examples |
 | `examples-simple-jupiter/` | — | JUnit 5 examples |
 | `examples-complex/` | — | Additional JUnit 4 examples |
