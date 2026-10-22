@@ -13,8 +13,11 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +28,8 @@ import java.util.logging.Logger;
  * MethodReporter-Implementation for "storing" the annotated methods found. The "Annotation-Scan" will run once, so we
  * can hold the methods found in the static methods-Map.
  * <p>
- * TODO: "override" command-methods (what about different parameter-types?)
+ * A command can have several implementations for the same type (e.g. overloaded methods). The implementation to run is
+ * chosen by the {@link TestCommandRunner} for each test case.
  *
  * @author fabian
  */
@@ -33,7 +37,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
 
     private static final Logger LOG = Logger.getLogger(TestCommandScanner.class.getName());
 
-    private static final Map<String, Map<Class<?>, Command>> commands = new HashMap<>();
+    private static final Map<String, Map<Class<?>, List<Command>>> commands = new HashMap<>();
 
     /**
      * Classes whose command methods are registered already. The scan reports each annotated method, but all the
@@ -148,23 +152,23 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                 }
                 for (String command : commandNames) {
                     command = command.toLowerCase(Locale.ROOT);
-                    if (!commands.containsKey(command)) {
-                        commands.put(command, new HashMap<>());
-                    }
+                    final Command implementation;
+                    final Class<?> key;
                     if (method == null) {
                         // test-command is implemented in a class
-                        if (commands.get(command).containsKey(null)) {
-                            LOG.warning("Duplicate test-command registration for command '" + command
-                                    + "' (class-type) — previous registration will be overwritten.");
-                        }
-                        commands.get(command).put(null, new Command(command, type, tc.fastFail()));
+                        implementation = new Command(command, type, tc.fastFail());
+                        key = null;
                     } else {
                         // test-command is a method
-                        if (commands.get(command).containsKey(type)) {
-                            LOG.warning("Duplicate test-command registration for command '" + command
-                                    + "' in type '" + type + "' — previous registration will be overwritten.");
-                        }
-                        commands.get(command).put(type, new Command(command, type, method, tc.fastFail()));
+                        implementation = new Command(command, type, method, tc.fastFail());
+                        key = type;
+                    }
+                    // further implementations for the same command and type (e.g. overloaded methods) are added, the
+                    // runner chooses one of them for each test case
+                    final List<Command> implementations = commands.computeIfAbsent(command, c -> new HashMap<>())
+                            .computeIfAbsent(key, k -> new ArrayList<>());
+                    if (!implementations.contains(implementation)) {
+                        implementations.add(implementation);
                     }
                 }
             }
@@ -255,37 +259,37 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
     }
 
     /**
-     * Get the Command for the given command-name and type.
+     * Get the implementations of the Command for the given command-name and type. The implementations of the type
+     * (or its superclasses) take precedence over the ones defined outside of test classes.
      *
      * @param command the excel-command
      * @param clazz   the type of the test-class
-     * @return the command for the given class, if found, else null
+     * @return the implementations of the command for the given class (several e.g. for overloaded methods), or an
+     * empty list if not found
      */
-    static Command getTestCommand(final String command, final Class<?> clazz) {
-        if (commands.containsKey(command)) {
-            final Map<Class<?>, Command> cmds = commands.get(command);
-
-            if (cmds != null && !cmds.isEmpty()) {
-                if (clazz == null) {
-                    if (cmds.containsKey(null)) {
-                        return cmds.get(null);
-                    }
-                } else {
-                    // not found? check superclass
-                    Class<?> cls = clazz;
-                    do {
-                        if (cmds.containsKey(cls)) {
-                            final Command c = cmds.get(cls);
-                            if (c.getType() == Type.CLASS || c.getImplementation() == cls) {
-                                return c;
-                            }
-                        }
-                    } while ((cls = cls.getSuperclass()) != null);
-                }
-                return cmds.get(null);
-            }
+    static List<Command> getTestCommands(final String command, final Class<?> clazz) {
+        final Map<Class<?>, List<Command>> cmds = commands.get(command);
+        if (cmds == null || cmds.isEmpty()) {
+            return Collections.emptyList();
         }
-        return null;
+        if (clazz != null) {
+            // not found? check superclass
+            Class<?> cls = clazz;
+            do {
+                if (cmds.containsKey(cls)) {
+                    final List<Command> found = new ArrayList<>();
+                    for (final Command c : cmds.get(cls)) {
+                        if (c.getType() == Type.CLASS || c.getImplementation() == cls) {
+                            found.add(c);
+                        }
+                    }
+                    if (!found.isEmpty()) {
+                        return found;
+                    }
+                }
+            } while ((cls = cls.getSuperclass()) != null);
+        }
+        return cmds.getOrDefault(null, Collections.emptyList());
     }
 
     /**
