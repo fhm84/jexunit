@@ -1,11 +1,11 @@
 package com.jexunit.core.data;
 
 import ognl.DefaultTypeConverter;
+import ognl.OgnlContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.text.ParseException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,13 +23,12 @@ public class CustomTypeConverter extends DefaultTypeConverter {
     /*
      * (non-Javadoc)
      *
-     * @see ognl.TypeConverter#convertValue(java.util.Map, java.lang.Object, java.lang.reflect.Member, java.lang.String,
-     * java.lang.Object, java.lang.Class)
+     * @see ognl.TypeConverter#convertValue(ognl.OgnlContext, java.lang.Object, java.lang.reflect.Member,
+     * java.lang.String, java.lang.Object, java.lang.Class)
      */
-    @SuppressWarnings("rawtypes")
     @Override
-    public Object convertValue(final Map context, final Object target, final Member member, final String propertyName,
-                               final Object value, final Class toType) {
+    public Object convertValue(final OgnlContext context, final Object target, final Member member,
+                               final String propertyName, final Object value, final Class<?> toType) {
         if (value == null) {
             return null;
         }

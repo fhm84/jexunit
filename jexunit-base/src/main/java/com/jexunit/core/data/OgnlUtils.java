@@ -4,7 +4,6 @@ import com.jexunit.core.JExUnitConfig;
 import ognl.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,10 +49,10 @@ public class OgnlUtils {
     public static void setPropertyToObject(final Object obj, final String propName, final String propValue) throws OgnlException {
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
-        @SuppressWarnings("rawtypes") final Map context =
+        final OgnlContext context =
                 Ognl.createDefaultContext(
                         obj,
-                        new DefaultMemberAccess(false),
+                        new PublicMemberAccess(),
                         new DefaultClassResolver(),
                         new CustomTypeConverter());
 
@@ -114,9 +113,9 @@ public class OgnlUtils {
     public static Object getProperty(final Object obj, final String propName) throws OgnlException {
         OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
-        @SuppressWarnings("rawtypes") final Map context = Ognl.createDefaultContext(
+        final OgnlContext context = Ognl.createDefaultContext(
                 obj,
-                new DefaultMemberAccess(false),
+                new PublicMemberAccess(),
                 new DefaultClassResolver(),
                 new CustomTypeConverter());
 

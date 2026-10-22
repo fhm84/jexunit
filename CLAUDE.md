@@ -110,7 +110,7 @@ GitHub Actions workflows in `.github/workflows/`:
 - **`maven.yml`** — runs on every push/PR; executes `mvn clean verify -Pexample-tests` on JDK 8, 11, and 21
 - **`release.yml`** — runs on the `release` branch; uses Maven release plugin and publishes to GitHub Packages
 
-`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17+; ignored until the Java 21 baseline #54), OGNL ≥ 3.3 (API migration, #40) and the 4.x pre-releases of the compiler/site plugins are ignored.
+`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17+; ignored until the Java 21 baseline #54) and the 4.x pre-releases of the compiler/site plugins are ignored.
 
 ## Roadmap & Issues
 

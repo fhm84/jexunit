@@ -5,7 +5,6 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +24,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
     static final int MAX_NEW_ELEMENTS = 10_000;
 
     @Override
-    public Object getProperty(@SuppressWarnings("rawtypes") final Map context, final Object target, final Object name)
+    public Object getProperty(final OgnlContext context, final Object target, final Object name)
             throws OgnlException {
         @SuppressWarnings("unchecked") final List<Object> list = (List<Object>) target;
 
@@ -41,9 +40,8 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
             }
 
             if (result == null) {
-                final OgnlContext ctx = (OgnlContext) context;
                 throw new NoSuchCollectionElementException(
-                        PropertyTypes.getCollectionPropertyName(ctx.getCurrentNode()), propertyName);
+                        PropertyTypes.getCollectionPropertyName(context.getCurrentNode()), propertyName);
             } else {
                 return result;
             }
@@ -56,7 +54,7 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
             } else {
                 // here we have to add new elements to the list!
                 checkNewElements(list, index);
-                final Class<?> elementType = getElementType((OgnlContext) context);
+                final Class<?> elementType = getElementType(context);
                 for (int i = list.size(); i <= index; i++) {
                     list.add(createNewInstance(elementType));
                 }
@@ -72,17 +70,16 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
      * <code>null</code> elements. The value is converted to the element type of the list (if known).
      */
     @Override
-    public void setProperty(@SuppressWarnings("rawtypes") final Map context, final Object target, final Object name,
+    public void setProperty(final OgnlContext context, final Object target, final Object name,
                             final Object value) throws OgnlException {
         if (name instanceof Number) {
             @SuppressWarnings("unchecked") final List<Object> list = (List<Object>) target;
             final int index = ((Number) name).intValue();
-            final OgnlContext ctx = (OgnlContext) context;
-            final Class<?> elementType = getElementType(ctx);
+            final Class<?> elementType = getElementType(context);
 
             final Object element = elementType == null || value == null
                     ? value
-                    : ctx.getTypeConverter().convertValue(context, target, null, null, value, elementType);
+                    : context.getTypeConverter().convertValue(context, target, null, null, value, elementType);
             checkNewElements(list, index);
             while (list.size() <= index) {
                 list.add(null);

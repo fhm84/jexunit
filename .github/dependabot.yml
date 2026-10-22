@@ -19,9 +19,6 @@ updates:
       # Apache POI 6 requires Java 17, 0.x targets Java 8 (Java 21 baseline for 1.x: #54, upgrade: #47)
       - dependency-name: "org.apache.poi:*"
         update-types: ["version-update:semver-major"]
-      # OGNL 3.3+ changed the extension API, the migration is tracked in #40
-      - dependency-name: "ognl:ognl"
-        versions: [">= 3.3"]
       # the 4.x versions of these plugins are pre-releases (beta/milestones) and target Maven 4
       - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
         update-types: ["version-update:semver-major"]
