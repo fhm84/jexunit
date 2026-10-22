@@ -177,9 +177,11 @@ static String[] excelFiles = {"src/test/resources/MassTests.xlsx"};
 | `worksheetAsTest` | JUnit test granularity |
 |---|---|
 | `true` (default) | One JUnit test per **worksheet** |
-| `false` | One JUnit test per **command row** |
+| `false` | One JUnit test per **command** (per command block with [multiple commands per row](#multiple-commands-per-row)) |
 
 Use `false` when you want each row to show up as an individual test case in your IDE's test runner.
+
+The tests are named after the file and the worksheet, e.g. `[tests.xlsx - orders]`. With `false`, the name also contains the cell and the command, e.g. `[tests.xlsx - orders] A12: createOrder` (for a multiline command the cell of its first row). Error messages name the file, the worksheet and the cell: `file: src/test/resources/tests.xlsx, worksheet: orders, cell: A12`.
 
 ## Customising Built-in Keyword Names
 
