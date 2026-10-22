@@ -36,7 +36,7 @@ mvn test -f jexunit-core/pom.xml -Dtest=ExcelLoaderTest#testMethodName
 
 The example modules are only built with the `-Pexample-tests` Maven profile.
 
-Java source compatibility target is **Java 8**.
+Java source compatibility target is **Java 8** (the 0.x line). 1.x will require **Java 21** (#54); the 0.x line then continues on a `0.x` branch (#52).
 
 ## Architecture
 
@@ -110,7 +110,11 @@ GitHub Actions workflows in `.github/workflows/`:
 - **`maven.yml`** — runs on every push/PR; executes `mvn clean verify -Pexample-tests` on JDK 8, 11, and 21
 - **`release.yml`** — runs on the `release` branch; uses Maven release plugin and publishes to GitHub Packages
 
-`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 (Java 17), OGNL ≥ 3.3 (API migration, #40) and the 4.x pre-releases of the compiler/site plugins are ignored.
+`.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17+; ignored until the Java 21 baseline #54), OGNL ≥ 3.3 (API migration, #40) and the 4.x pre-releases of the compiler/site plugins are ignored.
+
+## Roadmap & Issues
+
+Planned features and bugs are GitHub issues in release milestones (`0.8.0`, `0.9.0`, `1.0.0`, `Later`); decisions are `question` issues titled `Decide: …`. `docs/roadmap.md` is only an overview that links the issues. Close issues from the PR (`Closes #N`) and update the roadmap entry in the same PR; when a release ships, move its section to "Released".
 
 ## Releasing
 

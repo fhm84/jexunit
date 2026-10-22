@@ -11,10 +11,13 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # JUnit 6 requires Java 17, JExUnit targets Java 8 (see docs/roadmap.md)
+      # JUnit 6 requires Java 17, 0.x targets Java 8 (Java 21 baseline for 1.x: #54, upgrade: #53)
       - dependency-name: "org.junit.jupiter:*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "org.junit.platform:*"
+        update-types: ["version-update:semver-major"]
+      # Apache POI 6 requires Java 17, 0.x targets Java 8 (Java 21 baseline for 1.x: #54, upgrade: #47)
+      - dependency-name: "org.apache.poi:*"
         update-types: ["version-update:semver-major"]
       # OGNL 3.3+ changed the extension API, the migration is tracked in #40
       - dependency-name: "ognl:ognl"
