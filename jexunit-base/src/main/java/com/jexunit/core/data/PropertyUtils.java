@@ -63,7 +63,7 @@ class PropertyUtils {
             }
             return value;
         } catch (final ParseException | IllegalArgumentException | SecurityException | ReflectiveOperationException e) {
-            log.log(Level.WARNING, "Can't convert String to Obj - {0} - {1}", new Object[]{clazz, value});
+            log.log(Level.WARNING, "Cannot convert {1} to {0}", new Object[]{clazz, value});
             throw e;
         }
     }
