@@ -7,12 +7,15 @@ import com.jexunit.core.dataprovider.ExcelFile;
 import com.jexunit.core.model.TestCase;
 import org.junit.runner.RunWith;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JExUnit.class)
 public class FormattingTest {
@@ -36,20 +39,21 @@ public class FormattingTest {
     }
 
     @TestCommand("COMPAREDATE")
-    public static void run(final HashMap<String, String> params) {
-        String date = params.get("date");
-        // Same date than today preserving configured date pattern
-        String format = new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
-                .format(new Date());
+    public static void run(final HashMap<String, String> params) throws ParseException {
+        // NOW() and TODAY() are evaluated when the excel file is read, which is some seconds before the command runs,
+        // so the timestamp is compared with a tolerance (comparing the formatted values fails on a minute boundary)
+        final String timestamp = params.get("timestamp");
+        final Date excelNow = new SimpleDateFormat(
+                JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN)).parse(timestamp);
+        final long age = new Date().getTime() - excelNow.getTime();
+        // the pattern has no milliseconds, so the parsed timestamp can be up to a second later than "now"
+        assertTrue("NOW() is not the current time: " + timestamp,
+                age > -TimeUnit.SECONDS.toMillis(1) && age < TimeUnit.MINUTES.toMillis(5));
 
-        assertEquals(format, date);
-
-        date = params.get("timestamp");
-        // Same date than today preserving configured date pattern
-        format = new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATETIME_PATTERN))
-                .format(new Date());
-        // Compare two timestamps (From Excel and Java). Because there is a little time-difference (maximum 1 second) between these dates
-        assertEquals(format.substring(0, format.length() - 2), date.substring(0, date.length() - 2));
+        // TODAY() is the date of NOW() (not of the current time, which may be after midnight already), preserving the
+        // configured date pattern
+        assertEquals(new SimpleDateFormat(JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.DATE_PATTERN))
+                .format(excelNow), params.get("date"));
     }
 
     @TestCommand("COMPAREINT")
