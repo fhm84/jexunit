@@ -10,4 +10,4 @@
 | [configuration.md](configuration.md) | `jexunit.properties` reference — all keys and defaults |
 | [spi.md](spi.md) | Extension points: `DataProvider`, `BeforeSheet`, `AfterSheet` |
 | [migration-junit5.md](migration-junit5.md) | Migrating from JUnit 4 (`jexunit-core`) to JUnit 5 (`jexunit-jupiter`) |
-| [roadmap.md](roadmap.md) | Released milestones and optional future work |
+| [roadmap.md](roadmap.md) | Planned releases (linked to the GitHub issues) and released milestones |

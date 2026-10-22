@@ -16,6 +16,9 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "org.junit.platform:*"
         update-types: ["version-update:semver-major"]
+      # Apache POI 6 requires Java 17, JExUnit targets Java 8 (decision: #46, upgrade: #47)
+      - dependency-name: "org.apache.poi:*"
+        update-types: ["version-update:semver-major"]
       # OGNL 3.3+ changed the extension API, the migration is tracked in #40
       - dependency-name: "ognl:ognl"
         versions: [">= 3.3"]
