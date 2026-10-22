@@ -4,18 +4,21 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 
 ## Planned
 
-**Java versions** (decided in [#46](https://github.com/fhm84/jexunit/issues/46)): **1.x requires Java 21**. **0.x stays the Java 8 line** and only gets bug fixes and security updates after 0.8.0. JUnit 6 and Apache POI 6 both need Java 17+, and POI is used by `jexunit-base`, so the whole framework moves instead of adding a separate `jexunit-jupiter6` module (the previous plan).
+**Java versions** (decided in [#46](https://github.com/fhm84/jexunit/issues/46)): **1.x requires Java 21**. **0.x stays the Java 8 line** and only gets bug fixes and security updates after 0.9.0. JUnit 6 and Apache POI 6 both need Java 17+, and POI is used by `jexunit-base`, so the whole framework moves instead of adding a separate `jexunit-jupiter6` module (the previous plan).
 
-### [0.8.0](https://github.com/fhm84/jexunit/milestone/1): last feature release on Java 8
+### [0.8.0](https://github.com/fhm84/jexunit/milestone/1): maintenance
 
 - Migrate to OGNL 3.4 ([#40](https://github.com/fhm84/jexunit/issues/40))
-- Field injection for command classes: implement or remove ([#37](https://github.com/fhm84/jexunit/issues/37))
 - Overloaded command methods ([#3](https://github.com/fhm84/jexunit/issues/3))
 - Mark the JUnit 4 runner as deprecated ([#48](https://github.com/fhm84/jexunit/issues/48))
+- Test names with cell and command for `worksheetAsTest = false` ([#62](https://github.com/fhm84/jexunit/issues/62))
+
+### [0.9.0](https://github.com/fhm84/jexunit/milestone/4): last feature release on Java 8
+
 - Variables in cells: `${name}` placeholders from the `TestContext` ([#56](https://github.com/fhm84/jexunit/issues/56))
 - Built-in `verify` command: compare object properties with the expected values ([#57](https://github.com/fhm84/jexunit/issues/57))
 - Dependency injection for command classes (instance factory SPI) ([#60](https://github.com/fhm84/jexunit/issues/60))
-- Test names with cell and command for `worksheetAsTest = false` ([#62](https://github.com/fhm84/jexunit/issues/62))
+- Field injection for command classes: implement or remove ([#37](https://github.com/fhm84/jexunit/issues/37))
 
 ### [1.0.0](https://github.com/fhm84/jexunit/milestone/2): Java 21, Maven Central
 

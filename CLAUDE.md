@@ -114,7 +114,7 @@ GitHub Actions workflows in `.github/workflows/`:
 
 ## Roadmap & Issues
 
-Planned features and bugs are GitHub issues in release milestones (`0.8.0`, `1.0.0`, `Later`); decisions are `question` issues titled `Decide: …`. `docs/roadmap.md` is only an overview that links the issues. Close issues from the PR (`Closes #N`) and update the roadmap entry in the same PR; when a release ships, move its section to "Released".
+Planned features and bugs are GitHub issues in release milestones (`0.8.0`, `0.9.0`, `1.0.0`, `Later`); decisions are `question` issues titled `Decide: …`. `docs/roadmap.md` is only an overview that links the issues. Close issues from the PR (`Closes #N`) and update the roadmap entry in the same PR; when a release ships, move its section to "Released".
 
 ## Releasing
 
