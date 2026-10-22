@@ -15,8 +15,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Helper class for running the test-commands.
@@ -43,9 +45,11 @@ public class TestCommandRunner {
         removeFrameworkParameters(testCase);
 
         // check, which method to run for the current TestCommand
-        final Command testCommand = TestCommandScanner.getTestCommand(testCase.getTestCommand().toLowerCase(Locale.ROOT),
-                testBase.getTestType());
-        if (testCommand != null) {
+        final List<Command> implementations = TestCommandScanner.getTestCommands(
+                testCase.getTestCommand().toLowerCase(Locale.ROOT), testBase.getTestType());
+        if (!implementations.isEmpty()) {
+            final Command testCommand = selectImplementation(testCase, implementations);
+
             // set the default value for fastFail if not set in the testCase
             if (testCase.getFastFail() == null) {
                 testCase.setFastFail(testCommand.isFastFail());
@@ -81,6 +85,124 @@ public class TestCommandRunner {
         } else {
             testBase.runCommand(testCase);
         }
+    }
+
+    /**
+     * Select the implementation to run if there are several for the command (e.g. overloaded methods). An
+     * implementation can run if the test case has a value for each of its required {@code @TestParam}s. Of these, the
+     * one with the most {@code @TestParam}s with a value is selected. Other parameters (the test case, the test
+     * context, entities) are not considered.
+     *
+     * @param testCase        the current test case
+     * @param implementations the implementations of the command
+     * @return the implementation to run
+     * @throws NoSuchMethodError if no implementation can run, or several match equally well. Like a missing
+     *                            implementation, this is an error (not an exception), so it never satisfies an
+     *                            expected exception
+     */
+    private Command selectImplementation(final TestCase<?> testCase, final List<Command> implementations) {
+        if (implementations.size() == 1) {
+            return implementations.get(0);
+        }
+
+        final List<Command> best = new ArrayList<>();
+        int bestMatches = -1;
+        for (final Command implementation : implementations) {
+            final int matches = countTestParamValues(testCase, getImplementationMethod(implementation));
+            if (matches < 0) {
+                continue;
+            }
+            if (matches > bestMatches) {
+                best.clear();
+                bestMatches = matches;
+            }
+            if (matches == bestMatches) {
+                best.add(implementation);
+            }
+        }
+
+        if (best.isEmpty()) {
+            throw new NoSuchMethodError(String.format(
+                    "No implementation of test command '%s' has values for all its required parameters: %s",
+                    testCase.getTestCommand(), describe(implementations)));
+        }
+        if (best.size() > 1) {
+            throw new NoSuchMethodError(String.format(
+                    "Test command '%s' is ambiguous, several implementations match the values equally well: %s",
+                    testCase.getTestCommand(), describe(best)));
+        }
+        return best.get(0);
+    }
+
+    /**
+     * Count the {@code @TestParam}s of the given method the test case has a (non-empty) value for.
+     *
+     * @param testCase the current test case
+     * @param method   the method implementing the test command (null, if not found)
+     * @return the number of {@code @TestParam}s with a value, or -1 if a required one has no value
+     */
+    private int countTestParamValues(final TestCase<?> testCase, final Method method) {
+        if (method == null) {
+            return 0;
+        }
+        int count = 0;
+        for (final Parameter parameter : method.getParameters()) {
+            final TestParam param = parameter.getAnnotation(TestParam.class);
+            if (param == null || parameter.isAnnotationPresent(Context.class)) {
+                continue;
+            }
+            final String value = TestObjectHelper.getPropertyByKey(testCase, getTestParamKey(parameter, param));
+            if (value != null && !value.isEmpty()) {
+                count++;
+            } else if (param.required()) {
+                return -1;
+            }
+        }
+        return count;
+    }
+
+    private String describe(final List<Command> implementations) {
+        return implementations.stream().map(implementation -> {
+            final Method method = getImplementationMethod(implementation);
+            if (method == null) {
+                return implementation.getImplementation().getName();
+            }
+            return method.getDeclaringClass().getSimpleName() + "." + method.getName()
+                    + Arrays.stream(method.getParameters()).map(parameter -> {
+                final TestParam param = parameter.getAnnotation(TestParam.class);
+                return (param != null ? "@TestParam(\"" + getTestParamKey(parameter, param) + "\") " : "")
+                        + parameter.getType().getSimpleName();
+            }).collect(Collectors.joining(", ", "(", ")"));
+        }).collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Get the method implementing the given test command: the method itself, or the single public method of a test
+     * command class.
+     *
+     * @param testCommand test command
+     * @return method "behind" the test command, or null if a test command class has no public method
+     */
+    private Method getImplementationMethod(final Command testCommand) {
+        return testCommand.getType() == Type.METHOD ? testCommand.getMethod() : getSinglePublicMethod(testCommand);
+    }
+
+    /**
+     * Get the key of the given {@code @TestParam}: its value, or the name of the parameter if no value is set.
+     *
+     * @param parameter the parameter annotated with {@code @TestParam}
+     * @param param     the annotation
+     * @return the key to look up the value in the test case
+     */
+    private static String getTestParamKey(final Parameter parameter, final TestParam param) {
+        String key = param.value();
+        // read out the parameters name if key is NOT set and parameter name is present (possible since jdk 1.8 if
+        // compiler argument '-parameters' is set!
+        if (key.isEmpty() && parameter.isNamePresent()) {
+            // try to get the parameters name as key
+            key = parameter.getName();
+        }
+        return key;
     }
 
     /**
@@ -155,14 +277,7 @@ public class TestCommandRunner {
                         } else if (a instanceof TestParam) {
                             // add "single" test-param here
                             final TestParam param = (TestParam) a;
-                            String key = param.value();
-                            // read out the parameters name if key is NOT set and parameter name is
-                            // present (possible since jdk 1.8 if compiler argument '-parameters' is
-                            // set!
-                            if (key.isEmpty() && parameter.isNamePresent()) {
-                                // try to get the parameters name as key
-                                key = parameter.getName();
-                            }
+                            final String key = getTestParamKey(parameter, param);
                             final String stringValue = TestObjectHelper.getPropertyByKey(testCase, key);
                             final Object value = TestObjectHelper.convertPropertyStringToObject(parameterType, stringValue);
                             if (param.required() && value == null) {

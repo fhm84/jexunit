@@ -26,6 +26,34 @@ public void runSubCommand(TestCase<?> testCase, ArithmeticalTestObject obj) {
 }
 ```
 
+### Several Implementations for One Command
+
+A command can have several implementations, e.g. overloaded methods. For each row, JExUnit picks the implementation from the row's columns:
+
+1. An implementation can run if the row has a value for each of its required `@TestParam`s (an empty cell is no value).
+2. Of these, the one with the most `@TestParam`s that have a value wins.
+3. If no implementation can run, or several match equally well, the row fails with a message listing the implementations. Like a missing implementation, this also fails a row that expects an exception (`exception = true`).
+
+Other parameters (`TestCase`, `TestContext`, `@Context`, entities) don't count, so overloads that only differ in those are ambiguous.
+
+```java
+@TestCommand("createUser")
+public void createUser(@TestParam("name") String name) { ... }
+
+@TestCommand("createUser")
+public void createUser(@TestParam("name") String name, @TestParam("age") int age) { ... }
+```
+
+| | | |
+|---|---|---|
+| `COMMAND` | `name` | `age` |
+| `createUser` | `John` | |
+| `createUser` | `Jane` | `42` |
+
+The first row runs `createUser(String)`, the second `createUser(String, int)`.
+
+Implementations in the test class (or its superclasses) still take precedence over the ones in standalone command-provider classes; only implementations on the same level are chosen from.
+
 ### Fast-Fail
 
 Setting `fastFail = true` aborts the entire test group as soon as this command fails, instead of collecting the error and continuing:
