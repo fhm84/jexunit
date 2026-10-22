@@ -108,7 +108,7 @@ Custom `DataProvider` implementations are discovered via Java's `ServiceLoader`.
 
 GitHub Actions workflows in `.github/workflows/`:
 - **`maven.yml`** — runs on every push/PR; executes `mvn clean verify -Pexample-tests` on JDK 8, 11, and 21
-- **`release.yml`** — runs on the `release` branch; uses Maven release plugin and publishes to GitHub Packages
+- **`release.yml`** — started by hand (`workflow_dispatch`) on `master` or `0.x`; uses Maven release plugin and publishes to GitHub Packages
 
 `.github/dependabot.yml` opens weekly update PRs for Maven dependencies (minor/patch grouped) and GitHub Actions. JUnit 6 and POI 6 (Java 17+; ignored until the Java 21 baseline #54) and the 4.x pre-releases of the compiler/site plugins are ignored.
 
@@ -118,22 +118,21 @@ Planned features and bugs are GitHub issues in release milestones (`0.8.0`, `0.9
 
 ## Releasing
 
-Releases are triggered by pushing to the `release` branch. The Maven Release Plugin then automatically:
-1. Strips `-SNAPSHOT` from the version (e.g. `0.6.0-SNAPSHOT` → `0.6.0`)
+Releases are started by hand on the branch to release: GitHub → Actions → **Release** → *Run workflow*, select `master` (or the maintenance branch `0.x`, #52). GitHub runs the workflow file of the selected branch, so each line releases with its own JDK. The workflow refuses other branches.
+
+```bash
+# the same from the command line
+gh workflow run release.yml --ref master -f releaseVersion=0.8.0 -f developmentVersion=0.9.0-SNAPSHOT
+```
+
+Both inputs are optional. Without them the release plugin releases the current version without `-SNAPSHOT` and continues with the next patch version, so for a minor release (e.g. `0.7.1-SNAPSHOT` → `0.8.0`) set `releaseVersion`, and `developmentVersion` for the next planned release.
+
+The workflow then:
+1. Strips `-SNAPSHOT` from the version (or sets `releaseVersion`)
 2. Runs the tests of the framework modules (the example modules are not part of the release build)
-3. Tags the release (e.g. `jexunit-0.6.0`) and pushes it
+3. Tags the release (e.g. `jexunit-0.8.0`) and pushes it
 4. Deploys artifacts to GitHub Packages
-5. Commits the next snapshot version (e.g. `0.7.0-SNAPSHOT`) to the `release` branch
+5. Commits the next snapshot version to the selected branch
+6. Sets the parent version of the example modules to the next snapshot version and pushes that commit (the release plugin doesn't see them)
 
-```bash
-# Trigger a release from master
-git push origin master:release
-```
-
-After the workflow completes, merge the release commits (incl. the snapshot version bump) back into `master`:
-
-```bash
-git checkout master
-git pull origin release   # picks up the release and snapshot version bump commits
-git push origin master
-```
+Afterwards, `git pull` the branch locally. There is nothing to merge back.
