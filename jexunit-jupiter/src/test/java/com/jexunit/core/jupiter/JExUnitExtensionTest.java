@@ -13,9 +13,13 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import org.junit.platform.testkit.engine.Events;
 import org.opentest4j.MultipleFailuresError;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
@@ -56,6 +60,43 @@ class JExUnitExtensionTest {
     @Test
     void shouldAbortOnAssumptionInCommand() {
         execute(AssumptionTest.class).assertStatistics(stats -> stats.started(1).aborted(1).failed(0));
+    }
+
+    @Test
+    void shouldNameEachCommandWithWorksheetAsTestFalse() {
+        final List<String> names = displayNames(execute(CommandNamesTest.class));
+
+        assertEquals(4, names.size());
+        assertTrue(names.get(0).endsWith(" - sheet1] A2: nameFirst"), names.get(0));
+        assertTrue(names.get(1).endsWith(" - sheet1] A3: nameFirst"), names.get(1));
+        // several commands per row
+        assertTrue(names.get(2).endsWith(" - sheet1] B3: nameSecond"), names.get(2));
+        // a worksheet with a single command row is named the same way
+        assertTrue(names.get(3).endsWith(" - sheet2] A2: nameSecond"), names.get(3));
+    }
+
+    @Test
+    void shouldNameWorksheetOnlyWithWorksheetAsTest() {
+        final List<String> names = displayNames(execute(TestContextResetTest.class));
+
+        assertEquals(2, names.size());
+        assertTrue(names.get(0).endsWith(" - sheet1]"), names.get(0));
+        assertTrue(names.get(1).endsWith(" - sheet2]"), names.get(1));
+    }
+
+    @Test
+    void shouldNameFileWorksheetAndCellInFailureMessage() {
+        final Throwable failure = execute(MissingExpectedExceptionTest.class).failed().list().get(0)
+                .getPayload(TestExecutionResult.class).flatMap(TestExecutionResult::getThrowable)
+                .orElseThrow(IllegalStateException::new);
+
+        assertTrue(failure.getMessage().contains("file: "), failure.getMessage());
+        assertTrue(failure.getMessage().contains(".xlsx, worksheet: sheet1, cell: A2"), failure.getMessage());
+    }
+
+    private static List<String> displayNames(final Events events) {
+        return events.started().list().stream().map(event -> event.getTestDescriptor().getDisplayName())
+                .collect(Collectors.toList());
     }
 
     private static Events execute(final Class<?> testClass) {
@@ -140,6 +181,29 @@ class JExUnitExtensionTest {
         @TestCommand("assumeFalse")
         public static void assumeFalse() {
             Assumptions.assumeTrue(false, "not applicable");
+        }
+    }
+
+    @ExtendWith(JExUnitExtension.class)
+    public static class CommandNamesTest {
+
+        @ExcelFile(worksheetAsTest = false)
+        public static String excelFile() {
+            return ExcelTestFile.create(
+                    new String[][]{{"command", "command"}, {"nameFirst"}, {"nameFirst", "nameSecond"}},
+                    new String[][]{{"command"}, {"nameSecond"}});
+        }
+
+        @ExcelTest
+        void test() {
+        }
+
+        @TestCommand("nameFirst")
+        public static void nameFirst() {
+        }
+
+        @TestCommand("nameSecond")
+        public static void nameSecond() {
         }
     }
 

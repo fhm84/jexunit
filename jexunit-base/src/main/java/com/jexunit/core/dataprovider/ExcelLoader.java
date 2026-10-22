@@ -92,6 +92,7 @@ public class ExcelLoader {
             for (final Sheet worksheet : workbook) {
                 sheet = worksheet.getSheetName();
                 final List<TestCase<ExcelMetadata>> testCases = readWorksheet(worksheet);
+                testCases.forEach(testCase -> testCase.getMetadata().setFile(excelFilePath));
 
                 tests.put(worksheet.getSheetName(), testCases);
             }
