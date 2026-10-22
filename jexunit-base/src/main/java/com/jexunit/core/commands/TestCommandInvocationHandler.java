@@ -39,8 +39,9 @@ public class TestCommandInvocationHandler implements Invocable {
         try {
             method.invoke(o, parameters);
         } catch (final IllegalAccessException | IllegalArgumentException e) {
-            e.printStackTrace();
-            throw e;
+            // the method could not be called (e.g. no value for a primitive parameter), so the command didn't run
+            throw new TestCommandSetupError(String.format("Test command method %s.%s could not be invoked: %s",
+                    method.getDeclaringClass().getSimpleName(), method.getName(), e), e);
         } catch (final InvocationTargetException e) {
             // throw what the command threw (not the reflection wrapper), so the runners can tell assertion failures,
             // assumptions (skipping the test) and other exceptions apart

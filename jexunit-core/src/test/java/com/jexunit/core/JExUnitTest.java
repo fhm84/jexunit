@@ -1,6 +1,7 @@
 package com.jexunit.core;
 
 import com.jexunit.core.commands.annotation.TestCommand;
+import com.jexunit.core.commands.annotation.TestParam;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.dataprovider.ExcelFile;
 import org.junit.Assume;
@@ -28,6 +29,15 @@ public class JExUnitTest {
 
         assertEquals(1, result.getRunCount());
         assertEquals(String.valueOf(result.getFailures()), 0, result.getFailureCount());
+    }
+
+    @Test
+    public void shouldNotSatisfyExpectedExceptionWithSetupError() {
+        final Result result = JUnitCore.runClasses(SetupErrorTest.class);
+
+        assertEquals(1, result.getRunCount());
+        assertEquals(1, result.getFailureCount());
+        assertThat(result.getFailures().get(0).getMessage(), containsString("Required parameter not found: value"));
     }
 
     @Test
@@ -92,6 +102,20 @@ public class JExUnitTest {
         assertEquals(1, result.getRunCount());
         assertEquals(String.valueOf(result.getFailures()), 0, result.getFailureCount());
         assertEquals(1, result.getAssumptionFailureCount());
+    }
+
+    @RunWith(JExUnit.class)
+    public static class SetupErrorTest {
+
+        @ExcelFile
+        public static String excelFile() {
+            // a required parameter without value: the command doesn't run, so this doesn't satisfy the expectation
+            return ExcelTestFile.create(new String[][]{{"command", "exception"}, {"junit4SetupRequired", "true"}});
+        }
+
+        @TestCommand("junit4SetupRequired")
+        public static void setupRequired(@TestParam("value") final String value) {
+        }
     }
 
     @RunWith(JExUnit.class)
