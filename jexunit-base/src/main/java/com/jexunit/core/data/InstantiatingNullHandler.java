@@ -9,7 +9,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -31,10 +30,10 @@ public class InstantiatingNullHandler implements NullHandler {
     /*
      * (non-Javadoc)
      *
-     * @see ognl.NullHandler#nullMethodResult(java.util.Map, java.lang.Object, java.lang.String, java.lang.Object[])
+     * @see ognl.NullHandler#nullMethodResult(ognl.OgnlContext, java.lang.Object, java.lang.String, java.lang.Object[])
      */
     @Override
-    public Object nullMethodResult(@SuppressWarnings("rawtypes") final Map context, final Object target, final String methodName,
+    public Object nullMethodResult(final OgnlContext context, final Object target, final String methodName,
                                    final Object[] args) {
         return null;
     }
@@ -42,10 +41,10 @@ public class InstantiatingNullHandler implements NullHandler {
     /*
      * (non-Javadoc)
      *
-     * @see ognl.NullHandler#nullPropertyValue(java.util.Map, java.lang.Object, java.lang.Object)
+     * @see ognl.NullHandler#nullPropertyValue(ognl.OgnlContext, java.lang.Object, java.lang.Object)
      */
     @Override
-    public Object nullPropertyValue(@SuppressWarnings("rawtypes") final Map context, final Object target, final Object property) {
+    public Object nullPropertyValue(final OgnlContext context, final Object target, final Object property) {
         if (target == null || property == null) {
             return null;
         }
@@ -68,7 +67,7 @@ public class InstantiatingNullHandler implements NullHandler {
             final Object param = createObject(clazz);
 
             // set the property directly (Ognl.setValue would replace the root object of the context)
-            OgnlRuntime.setProperty((OgnlContext) context, target, propName, param);
+            OgnlRuntime.setProperty(context, target, propName, param);
 
             return param;
         } catch (final Exception e) {

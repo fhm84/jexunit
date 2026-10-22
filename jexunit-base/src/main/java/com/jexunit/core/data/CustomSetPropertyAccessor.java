@@ -1,9 +1,9 @@
 package com.jexunit.core.data;
 
+import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.SetPropertyAccessor;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Set;
 public class CustomSetPropertyAccessor extends SetPropertyAccessor {
 
     @Override
-    public Object getProperty(@SuppressWarnings("rawtypes") final Map context, final Object target, final Object name)
+    public Object getProperty(final OgnlContext context, final Object target, final Object name)
             throws OgnlException {
         @SuppressWarnings("unchecked") final Set<Object> set = (Set<Object>) target;
 

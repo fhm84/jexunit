@@ -31,11 +31,11 @@
 package com.jexunit.core.data;
 
 import ognl.MemberAccess;
+import ognl.OgnlContext;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
-import java.util.Map;
 
 /**
  * This class provides methods for setting up and restoring
@@ -44,6 +44,10 @@ import java.util.Map;
  * coarse-grained access controls to allow access to private, protected
  * and package protected members.  This will apply to all classes
  * and members.
+ * <p>
+ * This is a copy of the example implementation of older OGNL versions, adapted to the OGNL 3.4 API. OGNL 3.4 only
+ * ships {@link ognl.AbstractMemberAccess}, which doesn't make accessible members accessible via reflection, so public
+ * members of non-public classes (e.g. a public getter of a package-private entity) couldn't be used.
  *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -98,7 +102,7 @@ public class DefaultMemberAccess implements MemberAccess {
     /*===================================================================
         MemberAccess interface
       ===================================================================*/
-    public Object setup(Map context, Object target, Member member, String propertyName) {
+    public Object setup(OgnlContext context, Object target, Member member, String propertyName) {
         Object result = null;
 
         if (isAccessible(context, target, member, propertyName)) {
@@ -112,7 +116,7 @@ public class DefaultMemberAccess implements MemberAccess {
         return result;
     }
 
-    public void restore(Map context, Object target, Member member, String propertyName, Object state) {
+    public void restore(OgnlContext context, Object target, Member member, String propertyName, Object state) {
         if (state != null) {
             final AccessibleObject accessible = (AccessibleObject) member;
             final boolean stateboolean = ((Boolean) state).booleanValue();  // Using twice (avoid unboxing)
@@ -129,7 +133,7 @@ public class DefaultMemberAccess implements MemberAccess {
      * Returns true if the given member is accessible or can be made accessible
      * by this object.
      */
-    public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+    public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
         int modifiers = member.getModifiers();
         boolean result = Modifier.isPublic(modifiers);
 

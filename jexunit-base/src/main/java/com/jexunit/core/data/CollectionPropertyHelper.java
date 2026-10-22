@@ -6,7 +6,6 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +23,7 @@ public class CollectionPropertyHelper {
         return Pattern.matches(REGEX_CONDITION, propertyName);
     }
 
-    public static Object getProperty(@SuppressWarnings("rawtypes") final Map context, final Collection<?> target,
+    public static Object getProperty(final OgnlContext context, final Collection<?> target,
                                      final String propertyCondition) throws OgnlException {
         final Pattern pattern = Pattern.compile(REGEX_CONDITION);
         final Matcher m = pattern.matcher(propertyCondition);
@@ -42,9 +41,8 @@ public class CollectionPropertyHelper {
 
         // Ognl.getValue replaces the root object and the current node of the context, so restore them afterwards (they
         // are still needed to resolve the property types of the rest of the expression and for error messages)
-        final OgnlContext ognlContext = (OgnlContext) context;
-        final Object root = ognlContext.getRoot();
-        final Node currentNode = ognlContext.getCurrentNode();
+        final Object root = context.getRoot();
+        final Node currentNode = context.getCurrentNode();
         try {
             // iterate through the collection
             for (final Object obj : target) {
@@ -56,8 +54,8 @@ public class CollectionPropertyHelper {
                 }
             }
         } finally {
-            ognlContext.setRoot(root);
-            ognlContext.setCurrentNode(currentNode);
+            context.setRoot(root);
+            context.setCurrentNode(currentNode);
         }
 
         return null;

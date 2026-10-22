@@ -134,9 +134,9 @@ See [spi.md](spi.md) for implementation details.
 
 | Library | Version | Purpose |
 |---|---|---|
-| JUnit Jupiter | 5.11.4 | Test engine API (`jexunit-jupiter`) |
+| JUnit Jupiter | 5.14.4 | Test engine API (`jexunit-jupiter`) |
 | JUnit | 4.13.2 | Test runner base (`jexunit-core`) |
 | Apache POI (OOXML) | 5.5.1 | Excel file parsing |
-| OGNL | 3.2.21 | Object property mapping |
+| OGNL | 3.4.16 | Object property mapping |
 | Annotation Detector | 3.0.5 | Classpath scanning for `@TestCommand` |
-| Lombok | 1.18.46 | Boilerplate reduction (compile-time only) |
+| Lombok | 1.18.48 | Boilerplate reduction (compile-time only) |

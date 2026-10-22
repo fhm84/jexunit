@@ -62,7 +62,7 @@
         <junit.version>4.13.2</junit.version>
         <poi.version>5.5.1</poi.version>
         <annotation-detector.version>3.0.5</annotation-detector.version>
-        <ognl.version>3.2.21</ognl.version>
+        <ognl.version>3.4.16</ognl.version>
 
         <junit.jupiter.version>5.14.4</junit.jupiter.version>
         <junit.platform.version>1.14.4</junit.platform.version>
