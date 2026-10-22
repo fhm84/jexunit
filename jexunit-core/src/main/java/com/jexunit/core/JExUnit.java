@@ -21,9 +21,10 @@ import org.junit.runners.Suite;
  * @author fabian
  * @deprecated Use {@code @ExtendWith(JExUnitExtension.class)} from {@code jexunit-jupiter}
  *             together with {@code @ExcelTest} instead. This JUnit 4 runner receives no new
- *             features and will be removed in a future major release. See the
+ *             features and will be removed in 1.0.0 (JUnit 4 users can stay on 0.x). See the
  *             <a href="https://github.com/fhm84/jexunit/blob/master/docs/migration-junit5.md">migration guide</a>.
  */
+@Deprecated
 public class JExUnit extends Suite {
 
     private static final Logger LOG = Logger.getLogger(JExUnit.class.getName());

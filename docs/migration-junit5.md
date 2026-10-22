@@ -1,6 +1,6 @@
 # Migrating from JUnit 4 to JUnit 5
 
-The JUnit 4 runner (`jexunit-core`, `@RunWith(JExUnit.class)`) is deprecated and will be removed in a future major release. This guide shows how to move your tests to the JUnit 5 extension (`jexunit-jupiter`, `@ExtendWith(JExUnitExtension.class)`).
+The JUnit 4 runner (`jexunit-core`, `@RunWith(JExUnit.class)`) is deprecated and will be removed in 1.0.0 (JUnit 4 users can stay on the 0.x line). This guide shows how to move your tests to the JUnit 5 extension (`jexunit-jupiter`, `@ExtendWith(JExUnitExtension.class)`).
 
 For most test classes the migration takes a few minutes: the Excel files, `@ExcelFile`, `@TestCommand`, `@TestParam`, `@Context`, `TestContext` and `jexunit.properties` stay the same. Plan more time for classes that override `runCommand(...)` (see [below](#classes-overriding-runcommand)).
 
