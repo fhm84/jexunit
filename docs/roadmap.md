@@ -6,15 +6,6 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 
 **Java versions** (decided in [#46](https://github.com/fhm84/jexunit/issues/46)): **1.x requires Java 21**. **0.x stays the Java 8 line** and only gets bug fixes and security updates after 0.9.0. JUnit 6 and Apache POI 6 both need Java 17+, and POI is used by `jexunit-base`, so the whole framework moves instead of adding a separate `jexunit-jupiter6` module (the previous plan).
 
-### [0.8.0](https://github.com/fhm84/jexunit/milestone/1): maintenance
-
-- Migrate to OGNL 3.4 ([#40](https://github.com/fhm84/jexunit/issues/40))
-- Overloaded command methods ([#3](https://github.com/fhm84/jexunit/issues/3))
-- Mark the JUnit 4 runner as deprecated ([#48](https://github.com/fhm84/jexunit/issues/48))
-- Test names with cell and command for `worksheetAsTest = false` ([#62](https://github.com/fhm84/jexunit/issues/62))
-- `exception = true` is no longer satisfied by setup errors ([#71](https://github.com/fhm84/jexunit/issues/71))
-- Start releases by hand on the branch to release ([#66](https://github.com/fhm84/jexunit/issues/66))
-
 ### [0.9.0](https://github.com/fhm84/jexunit/milestone/4): last feature release on Java 8
 
 - Variables in cells: `${name}` placeholders from the `TestContext` ([#56](https://github.com/fhm84/jexunit/issues/56))
@@ -51,6 +42,10 @@ Possible once 1.x is on Java 21 (#54), each in its own PR:
 ---
 
 ## Released
+
+### Overloaded commands, OGNL 3.4, stricter expected exceptions (v0.8.0)
+
+Commands can have several implementations, chosen by the row's columns (#3); OGNL 3.4 (#40); test names with cell and command for `worksheetAsTest = false`, and the Excel file in error messages (#62); `exception = true` is no longer satisfied when a command can't be prepared (#71); the JUnit 4 runner is deprecated (#48). Releases are started by hand on the branch to release (#66). See the release notes of v0.8.0 for the behaviour changes to check when upgrading.
 
 ### Code audit fixes, list mapping, multiline commands per block (v0.7.0)
 

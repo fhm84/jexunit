@@ -194,7 +194,7 @@ Then add the dependency for the JUnit 5 module (recommended):
         <dependency>
           <groupId>com.github.fhm84.jexunit</groupId>
           <artifactId>jexunit-jupiter</artifactId>
-          <version>jexunit-0.7.0</version>
+          <version>jexunit-0.8.0</version>
           <scope>test</scope>
         </dependency>
 
@@ -203,7 +203,7 @@ Or the legacy JUnit 4 module:
         <dependency>
           <groupId>com.github.fhm84.jexunit</groupId>
           <artifactId>jexunit-core</artifactId>
-          <version>jexunit-0.7.0</version>
+          <version>jexunit-0.8.0</version>
           <scope>test</scope>
         </dependency>
 
@@ -223,7 +223,7 @@ Then add the dependency (same artifact coordinates as above, but with groupId `c
         <dependency>
           <groupId>com.jexunit</groupId>
           <artifactId>jexunit-jupiter</artifactId>
-          <version>0.7.0</version>
+          <version>0.8.0</version>
           <scope>test</scope>
         </dependency>
 
