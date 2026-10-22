@@ -67,5 +67,7 @@ jobs:
           for pom in examples-*/pom.xml; do
             sed -i "/<parent>/,/<\/parent>/ s|<version>.*</version>|<version>$version</version>|" "$pom"
           done
-          git commit -am "Bump the example modules to $version"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          if ! git diff --quiet; then
+            git commit -am "Bump the example modules to $version"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
