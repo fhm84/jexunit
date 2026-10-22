@@ -37,7 +37,7 @@ class OverloadedCommandTest {
     void shouldFailOnAmbiguousOrUnmatchedImplementations() {
         final Events events = execute(AmbiguousOverloadTest.class);
 
-        events.assertStatistics(stats -> stats.started(2).failed(2));
+        events.assertStatistics(stats -> stats.started(3).failed(3));
         final List<String> messages = events.failed().list().stream()
                 .map(event -> event.getPayload(TestExecutionResult.class).flatMap(TestExecutionResult::getThrowable)
                         .orElseThrow(IllegalStateException::new).getMessage())
@@ -49,6 +49,8 @@ class OverloadedCommandTest {
         assertTrue(messages.get(1).contains(
                 "No implementation of test command 'ambiguousOverload' has values for all its required parameters"),
                 messages.get(1));
+        // an ambiguous command never runs, so it doesn't satisfy an expected exception
+        assertTrue(messages.get(2).contains("Test command 'ambiguousOverload' is ambiguous"), messages.get(2));
     }
 
     private static Events execute(final Class<?> testClass) {
@@ -94,7 +96,8 @@ class OverloadedCommandTest {
                     // both implementations have a value for one parameter
                     new String[][]{{"command", "first", "second"}, {"ambiguousOverload", "a", "b"}},
                     // no implementation has a value for its required parameter
-                    new String[][]{{"command", "third"}, {"ambiguousOverload", "c"}});
+                    new String[][]{{"command", "third"}, {"ambiguousOverload", "c"}},
+                    new String[][]{{"command", "first", "second", "exception"}, {"ambiguousOverload", "a", "b", "true"}});
         }
 
         @ExcelTest

@@ -96,7 +96,9 @@ public class TestCommandRunner {
      * @param testCase        the current test case
      * @param implementations the implementations of the command
      * @return the implementation to run
-     * @throws IllegalArgumentException if no implementation can run, or several match equally well
+     * @throws NoSuchMethodError if no implementation can run, or several match equally well. Like a missing
+     *                            implementation, this is an error (not an exception), so it never satisfies an
+     *                            expected exception
      */
     private Command selectImplementation(final TestCase<?> testCase, final List<Command> implementations) {
         if (implementations.size() == 1) {
@@ -120,12 +122,12 @@ public class TestCommandRunner {
         }
 
         if (best.isEmpty()) {
-            throw new IllegalArgumentException(String.format(
+            throw new NoSuchMethodError(String.format(
                     "No implementation of test command '%s' has values for all its required parameters: %s",
                     testCase.getTestCommand(), describe(implementations)));
         }
         if (best.size() > 1) {
-            throw new IllegalArgumentException(String.format(
+            throw new NoSuchMethodError(String.format(
                     "Test command '%s' is ambiguous, several implementations match the values equally well: %s",
                     testCase.getTestCommand(), describe(best)));
         }

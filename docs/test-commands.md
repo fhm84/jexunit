@@ -32,7 +32,7 @@ A command can have several implementations, e.g. overloaded methods. For each ro
 
 1. An implementation can run if the row has a value for each of its required `@TestParam`s (an empty cell is no value).
 2. Of these, the one with the most `@TestParam`s that have a value wins.
-3. If no implementation can run, or several match equally well, the row fails with a message listing the implementations.
+3. If no implementation can run, or several match equally well, the row fails with a message listing the implementations. Like a missing implementation, this also fails a row that expects an exception (`exception = true`).
 
 Other parameters (`TestCase`, `TestContext`, `@Context`, entities) don't count, so overloads that only differ in those are ambiguous.
 
