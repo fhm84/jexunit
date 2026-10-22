@@ -5,7 +5,8 @@ package com.jexunit.core.commands;
  * parameter has no value, a value cannot be converted, or a column header cannot be mapped to the entity.
  * <p>
  * It is an error (not an exception), so it never satisfies an expected exception (<code>exception = true</code>):
- * only exceptions thrown by the command itself do.
+ * only exceptions thrown by the command itself (or by the user's model while the row is mapped, e.g. by a setter
+ * validating its value) do.
  *
  * @author fabian
  */

@@ -45,6 +45,18 @@ class SetupErrorTest {
         execute(CommandExceptionTest.class).assertStatistics(stats -> stats.started(1).succeeded(1));
     }
 
+    @Test
+    void shouldSatisfyExpectedExceptionWithExceptionOfModel() {
+        final Events events = execute(ModelExceptionTest.class);
+
+        // the validating setter throws: expected in the first worksheet, unexpected in the second one
+        events.assertStatistics(stats -> stats.started(2).succeeded(1).failed(1));
+        final String message = events.failed().list().get(0).getPayload(TestExecutionResult.class)
+                .flatMap(TestExecutionResult::getThrowable).orElseThrow(IllegalStateException::new).getMessage();
+        assertTrue(message.contains("Unexpected Exception in TestCommand: validate"), message);
+        assertTrue(message.contains("age must not be negative"), message);
+    }
+
     private static Events execute(final Class<?> testClass) {
         return EngineTestKit.engine("junit-jupiter").selectors(selectClass(testClass)).execute().testEvents();
     }
@@ -107,6 +119,41 @@ class SetupErrorTest {
         @TestCommand("throwing")
         public static void throwing(@TestParam("name") final String name) {
             throw new IllegalArgumentException("thrown by the command");
+        }
+    }
+
+    @ExtendWith(JExUnitExtension.class)
+    public static class ModelExceptionTest {
+
+        @ExcelFile
+        public static String excelFile() {
+            return ExcelTestFile.create(
+                    new String[][]{{"command", "age", "exception"}, {"validate", "-1", "true"}},
+                    new String[][]{{"command", "age"}, {"validate", "-1"}});
+        }
+
+        @ExcelTest
+        void test() {
+        }
+
+        @TestCommand("validate")
+        public static void validate(final ValidatingPerson person) {
+        }
+    }
+
+    public static class ValidatingPerson {
+
+        private int age;
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(final int age) {
+            if (age < 0) {
+                throw new IllegalArgumentException("age must not be negative");
+            }
+            this.age = age;
         }
     }
 

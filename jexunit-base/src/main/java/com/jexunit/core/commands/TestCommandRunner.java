@@ -8,6 +8,7 @@ import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.model.TestCase;
+import ognl.MethodFailedException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -89,6 +90,15 @@ public class TestCommandRunner {
                 invocation = TestCommandInvocationHandler.getInvocationHandler(testCommand, testMethod,
                         getCommandInstance(testMethod));
             } catch (final Exception e) {
+                // an exception of the user's model (e.g. a setter validating its value) is thrown by the code under
+                // test, not by JExUnit, so it counts like an exception of the command
+                final Throwable modelException = getModelException(e);
+                if (modelException instanceof Exception) {
+                    throw (Exception) modelException;
+                }
+                if (modelException instanceof Error) {
+                    throw (Error) modelException;
+                }
                 throw new TestCommandSetupError(String.format("Test command '%s' could not be prepared: %s",
                         testCase.getTestCommand(), e), e);
             }
@@ -98,6 +108,24 @@ public class TestCommandRunner {
         } else {
             testBase.runCommand(testCase);
         }
+    }
+
+    /**
+     * Find an exception thrown by a method of the user's model (e.g. a setter validating its value) while the entity
+     * parameters were mapped. OGNL reports it as {@link MethodFailedException} with the exception as cause.
+     *
+     * @param throwable the exception thrown while preparing the command
+     * @return the exception thrown by the model, or <code>null</code> if there is none
+     */
+    private static Throwable getModelException(final Throwable throwable) {
+        for (Throwable t = throwable; t != null; t = t.getCause()) {
+            if (t instanceof MethodFailedException) {
+                final Throwable cause = t.getCause();
+                // OGNL also reports a method it cannot call (not found, not accessible) this way
+                return cause instanceof ReflectiveOperationException ? null : cause;
+            }
+        }
+        return null;
     }
 
     /**
