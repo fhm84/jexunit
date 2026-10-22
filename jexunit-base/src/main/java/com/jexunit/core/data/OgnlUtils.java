@@ -52,7 +52,7 @@ public class OgnlUtils {
         final OgnlContext context =
                 Ognl.createDefaultContext(
                         obj,
-                        new DefaultMemberAccess(false),
+                        new PublicMemberAccess(),
                         new DefaultClassResolver(),
                         new CustomTypeConverter());
 
@@ -115,7 +115,7 @@ public class OgnlUtils {
         OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
         final OgnlContext context = Ognl.createDefaultContext(
                 obj,
-                new DefaultMemberAccess(false),
+                new PublicMemberAccess(),
                 new DefaultClassResolver(),
                 new CustomTypeConverter());
 

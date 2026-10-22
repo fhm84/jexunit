@@ -78,4 +78,45 @@ public class OgnlUtilsTest {
         assertEquals(2, OgnlUtils.getProperty(tmb, "subEntityListAttr.size"));
     }
 
+    @Test
+    public void shouldAccessPublicPropertiesOfNonPublicClass() throws Exception {
+        final PackagePrivateEntity entity = new PackagePrivateEntity();
+
+        OgnlUtils.setPropertyToObject(entity, "name", "John");
+
+        assertEquals("John", entity.getName());
+        assertEquals("John", OgnlUtils.getProperty(entity, "name"));
+    }
+
+    @Test
+    public void shouldRejectNonPublicMembers() {
+        final PackagePrivateEntity entity = new PackagePrivateEntity();
+
+        // a private field without accessors and a protected setter
+        assertThrows(Exception.class, () -> OgnlUtils.setPropertyToObject(entity, "secret", "x"));
+        assertThrows(Exception.class, () -> OgnlUtils.setPropertyToObject(entity, "hidden", "x"));
+
+        assertNull(entity.secret);
+        assertNull(entity.hidden);
+    }
+
+    static class PackagePrivateEntity {
+
+        private String name;
+        private String secret;
+        private String hidden;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        protected void setHidden(final String hidden) {
+            this.hidden = hidden;
+        }
+    }
+
 }
