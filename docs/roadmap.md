@@ -12,6 +12,8 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 - Overloaded command methods ([#3](https://github.com/fhm84/jexunit/issues/3))
 - Mark the JUnit 4 runner as deprecated ([#48](https://github.com/fhm84/jexunit/issues/48))
 - Test names with cell and command for `worksheetAsTest = false` ([#62](https://github.com/fhm84/jexunit/issues/62))
+- `exception = true` is no longer satisfied by setup errors ([#71](https://github.com/fhm84/jexunit/issues/71))
+- Start releases by hand on the branch to release ([#66](https://github.com/fhm84/jexunit/issues/66))
 
 ### [0.9.0](https://github.com/fhm84/jexunit/milestone/4): last feature release on Java 8
 

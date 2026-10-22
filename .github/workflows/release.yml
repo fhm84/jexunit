@@ -1,15 +1,35 @@
 name: Release
 
+# Started by hand (Actions → Release → Run workflow) on the branch to release. GitHub runs the workflow file of that
+# branch, so each line releases with its own JDK. The release commits and the tag are pushed to that branch directly.
 on:
-  push:
-    branches:
-      - release
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Release version, e.g. 0.8.0 (empty: the current version without -SNAPSHOT)'
+        required: false
+      developmentVersion:
+        description: 'Next development version, e.g. 0.9.0-SNAPSHOT (empty: the next patch version)'
+        required: false
 
+permissions:
+  contents: write
+  packages: write
+
+# never release twice at the same time
+concurrency: release
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
+      - name: Check the branch
+        # only the maintained lines are released
+        run: |
+          if [ "$GITHUB_REF_NAME" != "master" ] && [ "$GITHUB_REF_NAME" != "0.x" ]; then
+            echo "::error::Releases are only made from master or 0.x, not from '$GITHUB_REF_NAME'"
+            exit 1
+          fi
       - name: Checkout project
         uses: actions/checkout@v7
         with:
@@ -27,6 +47,25 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
       - name: Publish JAR
-        run: mvn -B release:prepare release:perform
+        run: |
+          args=()
+          if [ -n "$RELEASE_VERSION" ]; then
+            args+=("-DreleaseVersion=$RELEASE_VERSION")
+          fi
+          if [ -n "$DEVELOPMENT_VERSION" ]; then
+            args+=("-DdevelopmentVersion=$DEVELOPMENT_VERSION")
+          fi
+          mvn -B release:prepare release:perform "${args[@]}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ inputs.releaseVersion }}
+          DEVELOPMENT_VERSION: ${{ inputs.developmentVersion }}
+      - name: Bump the example modules to the next development version
+        # the example modules are not part of the release build, so the release plugin doesn't update their parent
+        run: |
+          version=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)
+          for pom in examples-*/pom.xml; do
+            sed -i "/<parent>/,/<\/parent>/ s|<version>.*</version>|<version>$version</version>|" "$pom"
+          done
+          git commit -am "Bump the example modules to $version"
+          git push origin "HEAD:$GITHUB_REF_NAME"
