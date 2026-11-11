@@ -16,6 +16,11 @@ public class OgnlUtils {
     private static final NullHandler NULL_HANDLER = new InstantiatingNullHandler();
 
     /**
+     * Key in the OGNL context marking a context that only reads properties (see {@link #readProperty(Object, String)}).
+     */
+    private static final String READ_ONLY = "jexunit.readOnly";
+
+    /**
      * A condition inside of brackets, like <code>[name=John]</code> (but not an already quoted one like
      * <code>['name=John']</code>).
      */
@@ -108,6 +113,53 @@ public class OgnlUtils {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             checkPropertyAccessOnly(node.jjtGetChild(i), propName);
         }
+    }
+
+    /**
+     * Read the property of the given object, without changing the object: unlike {@link #getProperty(Object, String)},
+     * no <code>null</code> (sub-)entities are created and lists are not extended. A <code>null</code> value along the
+     * expression (like <code>customer</code> for <code>customer.name</code>) results in <code>null</code>.
+     *
+     * @param obj      object/instance
+     * @param propName property-expression (only property access, unless configured otherwise)
+     * @return the value of the property
+     * @throws OgnlException if the expression is not allowed or cannot be read (e.g. an unknown property, an index out
+     *                       of bounds or no element matching a condition)
+     */
+    public static Object readProperty(final Object obj, final String propName) throws OgnlException {
+        OgnlRuntime.setPropertyAccessor(List.class, new CustomListPropertyAccessor());
+        OgnlRuntime.setPropertyAccessor(Set.class, new CustomSetPropertyAccessor());
+        final OgnlContext context = Ognl.createDefaultContext(
+                obj,
+                new PublicMemberAccess(),
+                new DefaultClassResolver(),
+                new CustomTypeConverter());
+        context.put(READ_ONLY, Boolean.TRUE);
+
+        final Node expr = (Node) parseExpression(propName);
+        if (!(expr instanceof ASTChain)) {
+            return expr.getValue(context, obj);
+        }
+        // follow the chain step by step, to stop at a null value
+        Object result = obj;
+        for (int i = 0; i < expr.jjtGetNumChildren(); i++) {
+            if (result == null) {
+                return null;
+            }
+            result = expr.jjtGetChild(i).getValue(context, result);
+        }
+        return result;
+    }
+
+    /**
+     * Check whether the given context only reads (see {@link #readProperty(Object, String)}), so nothing may be created
+     * or added.
+     *
+     * @param context the OGNL context
+     * @return true, if the context only reads
+     */
+    static boolean isReadOnly(final OgnlContext context) {
+        return context != null && Boolean.TRUE.equals(context.get(READ_ONLY));
     }
 
     public static Object getProperty(final Object obj, final String propName) throws OgnlException {

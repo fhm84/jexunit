@@ -4,6 +4,7 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.DefaultCommands;
 import com.jexunit.core.commands.TestCommandRunner;
 import com.jexunit.core.context.TestContextManager;
+import com.jexunit.core.data.VariableResolver;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -74,6 +75,8 @@ class JExUnitInterceptor implements InvocationInterceptor, BeforeEachCallback {
                         throw new TestAbortedException("Testsheet disabled: " + testCase.getMetadata().getDetailedIdentifier());
                     }
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT).equalsIgnoreCase(cmd)) {
+                    // resolve the variables (like ${orderId}) in the message
+                    VariableResolver.resolve(testCase);
                     for (final TestCell tc : testCase.getValues().values()) {
                         log.info(tc.getValue());
                     }

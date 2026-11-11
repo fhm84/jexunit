@@ -45,7 +45,7 @@ public class InstantiatingNullHandler implements NullHandler {
      */
     @Override
     public Object nullPropertyValue(final OgnlContext context, final Object target, final Object property) {
-        if (target == null || property == null) {
+        if (target == null || property == null || OgnlUtils.isReadOnly(context)) {
             return null;
         }
 

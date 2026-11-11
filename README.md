@@ -111,6 +111,9 @@ See the [migration guide](docs/migration-junit5.md) for the details: dependencie
 
   - _disabled_: setting the value in the next column to `true` disables the entire worksheet
   - _report_: writes the content of the following columns to the log output
+  - _set_: sets variables for the following rows (header = name, cell = value)
+
+  Cell values can contain variables like `${orderId}` or `${order.customer.name}`: they are replaced by the values added to the `TestContext` by earlier commands (or by _set_) when the command runs. See [Variables](docs/excel-format.md#variables).
 
   If the first column is blank, the entire row is ignored — use this for comments inside the Excel file.
 

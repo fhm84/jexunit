@@ -5,6 +5,7 @@ import com.jexunit.core.commands.TestCommandHost;
 import com.jexunit.core.commands.TestCommandRunner;
 import com.jexunit.core.commands.validation.CommandValidator;
 import com.jexunit.core.context.TestContextManager;
+import com.jexunit.core.data.VariableResolver;
 import com.jexunit.core.junit.Parameterized;
 import com.jexunit.core.model.TestCase;
 import com.jexunit.core.model.TestCell;
@@ -133,6 +134,8 @@ public class JExUnitBase implements TestCommandHost {
                 } else if (JExUnitConfig.getDefaultCommandProperty(DefaultCommands.REPORT)
                         .equalsIgnoreCase(testCase.getTestCommand())) {
                     // log all the report-"values"
+                    // resolve the variables (like ${orderId}) in the message
+                    VariableResolver.resolve(testCase);
                     for (final TestCell tc : testCase.getValues().values()) {
                         log.info(tc.getValue());
                     }

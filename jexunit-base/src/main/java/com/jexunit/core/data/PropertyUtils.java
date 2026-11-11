@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,6 +67,35 @@ class PropertyUtils {
             log.log(Level.WARNING, "Cannot convert {1} to {0}", new Object[]{clazz, value});
             throw e;
         }
+    }
+
+    /**
+     * Convert the given value to a string, the way it would be written in the excel file: so
+     * {@link #convertPropertyStringToObject(Class, String)} converts it back. Dates are formatted with the configured
+     * date pattern, or with the date-time pattern if they have a time of day.
+     *
+     * @param value the value
+     * @return the value as string (<code>null</code> for <code>null</code>)
+     */
+    static String convertObjectToPropertyString(final Object value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof String) {
+            return (String) value;
+        } else if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).toPlainString();
+        } else if (value instanceof Date) {
+            final Calendar calendar = Calendar.getInstance();
+            calendar.setTime((Date) value);
+            final boolean timeOfDay = calendar.get(Calendar.HOUR_OF_DAY) != 0 || calendar.get(Calendar.MINUTE) != 0
+                    || calendar.get(Calendar.SECOND) != 0 || calendar.get(Calendar.MILLISECOND) != 0;
+            return new SimpleDateFormat(JExUnitConfig.getStringProperty(
+                    timeOfDay ? JExUnitConfig.ConfigKey.DATETIME_PATTERN : JExUnitConfig.ConfigKey.DATE_PATTERN))
+                    .format((Date) value);
+        } else if (value instanceof Enum) {
+            return ((Enum<?>) value).name();
+        }
+        return String.valueOf(value);
     }
 
     /**
