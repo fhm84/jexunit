@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class ObjectVerifierTest {
@@ -89,18 +90,31 @@ public class ObjectVerifierTest {
     }
 
     @Test
-    public void shouldReportUnreadableProperties() {
+    public void shouldReportMissingCollectionElementsAsMismatch() {
         final TestModelBase model = model();
 
         final List<String> mismatches = ObjectVerifier.verify(model, expected(
                 "subEntityListAttr[5].intAttr", "1",
-                "stringAttr.toString()", "Miller"));
+                "subEntityListAttr[intAttr=8].stringAttr", "x"));
 
-        assertEquals(2, mismatches.size());
-        assertTrue(mismatches.get(0), mismatches.get(0).startsWith("subEntityListAttr[5].intAttr (B1): cannot be read"));
-        assertTrue(mismatches.get(1), mismatches.get(1).contains("only property access is supported"));
+        assertEquals(Arrays.asList(
+                "subEntityListAttr[5].intAttr (B1): expected \"1\" but there is no element subEntityListAttr[5]",
+                "subEntityListAttr[intAttr=8].stringAttr (B2): expected \"x\" but there is no element "
+                        + "subEntityListAttr[intAttr=8]"), mismatches);
         // the list is not extended
         assertEquals(1, model.getSubEntityListAttr().size());
+    }
+
+    @Test
+    public void shouldFailOnUnreadableProperties() {
+        final IllegalArgumentException unknown = assertThrows(IllegalArgumentException.class,
+                () -> ObjectVerifier.verify(model(), expected("unknownAttr", "1")));
+        assertTrue(unknown.getMessage(), unknown.getMessage().startsWith(
+                "The property unknownAttr (B1) of the object cannot be read"));
+
+        final IllegalArgumentException method = assertThrows(IllegalArgumentException.class,
+                () -> ObjectVerifier.verify(model(), expected("stringAttr.toString()", "Miller")));
+        assertTrue(method.getMessage(), method.getMessage().contains("only property access is supported"));
     }
 
     private static TestModelBase model() {

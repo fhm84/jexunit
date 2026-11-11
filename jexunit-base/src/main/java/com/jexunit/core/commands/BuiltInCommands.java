@@ -117,7 +117,15 @@ final class BuiltInCommands {
             if (object == null) {
                 throw new AssertionError(String.format("Verification of '%s' failed: the object is null", objectName));
             }
-            for (final String mismatch : ObjectVerifier.verify(object, expectedValues)) {
+            final List<String> rowMismatches;
+            try {
+                rowMismatches = ObjectVerifier.verify(object, expectedValues);
+            } catch (final IllegalArgumentException e) {
+                // the row can't check anything, so it must not satisfy an expected exception
+                throw new TestCommandSetupError(String.format("Test command '%s' could not be prepared: %s",
+                        testCase.getTestCommand(), e.getMessage()), e);
+            }
+            for (final String mismatch : rowMismatches) {
                 mismatches.add(objectName + "." + mismatch);
             }
         }

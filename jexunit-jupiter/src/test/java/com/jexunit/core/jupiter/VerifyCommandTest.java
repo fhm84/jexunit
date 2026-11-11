@@ -46,10 +46,10 @@ class VerifyCommandTest {
     }
 
     @Test
-    void shouldFailIfTheObjectCannotBeFound() {
+    void shouldFailIfTheObjectOrPropertyCannotBeFound() {
         final List<String> messages = failureMessages(execute(UnknownObjectTest.class));
 
-        assertEquals(3, messages.size());
+        assertEquals(4, messages.size());
         assertTrue(messages.get(0).contains("Nothing was added to the TestContext with the id 'invoice'"),
                 messages.get(0));
         // the command could not be prepared, so it doesn't satisfy an expected exception
@@ -57,6 +57,8 @@ class VerifyCommandTest {
                 messages.get(1));
         assertTrue(messages.get(2).contains("the column 'object' with the id of the object to verify"),
                 messages.get(2));
+        assertTrue(messages.get(3).contains("The property custmer.name (C4) of the object cannot be read"),
+                messages.get(3));
     }
 
     @Test
@@ -264,7 +266,10 @@ class VerifyCommandTest {
             return ExcelTestFile.create(
                     new String[][]{{"command", "object", "id"}, {"verify", "invoice", "1"}},
                     new String[][]{{"command", "object", "id", "exception"}, {"verify", "invoice", "1", "true"}},
-                    new String[][]{{"command", "id"}, {"verify", "1"}});
+                    new String[][]{{"command", "id"}, {"verify", "1"}},
+                    // a typo in the header can't be checked, so it doesn't satisfy an expected exception
+                    new String[][]{{"command"}, {"verifyCreateOrder"},
+                            {"command", "object", "custmer.name", "exception"}, {"verify", "order", "Miller", "true"}});
         }
 
         @ExcelTest

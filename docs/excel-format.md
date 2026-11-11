@@ -60,7 +60,7 @@ verify  | order  | Miller        | 3               | OPEN   | 12.5  | <null>
 ```
 
 - **`object`:** the id the object was added to the TestContext with (`ctx.add("order", order)`). Objects added by type have the class name as id (`com.example.Order`). Like a [variable](#variables), it can be a property path (`order.customer`). If the object is not found, or the `object` column is missing, the row fails (and doesn't satisfy `exception = true`).
-- **Property paths:** the same syntax as for the column headers of entities (`customer.name`, `items[0].qty`, `items[id=5].qty`, `map.key`, see [object-mapping.md](object-mapping.md)). The paths are only read: `null` sub-entities are not created and lists are not extended. A `null` in the middle of a path (e.g. no `customer`) reads as `null`.
+- **Property paths:** the same syntax as for the column headers of entities (`customer.name`, `items[0].qty`, `items[id=5].qty`, `map.key`, see [object-mapping.md](object-mapping.md)). The paths are only read: `null` sub-entities are not created and lists are not extended. A `null` in the middle of a path (e.g. no `customer`) reads as `null`, a missing list element (`items[3]`, `items[id=5]`) is a mismatch. A path that can't be read otherwise (e.g. a typo in the header) fails the row, also with `exception = true`.
 - **Comparison:** the expected value is converted to the type of the property, like the values of the entities: numbers by value (`BigDecimal` ignoring the scale, so `12.5` matches `12.50`), dates with the configured patterns, enums by name, booleans only `true`/`false`. Values of other types are compared as text.
 - **Empty cell:** not checked.
 - **`<null>`:** expects `null` (configurable with `jexunit.verify.null`).

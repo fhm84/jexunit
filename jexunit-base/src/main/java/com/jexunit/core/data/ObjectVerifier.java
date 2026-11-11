@@ -32,7 +32,9 @@ public final class ObjectVerifier {
      * @param object         the object to verify
      * @param expectedValues the expected values: the key is the property path, the cell the expected value
      * @return a description of each mismatch, like <code>customer.name (C5): expected "Miller" but was "Müller"</code>
-     * (empty, if all the values match)
+     * (empty, if all the values match). A missing collection element (like <code>items[id=5]</code>) is a mismatch.
+     * @throws IllegalArgumentException if a property cannot be read for another reason (e.g. an unknown property or
+     *                                  an expression that is not allowed)
      */
     public static List<String> verify(final Object object, final Map<String, TestCell> expectedValues) {
         final String nullValue = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.VERIFY_NULL);
@@ -49,9 +51,15 @@ public final class ObjectVerifier {
             final Object actual;
             try {
                 actual = OgnlUtils.readProperty(object, path);
-            } catch (final Exception e) {
-                mismatches.add(String.format("%s: cannot be read: %s", location, e.getMessage()));
+            } catch (final NoSuchCollectionElementException e) {
+                // e.g. items[id=5] or items[3]: the element is missing, that's a result of the test
+                mismatches.add(String.format("%s: expected \"%s\" but there is no element %s", location, expected,
+                        e.getMessage()));
                 continue;
+            } catch (final Exception e) {
+                // e.g. a typo in the header: the row can't check anything
+                throw new IllegalArgumentException(String.format("The property %s of the object cannot be read: %s",
+                        location, e.getMessage()), e);
             }
 
             if (expected.equals(nullValue)) {
