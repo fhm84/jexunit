@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * Here the default/built-in commands and command-attributes are defined. These are the following ones: disabled,
- * exception_expected, report, breakpoint, comment.
+ * exception_expected, report, set, comment, fastFail, multiline, breakpoint.
  *
  * @author fabian
  */
@@ -20,6 +20,12 @@ public enum DefaultCommands {
      * Default command for reporting (log something from the excel-file).
      */
     REPORT("jexunit.defaultcommand.report", "report"),
+
+    /**
+     * Default command for setting variables: each column is a variable (the header is its name), added to the
+     * TestContext with the value of the cell. A command implementation with the same name takes precedence.
+     */
+    SET("jexunit.defaultcommand.set", "set", false),
 
     /**
      * Parameter for expecting an exception.
@@ -57,10 +63,20 @@ public enum DefaultCommands {
 
     private final String configKey;
     private final String defaultValue;
+    /**
+     * Whether the name is (also) used as a column, so the column is removed from the values passed to the commands. The
+     * commands added later (like set) are not, so they don't hide columns of the user's model with the same name.
+     */
+    private final boolean column;
 
     DefaultCommands(final String configKey, final String defaultValue) {
+        this(configKey, defaultValue, true);
+    }
+
+    DefaultCommands(final String configKey, final String defaultValue, final boolean column) {
         this.configKey = configKey;
         this.defaultValue = defaultValue;
+        this.column = column;
     }
 
 }

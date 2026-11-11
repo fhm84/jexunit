@@ -7,7 +7,9 @@ import com.jexunit.core.context.Context;
 import com.jexunit.core.context.TestContext;
 import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.TestObjectHelper;
+import com.jexunit.core.data.VariableResolver;
 import com.jexunit.core.model.TestCase;
+import com.jexunit.core.model.TestCell;
 import ognl.MethodFailedException;
 
 import java.lang.annotation.Annotation;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +49,22 @@ public class TestCommandRunner {
         // remove the parameters used by the framework
         removeFrameworkParameters(testCase);
 
+        // resolve the variables (like ${orderId}) now, as earlier commands create their values
+        try {
+            VariableResolver.resolve(testCase);
+        } catch (final IllegalArgumentException e) {
+            throw new TestCommandSetupError(String.format("Test command '%s' could not be prepared: %s",
+                    testCase.getTestCommand(), e.getMessage()), e);
+        }
+
         // check, which method to run for the current TestCommand
         final List<Command> implementations = TestCommandScanner.getTestCommands(
                 testCase.getTestCommand().toLowerCase(Locale.ROOT), testBase.getTestType());
-        if (!implementations.isEmpty()) {
+        // a command implementation with the name of a built-in command takes precedence
+        final String setCommand = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.SET);
+        if (implementations.isEmpty() && setCommand.equalsIgnoreCase(testCase.getTestCommand())) {
+            runSetCommand(testCase);
+        } else if (!implementations.isEmpty()) {
             final Command testCommand = selectImplementation(testCase, implementations);
 
             // set the default value for fastFail if not set in the testCase
@@ -107,6 +122,23 @@ public class TestCommandRunner {
             invocation.invoke(parameters.toArray());
         } else {
             testBase.runCommand(testCase);
+        }
+    }
+
+    /**
+     * Run the built-in <code>set</code> command: add a variable for each column (the header is its name) with the value
+     * of the cell to the TestContext. Empty cells are skipped.
+     *
+     * @param testCase the test case of the set command
+     */
+    private static void runSetCommand(final TestCase<?> testCase) {
+        for (final Map<String, TestCell> row : testCase.getMultilineValues()) {
+            for (final Map.Entry<String, TestCell> entry : row.entrySet()) {
+                final String value = entry.getValue().getValue();
+                if (value != null && !value.isEmpty()) {
+                    TestContextManager.add(entry.getKey(), value);
+                }
+            }
         }
     }
 
@@ -273,8 +305,13 @@ public class TestCommandRunner {
      * @param testCase current TestCase
      */
     private void removeFrameworkParameters(final TestCase<?> testCase) {
-        for (final DefaultCommands dc : DefaultCommands.values()) {
-            testCase.getValues().remove(JExUnitConfig.getDefaultCommandProperty(dc));
+        // from all rows of a multiline test case
+        for (final Map<String, TestCell> row : testCase.getMultilineValues()) {
+            for (final DefaultCommands dc : DefaultCommands.values()) {
+                if (dc.isColumn()) {
+                    row.remove(JExUnitConfig.getDefaultCommandProperty(dc));
+                }
+            }
         }
     }
 

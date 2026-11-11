@@ -32,6 +32,10 @@ public void assertResult(TestCase<?> testCase, @Context MyResult result) {
 }
 ```
 
+### Via Variables in the Excel File
+
+Values added with an id can be used in the cells of the following rows as variables, e.g. `${orderId}` or `${order.customer.name}`. The built-in `set` command adds variables from the sheet. See [Variables](excel-format.md#variables).
+
 ## API Reference
 
 ### Storing Values

@@ -51,6 +51,7 @@ The names used in Excel for built-in commands can be changed. An optional prefix
 | `jexunit.defaultcommand_prefix` | *(empty)* | Prepended to every built-in command name |
 | `jexunit.defaultcommand.disabled` | `disabled` | Keyword to disable a worksheet |
 | `jexunit.defaultcommand.report` | `report` | Keyword to log a message from the Excel file |
+| `jexunit.defaultcommand.set` | `set` | Keyword to set [variables](excel-format.md#variables) |
 | `jexunit.defaultcommand.exception_expected` | `exception` | Column name that signals an expected exception |
 | `jexunit.defaultcommand.comment` | `comment` | Column name for assertion failure messages |
 | `jexunit.defaultcommand.fastfail` | `fastFail` | Column name for per-row fast-fail override |
@@ -114,6 +115,12 @@ Allowed values (case-insensitive):
 | Key | Default | Description |
 |---|---|---|
 | `jexunit.ognl.property_access_only` | `true` | Only allow property access in the column headers (OGNL expressions). Set to `false` to allow any OGNL expression, incl. method calls — see the security note in [object-mapping.md](object-mapping.md) |
+
+### Variables
+
+| Key | Default | Description |
+|---|---|---|
+| `jexunit.variables.enabled` | `true` | Resolve [variables](excel-format.md#variables) like `${orderId}` in the cell values from the `TestContext`. Set to `false` for worksheets that contain `${` as data |
 
 ### Lifecycle Hooks
 

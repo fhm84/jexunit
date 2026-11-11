@@ -39,6 +39,17 @@ Logs the content of the subsequent columns to the test output. Useful for annota
 report | Starting user creation tests
 ```
 
+### `set`
+
+Sets [variables](#variables) for the following rows: each column is a variable, the header is its name and the cell its value. Empty cells are skipped. The values can contain variables themselves.
+
+```
+COMMAND | orderId | customer
+set     | 4711    | Miller
+```
+
+If you have a command implementation named `set` (`@TestCommand("set")`), it is used instead of the built-in command. You can also rename the built-in command (`jexunit.defaultcommand.set`, see [configuration.md](configuration.md)).
+
 ### `comment` (parameter)
 
 When a data row includes a column named `comment`, its value is used as the assertion message if the command fails — equivalent to the `message` argument in JUnit `assertThat`.
@@ -90,6 +101,29 @@ public void myCmd(TestCase<?> testCase) {
 ### `multiline`
 
 Marks a command as *multiline*, meaning multiple consecutive rows sharing the same command name are collected and delivered together. See the [Multiline Commands](#multiline-commands) section below.
+
+## Variables
+
+A cell value can contain variables: `${name}` is replaced by the value added to the [TestContext](test-context.md) with the id `name`. The variables are resolved when the command runs (not when the file is loaded), so a command can use the values of the commands before it:
+
+```
+COMMAND     | customer
+createOrder | 4711                          <- the command calls ctx.add("order", order)
+COMMAND     | order          | qty
+addItem     | ${order.id}    | 3
+report      | created order ${order.id}
+```
+
+- **Defining variables:** a command adds a value with an id (`ctx.add("orderId", id)`), or the sheet uses the built-in [`set`](#set) command. Values added by type (`ctx.add(Order.class, order)`) have the class name as id, e.g. `${com.example.Order.id}`.
+- **Property paths:** `${order.id}`, `${order.customer.name}`, `${order.items[0].qty}` and `${order.items[id=5].qty}` read a property of the value. Like the column headers, only property access is allowed (no method calls, see `jexunit.ognl.property_access_only`). Reading doesn't change the object: `null` (sub-)entities are not created and lists are not extended.
+- **Conversion:** the value is written like an Excel cell (dates with `jexunit.datePattern`, or `jexunit.dateTimePattern` if they have a time of day; `BigDecimal` without exponent; enums by name), then converted to the type of the parameter or property as usual.
+- **`null`:** a cell that only contains a variable whose value is `null` (e.g. `${order.note}`) has no value. Inside of a text, `null` is an empty string.
+- **Literal `${`:** write `$${`, e.g. `$${name}` for the text `${name}`.
+- **Unknown variables** fail the row with a message naming the variable and the cell. The command doesn't run, so this doesn't satisfy `exception = true`.
+- **Where:** in the values passed to the commands (parameters, entities, `TestCase`) and in `report` rows. Not in the command name and the [special parameters](#special-parameters-usable-in-any-data-row) (`exception`, `comment`, ...), which are read when the file is loaded.
+- **Lifetime:** the TestContext is reset per test group (worksheet), so variables don't carry over to the next worksheet.
+
+If a worksheet contains `${` as data, escape it or turn the resolution off with `jexunit.variables.enabled=false`.
 
 ## Multiline Commands
 
@@ -195,4 +229,4 @@ Example — prefix all built-in commands with `jx.`:
 jexunit.defaultcommand_prefix=jx.
 ```
 
-This makes the framework expect `jx.disabled`, `jx.report`, etc. instead of `disabled` and `report`.
+This makes the framework expect `jx.disabled`, `jx.report`, `jx.set`, etc. instead of `disabled`, `report` and `set`.

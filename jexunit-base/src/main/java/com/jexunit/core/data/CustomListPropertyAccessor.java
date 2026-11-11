@@ -51,6 +51,9 @@ public class CustomListPropertyAccessor extends ListPropertyAccessor {
             final int index = ((Number) name).intValue();
             if (index < list.size()) {
                 return list.get(index);
+            } else if (OgnlUtils.isReadOnly(context)) {
+                throw new NoSuchCollectionElementException(
+                        PropertyTypes.getCollectionPropertyName(context.getCurrentNode()), String.valueOf(index));
             } else {
                 // here we have to add new elements to the list!
                 checkNewElements(list, index);

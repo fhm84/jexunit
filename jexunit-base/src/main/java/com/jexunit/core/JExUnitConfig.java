@@ -76,7 +76,13 @@ public class JExUnitConfig {
          * or <code>items[0].name</code>. Method calls, static access, constructors, assignments and so on are
          * rejected. Set to <code>false</code> to allow any OGNL expression.
          */
-        OGNL_PROPERTY_ACCESS_ONLY("jexunit.ognl.property_access_only", "true");
+        OGNL_PROPERTY_ACCESS_ONLY("jexunit.ognl.property_access_only", "true"),
+
+        /**
+         * Resolve variables like <code>${orderId}</code> in the cell values from the TestContext, when the command runs.
+         * Set to <code>false</code> for worksheets that contain <code>${</code> as data.
+         */
+        VARIABLES_ENABLED("jexunit.variables.enabled", "true");
 
         private final String key;
         private final String defaultConfig;
