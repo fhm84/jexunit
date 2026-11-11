@@ -36,9 +36,9 @@ class FieldInjectionTest {
 
         execute(InjectionTest.class).assertStatistics(stats -> stats.started(1).succeeded(1));
         assertEquals(Arrays.asList(
-                "customer: Miller, amount: 12.50, qty: 3, order: 42, label: express",
-                // a new instance for each invocation: the optional qty is not set
-                "customer: Jones, amount: 1, qty: null, order: 42, label: express",
+                "customer: Miller, amount: 12.50, qty: 3, order: 42, label: express, count: 7",
+                // a new instance for each invocation: the optional qty is not set (an empty cell is no value)
+                "customer: Jones, amount: 1, qty: null, order: 42, label: express, count: 7",
                 "b: second"), CALLS);
     }
 
@@ -51,7 +51,7 @@ class FieldInjectionTest {
         // the command could not be prepared, so it doesn't satisfy an expected exception
         assertTrue(messages.get(1).contains("Required parameter not found: customer"), messages.get(1));
         assertTrue(messages.get(2).contains(
-                "Parameter not found: count (the field PrimitiveFieldCommand.count of type int needs a value)"),
+                "No value for count (the field PrimitiveFieldCommand.count of type int needs a value)"),
                 messages.get(2));
         assertTrue(messages.get(3).contains("The field " + StaticFieldCommand.class.getName()
                 + ".value cannot be injected: static and final fields are not supported"), messages.get(3));
@@ -117,9 +117,13 @@ class FieldInjectionTest {
         @Context("label")
         private String label;
 
+        // a primitive is looked up as its wrapper type
+        @Context("count")
+        private int count;
+
         public void run() {
-            CALLS.add(String.format("customer: %s, amount: %s, qty: %s, order: %d, label: %s", customer, amount, qty,
-                    order.getId(), label));
+            CALLS.add(String.format("customer: %s, amount: %s, qty: %s, order: %d, label: %s, count: %d", customer,
+                    amount, qty, order.getId(), label, count));
         }
     }
 
@@ -178,7 +182,7 @@ class FieldInjectionTest {
                     {"fieldPrepareContext"},
                     {"command", "customer", "amount", "qty"},
                     {"fieldInjection", "Miller", "12.50", "3"},
-                    {"fieldInjection", "Jones", "1"},
+                    {"fieldInjection", "Jones", "1", ""},
                     {"command", "b"},
                     {"fieldOverload", "second"}});
         }
@@ -189,7 +193,7 @@ class FieldInjectionTest {
 
         @TestCommand("fieldPrepareContext")
         public static void prepareContext(final TestContext context) {
-            context.add(Order.class, new Order(42)).add("label", "express");
+            context.add(Order.class, new Order(42)).add("label", "express").add("count", 7);
         }
     }
 

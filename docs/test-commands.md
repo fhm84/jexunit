@@ -130,12 +130,13 @@ public class CreateOrderCommand extends BaseCommand {
 }
 ```
 
-- The semantics are the same as for parameters: the value is converted to the type of the field, a required `@TestParam` (the default) without value fails the row, and `@Context` sets `null` if there is no such value in the `TestContext`.
+- The semantics are the same as for parameters: the value is converted to the type of the field, a required `@TestParam` (the default) without value fails the row, and `@Context` sets `null` if there is no such value in the `TestContext`. An empty cell is no value (the field is set to `null`).
 - Fields of the superclasses are injected as well.
-- A primitive field (`int`, `boolean`, …) needs a value, also with `required = false`; use the wrapper type (`Integer`) for optional values.
+- A primitive field (`int`, `boolean`, …) needs a value, also with `required = false` and for `@Context`; use the wrapper type (`Integer`) for optional values.
 - Static and final fields can't be injected (the row fails).
 - If several command classes implement the same command, their `@TestParam` fields count for [choosing the implementation](#several-implementations-for-one-command), like the parameters.
-- Field injection is only supported for command classes. Command methods use parameters, and the test instance is managed by the test framework.
+- Field injection is only supported for command classes. Command methods use parameters, and the test instance is managed by the test framework. Annotated fields in other classes with command methods are not injected (JExUnit logs a warning).
+- The fields are set on the instance the [`CommandInstanceFactory`](spi.md#commandinstancefactory--dependency-injection-for-commands) returns. If that is a proxy (e.g. Spring creates a CGLIB proxy for a `@Transactional` class), the values end up in the proxy and not in the target object that runs the method; use parameters for such command classes.
 
 ## Parameter Injection
 

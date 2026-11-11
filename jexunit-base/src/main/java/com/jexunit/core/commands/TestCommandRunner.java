@@ -13,12 +13,14 @@ import com.jexunit.core.model.TestCell;
 import ognl.MethodFailedException;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -30,6 +32,16 @@ import java.util.stream.Collectors;
  * @author fabian
  */
 public class TestCommandRunner {
+
+    /**
+     * The fields of the test-command classes to inject (see {@link #getInjectableFields(Class)}), per class.
+     */
+    private static final ClassValue<List<Field>> INJECTABLE_FIELDS = new ClassValue<List<Field>>() {
+        @Override
+        protected List<Field> computeValue(final Class<?> type) {
+            return findInjectableFields(type);
+        }
+    };
 
     private final TestCommandHost testBase;
 
@@ -215,8 +227,7 @@ public class TestCommandRunner {
                 if (param == null || field.isAnnotationPresent(Context.class)) {
                     continue;
                 }
-                final int matches = countValue(testCase, param.value().isEmpty() ? field.getName() : param.value(),
-                        param);
+                final int matches = countValue(testCase, getTestParamKey(field, param), param);
                 if (matches < 0) {
                     return -1;
                 }
@@ -287,6 +298,42 @@ public class TestCommandRunner {
     }
 
     /**
+     * Get the key of the given {@code @TestParam} on a field: its value, or the name of the field if no value is set.
+     *
+     * @param field the field annotated with {@code @TestParam}
+     * @param param the annotation
+     * @return the key to look up the value in the test case
+     */
+    private static String getTestParamKey(final Field field, final TestParam param) {
+        return param.value().isEmpty() ? field.getName() : param.value();
+    }
+
+    /**
+     * Get the value for a parameter or field annotated with {@code @Context} out of the TestContext: by its id, or by
+     * the type if no id is set. A primitive type is looked up as its wrapper type.
+     *
+     * @param type   the type of the parameter or field
+     * @param ctx    the annotation
+     * @param target the parameter or field (for the error message)
+     * @return the value, or <code>null</code> if there is none
+     * @throws IllegalArgumentException if the value in the TestContext is not of the given type
+     */
+    @SuppressWarnings("unchecked")
+    private static Object getContextValue(final Class<?> type, final Context ctx, final String target) {
+        final Class<Object> lookupType = (Class<Object>) MethodType.methodType(type).wrap().returnType();
+        try {
+            return ctx.value().isEmpty()
+                    ? TestContextManager.get(lookupType)
+                    : TestContextManager.get(lookupType, ctx.value());
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException(String.format(
+                    "The value in the TestContext for @Context%s %s is not of type %s: %s",
+                    ctx.value().isEmpty() ? "" : "(\"" + ctx.value() + "\")", target, lookupType.getName(),
+                    e.getMessage()), e);
+        }
+    }
+
+    /**
      * Check the given test command for a single public method and return this method. If there is no public method
      * declared, null will be returned. If there are multiple public methods found, an IllegalArgumentException will be
      * thrown because test commands of type class are allowed only a single public method!
@@ -350,14 +397,8 @@ public class TestCommandRunner {
                     for (final Annotation a : parameterAnnotations[i]) {
                         if (a instanceof Context) {
                             // add an instance out of the test-context
-                            final Context ctx = (Context) a;
-                            final String id = ctx.value();
-                            if (id.isEmpty()) {
-                                // lookup the instance out of the current TestContext
-                                parameters.add(TestContextManager.get(parameterType));
-                            } else {
-                                parameters.add(TestContextManager.get(parameterType, id));
-                            }
+                            parameters.add(getContextValue(parameterType, (Context) a,
+                                    "parameter " + parameter.getName() + " of " + method.getName()));
                             handled = true;
                             break;
                         } else if (a instanceof TestParam) {
@@ -403,27 +444,28 @@ public class TestCommandRunner {
                         "The field %s.%s cannot be injected: static and final fields are not supported",
                         field.getDeclaringClass().getName(), field.getName()));
             }
+            final String fieldName = field.getDeclaringClass().getSimpleName() + "." + field.getName();
             final Context ctx = field.getAnnotation(Context.class);
             final Object value;
+            final String key;
             if (ctx != null) {
                 // an instance out of the test-context
-                value = ctx.value().isEmpty()
-                        ? TestContextManager.get(field.getType())
-                        : TestContextManager.get(field.getType(), ctx.value());
+                value = getContextValue(field.getType(), ctx, "field " + fieldName);
+                key = ctx.value().isEmpty() ? field.getType().getName() : ctx.value();
             } else {
-                // a "single" test-param
+                // a "single" test-param; an empty cell is no value (as for choosing the implementation)
                 final TestParam param = field.getAnnotation(TestParam.class);
-                final String key = param.value().isEmpty() ? field.getName() : param.value();
+                key = getTestParamKey(field, param);
                 final String stringValue = TestObjectHelper.getPropertyByKey(testCase, key);
-                value = TestObjectHelper.convertPropertyStringToObject(field.getType(), stringValue);
+                value = stringValue == null || stringValue.isEmpty()
+                        ? null : TestObjectHelper.convertPropertyStringToObject(field.getType(), stringValue);
                 if (param.required() && value == null) {
                     throw new IllegalArgumentException("Required parameter not found: " + key);
                 }
-                if (value == null && field.getType().isPrimitive()) {
-                    throw new IllegalArgumentException(String.format(
-                            "Parameter not found: %s (the field %s.%s of type %s needs a value)", key,
-                            field.getDeclaringClass().getSimpleName(), field.getName(), field.getType().getName()));
-                }
+            }
+            if (value == null && field.getType().isPrimitive()) {
+                throw new IllegalArgumentException(String.format("No value for %s (the field %s of type %s needs "
+                        + "a value)", key, fieldName, field.getType().getName()));
             }
             field.setAccessible(true);
             field.set(instance, value);
@@ -438,6 +480,10 @@ public class TestCommandRunner {
      * @return the annotated fields, the fields of the superclasses first
      */
     private static List<Field> getInjectableFields(final Class<?> type) {
+        return INJECTABLE_FIELDS.get(type);
+    }
+
+    private static List<Field> findInjectableFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>();
         for (Class<?> cls = type; cls != null && cls != Object.class; cls = cls.getSuperclass()) {
             final List<Field> declared = new ArrayList<>();
@@ -448,7 +494,7 @@ public class TestCommandRunner {
             }
             fields.addAll(0, declared);
         }
-        return fields;
+        return Collections.unmodifiableList(fields);
     }
 
     /**
