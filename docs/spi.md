@@ -126,7 +126,7 @@ public interface CommandInstanceFactory {
 ```
 
 - A **command class** is created for each invocation (row), a **command provider** once per test group (worksheet) and then reused.
-- Commands declared in the **test class** itself are invoked on the test instance, which the test framework creates (and e.g. Spring's `SpringExtension` already injects), so they don't use the factory.
+- Commands declared in the **test class** itself are invoked on the test instance, which the test framework creates (and e.g. Spring's `SpringExtension` already injects), so they don't use the factory. Exception: with JUnit 4 and `@RunWith(JExUnit.class)`, the non-static commands of the test class run on a separate instance of the test class (see the [migration guide](migration-junit5.md)), which the factory creates like a command provider.
 - With **JUnit 5**, `context.unwrap(ExtensionContext.class)` returns the `ExtensionContext` of the test. With JUnit 4 there is none; `getTestInstance()` is the test instance if the test class extends `JExUnitBase`, else `null`.
 - If the factory throws an exception or returns `null`, the row fails (and doesn't satisfy `exception = true`).
 - `@TestParam`/`@Context` on parameters work as usual.
