@@ -79,6 +79,7 @@ com.jexunit.core
     ├── ServiceRegistry.java    — Loads DataProvider implementations via ServiceLoader
     ├── BeforeSheet.java        — Hook run before the worksheets (configured via jexunit.properties)
     ├── AfterSheet.java         — Hook run after the worksheets (configured via jexunit.properties)
+    ├── CommandInstanceFactory.java — Creates command classes/providers, e.g. via DI (configured via jexunit.properties)
     └── data/DataProvider.java  — SPI for custom data sources
 
 jexunit-jupiter
@@ -128,6 +129,7 @@ Holds the configuration: the defaults, overridden by `jexunit.properties` from t
 | `com.jexunit.core.spi.data.DataProvider` | Custom data source (replaces or augments Excel) | `META-INF/services` (`ServiceLoader`) |
 | `com.jexunit.core.spi.BeforeSheet` | Callback before the worksheets are executed | `jexunit.sheet.before` in `jexunit.properties` |
 | `com.jexunit.core.spi.AfterSheet` | Callback after the worksheets are executed | `jexunit.sheet.after` in `jexunit.properties` |
+| `com.jexunit.core.spi.CommandInstanceFactory` | Creates the command classes and command providers, e.g. with a DI container | `jexunit.command.instance_factory` in `jexunit.properties` |
 
 See [spi.md](spi.md) for implementation details.
 

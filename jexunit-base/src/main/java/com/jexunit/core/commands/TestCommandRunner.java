@@ -78,8 +78,8 @@ public class TestCommandRunner {
                 if (testCommand.getType() == Type.METHOD) {
                     testMethod = testCommand.getMethod();
                 } else if (testCommand.getType() == Type.CLASS) {
-                    // prepare and run test-command defined by a class
-                    final Object testCommandInstance = testCommand.getImplementation().newInstance();
+                    // prepare and run test-command defined by a class (a new instance for each invocation)
+                    final Object testCommandInstance = CommandInstances.create(testCommand.getImplementation(), testBase);
                     TestContextManager.add((Class<Object>) testCommand.getImplementation(), testCommandInstance);
 
                     // inject Test-Parameters (and -Context) to the class
@@ -416,7 +416,8 @@ public class TestCommandRunner {
     /**
      * Get the instance to invoke the given method (representing the implementation of the test-command) on: the
      * current test-class, none for a static method, or the instance out of the test-context. If there is no instance
-     * in the test-context, a new instance will be created an put to the test-context.
+     * in the test-context, a new instance will be created (by the configured {@code CommandInstanceFactory}) and put
+     * to the test-context, so it is used for the rest of the test group.
      *
      * @param method the method to invoke
      * @return the instance to invoke the method on (<code>null</code> for a static method)
@@ -433,7 +434,7 @@ public class TestCommandRunner {
         @SuppressWarnings("unchecked") final Class<Object> clazz = (Class<Object>) method.getDeclaringClass();
         Object instance = TestContextManager.get(clazz);
         if (instance == null) {
-            instance = clazz.newInstance();
+            instance = CommandInstances.create(clazz, testBase);
             TestContextManager.add(clazz, instance);
         }
         return instance;

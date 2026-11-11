@@ -88,9 +88,11 @@ public class ArithmeticalTest {
 }
 ```
 
+A command provider is instantiated once per test group (worksheet) and reused for the following commands of the group. By default it needs a no-arg constructor; to get dependencies injected (e.g. Spring beans), configure a [`CommandInstanceFactory`](spi.md#commandinstancefactory--dependency-injection-for-commands).
+
 ## Command Classes
 
-`@TestCommand` can also be placed on a class. The class must declare exactly one public method, which is invoked for the command. A new instance is created for each invocation:
+`@TestCommand` can also be placed on a class. The class must declare exactly one public method, which is invoked for the command. A new instance is created for each invocation (via the no-arg constructor, or by the configured [`CommandInstanceFactory`](spi.md#commandinstancefactory--dependency-injection-for-commands)):
 
 ```java
 @TestCommand(value = "fail", fastFail = true)

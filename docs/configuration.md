@@ -98,6 +98,12 @@ Prefix and postfix settings allow shorter command names in Excel by matching aga
 | `jexunit.command.method_prefix` | *(empty)* | Prefix stripped from method names during matching |
 | `jexunit.command.method_postfix` | *(empty)* | Postfix stripped from method names during matching |
 
+### Command Instances
+
+| Key | Default | Description |
+|---|---|---|
+| `jexunit.command.instance_factory` | *(empty — no-arg constructor)* | Fully-qualified class name of a `CommandInstanceFactory` creating the command classes and command providers, e.g. with Spring. See [spi.md](spi.md#commandinstancefactory--dependency-injection-for-commands) |
+
 ### Command Validation
 
 | Key | Default | Description |

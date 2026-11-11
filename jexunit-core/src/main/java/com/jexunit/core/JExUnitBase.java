@@ -251,6 +251,12 @@ public class JExUnitBase implements TestCommandHost {
         return declaringClass.isInstance(this) ? this : null;
     }
 
+    @Override
+    public Object getTestInstance() {
+        // with @RunWith(JExUnit.class), the test class itself is not instantiated
+        return getClass() != JExUnitBase.class ? this : null;
+    }
+
     @BeforeClass
     public static void initializeTest() throws Exception {
         final String clazzName = JExUnitConfig.getStringProperty(JExUnitConfig.ConfigKey.BEFORE_EXCEL);
