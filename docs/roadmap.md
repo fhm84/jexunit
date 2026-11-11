@@ -6,13 +6,6 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 
 **Java versions** (decided in [#46](https://github.com/fhm84/jexunit/issues/46)): **1.x requires Java 21**. **0.x stays the Java 8 line** and only gets bug fixes and security updates after 0.9.0. JUnit 6 and Apache POI 6 both need Java 17+, and POI is used by `jexunit-base`, so the whole framework moves instead of adding a separate `jexunit-jupiter6` module (the previous plan).
 
-### [0.9.0](https://github.com/fhm84/jexunit/milestone/4): last feature release on Java 8
-
-- Variables in cells: `${name}` placeholders from the `TestContext` ([#56](https://github.com/fhm84/jexunit/issues/56))
-- Built-in `verify` command: compare object properties with the expected values ([#57](https://github.com/fhm84/jexunit/issues/57))
-- Dependency injection for command classes (instance factory SPI) ([#60](https://github.com/fhm84/jexunit/issues/60))
-- Field injection (`@TestParam`/`@Context`) for command classes ([#37](https://github.com/fhm84/jexunit/issues/37))
-
 ### [1.0.0](https://github.com/fhm84/jexunit/milestone/2): Java 21, Maven Central
 
 - Set up the 0.x maintenance line ([#52](https://github.com/fhm84/jexunit/issues/52))
@@ -42,6 +35,10 @@ Possible once 1.x is on Java 21 (#54), each in its own PR:
 ---
 
 ## Released
+
+### Variables, `verify`, dependency injection for commands (v0.9.0)
+
+The last feature release on Java 8: variables in cells (`${name}`, from the `TestContext`) and the built-in `set` command (#56), the built-in `verify` command comparing object properties with the expected values (#57), the `CommandInstanceFactory` SPI to create command classes and providers with a DI container like Spring (#60), and field injection (`@TestParam`/`@Context`) for command classes (#37). See the release notes of v0.9.0 for the behaviour changes to check when upgrading. From now on, 0.x only gets bug fixes and security updates.
 
 ### Overloaded commands, OGNL 3.4, stricter expected exceptions (v0.8.0)
 
