@@ -11,7 +11,7 @@ Planned work is tracked as [GitHub issues](https://github.com/fhm84/jexunit/issu
 - Variables in cells: `${name}` placeholders from the `TestContext` ([#56](https://github.com/fhm84/jexunit/issues/56))
 - Built-in `verify` command: compare object properties with the expected values ([#57](https://github.com/fhm84/jexunit/issues/57))
 - Dependency injection for command classes (instance factory SPI) ([#60](https://github.com/fhm84/jexunit/issues/60))
-- Field injection for command classes: implement or remove ([#37](https://github.com/fhm84/jexunit/issues/37))
+- Field injection (`@TestParam`/`@Context`) for command classes ([#37](https://github.com/fhm84/jexunit/issues/37))
 
 ### [1.0.0](https://github.com/fhm84/jexunit/milestone/2): Java 21, Maven Central
 

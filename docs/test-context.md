@@ -89,7 +89,7 @@ The `@Context` annotation can be applied to method parameters in `@TestCommand` 
 @Context("myId") MyEntity entity
 ```
 
-`@Context` is only supported on parameters of command methods (field injection is not supported).
+`@Context` is supported on parameters of command methods and on fields of [command classes](test-commands.md#field-injection).
 
 ## Lifetime
 

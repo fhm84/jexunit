@@ -6,7 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for marking the TestContext to "inject" (into the test-command-method).
+ * Annotation for "injecting" a value out of the TestContext: into a parameter of a test-command method, or into a field
+ * of a test-command class (<code>&#64;TestCommand</code> on the class; filled for each invocation, also inherited
+ * fields). Without a value, the value is looked up by its type.
  *
  * @author fabian
  */

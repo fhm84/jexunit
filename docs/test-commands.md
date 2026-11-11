@@ -106,6 +106,38 @@ public class FailCommand {
 
 The public method's parameters are injected the same way as for command methods (see below).
 
+### Field Injection
+
+In a command class, `@TestParam` and `@Context` can also be placed on **fields**. They are filled for each invocation, after the instance is created and before the public method is called:
+
+```java
+@TestCommand("createOrder")
+public class CreateOrderCommand extends BaseCommand {
+
+    @TestParam("amount")                 // the value of the column "amount"
+    private BigDecimal amount;
+
+    @TestParam(required = false)         // without a value, the name of the field is the key: column "note"
+    private String note;
+
+    @Context                             // out of the TestContext, by type
+    private Customer customer;
+
+    @Context("orderService")             // out of the TestContext, by id
+    private OrderService orderService;
+
+    public void run() { ... }
+}
+```
+
+- The semantics are the same as for parameters: the value is converted to the type of the field, a required `@TestParam` (the default) without value fails the row, and `@Context` sets `null` if there is no such value in the `TestContext`. An empty cell is no value (the field is set to `null`).
+- Fields of the superclasses are injected as well.
+- A primitive field (`int`, `boolean`, …) needs a value, also with `required = false` and for `@Context`; use the wrapper type (`Integer`) for optional values.
+- Static and final fields can't be injected (the row fails).
+- If several command classes implement the same command, their `@TestParam` fields count for [choosing the implementation](#several-implementations-for-one-command), like the parameters.
+- Field injection is only supported for command classes. Command methods use parameters, and the test instance is managed by the test framework. Annotated fields in other classes with command methods are not injected (JExUnit logs a warning).
+- The fields are set on the instance the [`CommandInstanceFactory`](spi.md#commandinstancefactory--dependency-injection-for-commands) returns. If that is a proxy (e.g. Spring creates a CGLIB proxy for a `@Transactional` class), the values end up in the proxy and not in the target object that runs the method; use parameters for such command classes.
+
 ## Parameter Injection
 
 JExUnit resolves command method parameters by type and annotation. You can declare any combination of the following:

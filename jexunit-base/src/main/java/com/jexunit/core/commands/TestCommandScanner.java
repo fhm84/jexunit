@@ -4,6 +4,8 @@ import com.jexunit.core.JExUnitConfig;
 import com.jexunit.core.commands.Command.Type;
 import com.jexunit.core.commands.annotation.TestCommand;
 import com.jexunit.core.commands.annotation.TestCommand.TestCommands;
+import com.jexunit.core.commands.annotation.TestParam;
+import com.jexunit.core.context.Context;
 import com.jexunit.core.dataprovider.ExcelFile;
 import eu.infomas.annotation.AnnotationDetector;
 import eu.infomas.annotation.AnnotationDetector.MethodReporter;
@@ -91,6 +93,7 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
                     final TestCommand[] testCommands = m.getDeclaredAnnotationsByType(TestCommand.class);
                     registerCommands(testCommands, type, m);
                 }
+                warnAboutAnnotatedFields(clazz);
             }
         } catch (final ClassNotFoundException | LinkageError e) {
             LOG.log(Level.WARNING, "Test commands of class " + className + " are skipped, the class cannot be loaded", e);
@@ -113,6 +116,25 @@ public class TestCommandScanner implements TypeReporter, MethodReporter {
             }
         } catch (final ClassNotFoundException | LinkageError e) {
             LOG.log(Level.WARNING, "Test commands of class " + className + " are skipped, the class cannot be loaded", e);
+        }
+    }
+
+    /**
+     * Warn about fields annotated with {@code @TestParam} or {@code @Context} in a class declaring command methods:
+     * only the fields of command classes ({@code @TestCommand} on the class) are injected.
+     *
+     * @param clazz the class declaring command methods
+     */
+    private static void warnAboutAnnotatedFields(final Class<?> clazz) {
+        if (clazz.isAnnotationPresent(TestCommand.class) || clazz.isAnnotationPresent(TestCommands.class)) {
+            return;
+        }
+        for (final java.lang.reflect.Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(TestParam.class) || field.isAnnotationPresent(Context.class)) {
+                LOG.log(Level.WARNING, "The field {0}.{1} is not injected: @TestParam and @Context fields are only "
+                        + "supported in command classes (@TestCommand on the class). Use a parameter of the command "
+                        + "method instead.", new Object[]{clazz.getName(), field.getName()});
+            }
         }
     }
 

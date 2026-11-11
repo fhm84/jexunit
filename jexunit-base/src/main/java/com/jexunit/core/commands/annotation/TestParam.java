@@ -15,11 +15,16 @@ import java.lang.annotation.Target;
  * </code>
  * </p>
  * In this case you don't have to "inject" the whole TestCase to get the id.
+ * <p>
+ * In a test-command class (<code>&#64;TestCommand</code> on the class), the annotation can also be placed on fields
+ * (also inherited ones): they are filled for each invocation, before the public method is called. Without a value, the
+ * name of the parameter or field is the key.
+ * </p>
  *
  * @author fabian
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER})
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface TestParam {
 
     /**
