@@ -55,7 +55,7 @@ class JExUnitInterceptor implements InvocationInterceptor, BeforeEachCallback {
         }
 
         final Object testInstance = extensionContext.getRequiredTestInstance();
-        final JUnit5TestCommandHost host = new JUnit5TestCommandHost(testInstance);
+        final JUnit5TestCommandHost host = new JUnit5TestCommandHost(testInstance, extensionContext);
         final TestCommandRunner runner = new TestCommandRunner(host);
 
         log.log(Level.INFO, "Running TestCase: {0}", testCases.get(0).getMetadata().getTestGroup());

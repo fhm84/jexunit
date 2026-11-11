@@ -1,6 +1,6 @@
 # SPI Extension Points
 
-JExUnit uses Java's `ServiceLoader` mechanism to discover data providers. Implementations are registered by creating a plain-text service descriptor under `src/main/resources/META-INF/services/`. The lifecycle hooks (`BeforeSheet`, `AfterSheet`) are configured via `jexunit.properties` instead.
+JExUnit uses Java's `ServiceLoader` mechanism to discover data providers. Implementations are registered by creating a plain-text service descriptor under `src/main/resources/META-INF/services/`. The lifecycle hooks (`BeforeSheet`, `AfterSheet`) and the `CommandInstanceFactory` are configured via `jexunit.properties` instead.
 
 ## `DataProvider` — Custom Data Sources
 
@@ -106,6 +106,78 @@ Via `jexunit.properties` (a single implementation with a public no-arg construct
 
 ```properties
 jexunit.sheet.after=com.example.tests.LoggingHook
+```
+
+## `CommandInstanceFactory` — Dependency Injection for Commands
+
+`com.jexunit.core.spi.CommandInstanceFactory`
+
+Creates the instances of the [command classes](test-commands.md#command-classes) and of the [command-provider classes](test-commands.md#standalone-command-provider-classes). By default they are created via their no-arg constructor (`DefaultCommandInstanceFactory`). Plug in a dependency injection container (Spring, CDI, Guice, …) to get services or repositories injected into the commands.
+
+```java
+public interface CommandInstanceFactory {
+    <T> T create(Class<T> type, Context context) throws Exception;
+
+    interface Context {
+        Object getTestInstance();                 // the running test instance
+        <T> Optional<T> unwrap(Class<T> type);    // JUnit 5: the ExtensionContext
+    }
+}
+```
+
+- A **command class** is created for each invocation (row), a **command provider** once per test group (worksheet) and then reused.
+- Commands declared in the **test class** itself are invoked on the test instance, which the test framework creates (and e.g. Spring's `SpringExtension` already injects), so they don't use the factory. Exception: with JUnit 4 and `@RunWith(JExUnit.class)`, the non-static commands of the test class run on a separate instance of the test class (see the [migration guide](migration-junit5.md)), which the factory creates like a command provider.
+- With **JUnit 5**, `context.unwrap(ExtensionContext.class)` returns the `ExtensionContext` of the test. With JUnit 4 there is none; `getTestInstance()` is the test instance if the test class extends `JExUnitBase`, else `null`.
+- If the factory throws an exception or returns `null`, the row fails (and doesn't satisfy `exception = true`).
+- `@TestParam`/`@Context` on parameters work as usual.
+
+### Example: Spring (JUnit 5)
+
+```java
+public class SpringCommandInstanceFactory implements CommandInstanceFactory {
+
+    @Override
+    public <T> T create(Class<T> type, Context context) {
+        ExtensionContext extensionContext = context.unwrap(ExtensionContext.class)
+                .orElseThrow(() -> new IllegalStateException("JUnit 5 is needed"));
+        // the application context of the test class (@ExtendWith(SpringExtension.class), @SpringBootTest, ...)
+        return SpringExtension.getApplicationContext(extensionContext)
+                .getAutowireCapableBeanFactory()
+                .createBean(type);
+    }
+}
+```
+
+```java
+@SpringBootTest
+@ExtendWith(JExUnitExtension.class)
+class OrderTest {
+    @ExcelFile
+    static String file = "src/test/resources/orders.xlsx";
+
+    @ExcelTest
+    void test() {}
+}
+
+@TestCommand("createOrder")
+public class CreateOrderCommand {
+    @Autowired
+    private OrderService orderService;
+
+    public void run(@TestParam("customer") String customer, TestContext ctx) {
+        ctx.add("order", orderService.create(customer));
+    }
+}
+```
+
+`createBean` creates a new instance and injects its dependencies; the command classes don't have to be Spring beans. To use beans of the application context instead (e.g. with their own scope), return `getBean(type)`. Your factory can delegate to `new DefaultCommandInstanceFactory().create(type, context)` for classes the container doesn't manage.
+
+### Registration
+
+Via `jexunit.properties` (a single implementation with a public no-arg constructor, created once):
+
+```properties
+jexunit.command.instance_factory=com.example.tests.SpringCommandInstanceFactory
 ```
 
 ## Using the `serviceloader-maven-plugin`

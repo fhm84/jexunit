@@ -60,6 +60,13 @@ public class JExUnitConfig {
         COMMAND_METHOD_POSTFIX("jexunit.command.method_postfix", ""),
 
         /**
+         * Class name of the {@link com.jexunit.core.spi.CommandInstanceFactory} creating the instances of the command
+         * classes and command providers (e.g. with a dependency injection container). Empty for the default factory
+         * (no-arg constructor).
+         */
+        COMMAND_INSTANCE_FACTORY("jexunit.command.instance_factory", ""),
+
+        /**
          * Validation type (no validation, warn and remove invalid test commands from execution list or
          * (fast) fail on missing command implementation).
          */
