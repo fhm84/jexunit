@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
@@ -112,8 +113,12 @@ class VariablesTest {
             return ExcelTestFile.create(new String[][]{
                     {"command", "customer"},
                     {"varCreateOrder", "Miller"},
-                    {"command", "prefix", "next"},
-                    {"set", "ORD", "${order.id}"},
+                    // a multiline block: the framework columns (comment) are removed from all rows
+                    {"command", "prefix", "next", "comment", "multiline"},
+                    {"set", "ORD", "", "the prefix", "true"},
+                    {"set", "", "${order.id}"},
+                    {"command"},
+                    {"varNoCommentVariable"},
                     {"command", "order", "qty"},
                     {"varAddItem", "${order.id}", "3"},
                     // the value of a variable set in the sheet
@@ -137,6 +142,11 @@ class VariablesTest {
             order.setId(42);
             order.setCustomer(customer);
             context.add("order", order);
+        }
+
+        @TestCommand("varNoCommentVariable")
+        public static void noCommentVariable(final TestContext context) {
+            assertNull(context.get(Object.class, "comment"));
         }
 
         @TestCommand("varAddItem")

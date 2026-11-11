@@ -305,9 +305,12 @@ public class TestCommandRunner {
      * @param testCase current TestCase
      */
     private void removeFrameworkParameters(final TestCase<?> testCase) {
-        for (final DefaultCommands dc : DefaultCommands.values()) {
-            if (dc.isColumn()) {
-                testCase.getValues().remove(JExUnitConfig.getDefaultCommandProperty(dc));
+        // from all rows of a multiline test case
+        for (final Map<String, TestCell> row : testCase.getMultilineValues()) {
+            for (final DefaultCommands dc : DefaultCommands.values()) {
+                if (dc.isColumn()) {
+                    row.remove(JExUnitConfig.getDefaultCommandProperty(dc));
+                }
             }
         }
     }
