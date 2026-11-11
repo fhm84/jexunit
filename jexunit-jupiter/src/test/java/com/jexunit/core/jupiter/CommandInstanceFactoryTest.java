@@ -58,13 +58,16 @@ class CommandInstanceFactoryTest {
     void shouldReportWhyTheDefaultFactoryCannotCreateTheInstance() {
         final List<String> messages = failureMessages(execute(DefaultFactoryTest.class));
 
-        assertEquals(2, messages.size());
+        assertEquals(3, messages.size());
         // no no-arg constructor
         assertTrue(messages.get(0).contains("Test command 'factoryGreet' could not be prepared: "
                 + "java.lang.NoSuchMethodException"), messages.get(0));
         // the exception of the constructor itself (not an InvocationTargetException)
         assertTrue(messages.get(1).contains("Test command 'factoryFailingConstructor' could not be prepared: "
                 + "java.lang.IllegalStateException: constructor failed"), messages.get(1));
+        assertTrue(messages.get(2).contains("Test command 'factoryAssertingConstructor' could not be prepared: "
+                + "java.lang.IllegalStateException: " + AssertingConstructorCommand.class.getName()
+                + " could not be created: java.lang.AssertionError: constructor assertion"), messages.get(2));
     }
 
     @Test
@@ -175,6 +178,17 @@ class CommandInstanceFactoryTest {
         }
     }
 
+    @TestCommand("factoryAssertingConstructor")
+    public static class AssertingConstructorCommand {
+
+        public AssertingConstructorCommand() {
+            throw new AssertionError("constructor assertion");
+        }
+
+        public void run() {
+        }
+    }
+
     /**
      * A command provider with a dependency (set by the factory).
      */
@@ -218,7 +232,10 @@ class CommandInstanceFactoryTest {
             return ExcelTestFile.create(new String[][]{
                     {"command", "name"},
                     {"factoryGreet", "John"},
-                    {"factoryFailingConstructor"}});
+                    {"factoryFailingConstructor"},
+                    {"command", "exception"},
+                    // the command didn't run, so an error of its constructor doesn't satisfy an expected exception
+                    {"factoryAssertingConstructor", "true"}});
         }
 
         @ExcelTest

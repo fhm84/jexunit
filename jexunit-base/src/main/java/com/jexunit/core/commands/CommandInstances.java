@@ -36,7 +36,16 @@ final class CommandInstances {
      */
     static <T> T create(final Class<T> type, final TestCommandHost host) throws Exception {
         final CommandInstanceFactory instanceFactory = getFactory();
-        final T instance = instanceFactory.create(type, new HostContext(host));
+        final T instance;
+        try {
+            instance = instanceFactory.create(type, new HostContext(host));
+        } catch (final VirtualMachineError e) {
+            throw e;
+        } catch (final Error e) {
+            // e.g. an AssertionError of a constructor: the command didn't run, so this must not satisfy an expected
+            // exception (the runner reports an exception while preparing the command as setup error)
+            throw new IllegalStateException(String.format("%s could not be created: %s", type.getName(), e), e);
+        }
         if (instance == null) {
             throw new IllegalStateException(String.format("The CommandInstanceFactory %s returned null for %s",
                     instanceFactory.getClass().getName(), type.getName()));
