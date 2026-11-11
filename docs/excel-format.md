@@ -50,6 +50,26 @@ set     | 4711    | Miller
 
 If you have a command implementation named `set` (`@TestCommand("set")`), it is used instead of the built-in command. You can also rename the built-in command (`jexunit.defaultcommand.set`, see [configuration.md](configuration.md)).
 
+### `verify`
+
+Compares the properties of an object in the [TestContext](test-context.md) with the expected values, without writing Java code. The `object` column selects the object, the other column headers are property paths on it, and the cells are the expected values:
+
+```
+COMMAND | object | customer.name | items[id=5].qty | status | total | note
+verify  | order  | Miller        | 3               | OPEN   | 12.5  | <null>
+```
+
+- **`object`:** the id the object was added to the TestContext with (`ctx.add("order", order)`). Objects added by type have the class name as id (`com.example.Order`). Like a [variable](#variables), it can be a property path (`order.customer`). If the object is not found, or the `object` column is missing, the row fails (and doesn't satisfy `exception = true`).
+- **Property paths:** the same syntax as for the column headers of entities (`customer.name`, `items[0].qty`, `items[id=5].qty`, `map.key`, see [object-mapping.md](object-mapping.md)). The paths are only read: `null` sub-entities are not created and lists are not extended. A `null` in the middle of a path (e.g. no `customer`) reads as `null`, a missing list element (`items[3]`, `items[id=5]`) is a mismatch. A path that can't be read otherwise (e.g. a typo in the header) fails the row, also with `exception = true`.
+- **Comparison:** the expected value is converted to the type of the property, like the values of the entities: numbers by value (`BigDecimal` ignoring the scale, so `12.5` matches `12.50`), dates with the configured patterns, enums by name, booleans only `true`/`false`. Values of other types are compared as text.
+- **Empty cell:** not checked.
+- **`<null>`:** expects `null` (configurable with `jexunit.verify.null`).
+- **Result:** all mismatches of the row are reported in one assertion failure, with the cell of each value: `order.customer.name (C5): expected "Miller" but was "Müller"`. As an assertion failure, a mismatch satisfies `exception = true`.
+- **Multiline:** with `multiline = true`, the following `verify` rows of the block are checked as well and all mismatches are reported together. A row without `object` verifies the object of the row before.
+- The expected values can contain [variables](#variables), e.g. `${orderId}`.
+
+If you have a command implementation named `verify`, it is used instead of the built-in command. The command and the `object` column can be renamed (`jexunit.defaultcommand.verify`, `jexunit.defaultcommand.verify.object`).
+
 ### `comment` (parameter)
 
 When a data row includes a column named `comment`, its value is used as the assertion message if the command fails — equivalent to the `message` argument in JUnit `assertThat`.
@@ -229,4 +249,4 @@ Example — prefix all built-in commands with `jx.`:
 jexunit.defaultcommand_prefix=jx.
 ```
 
-This makes the framework expect `jx.disabled`, `jx.report`, `jx.set`, etc. instead of `disabled`, `report` and `set`.
+This makes the framework expect `jx.disabled`, `jx.report`, `jx.set`, `jx.verify`, etc. instead of `disabled`, `report`, `set` and `verify`.

@@ -25,7 +25,7 @@ JUnit 5: @ExtendWith(JExUnitExtension.class)     JUnit 4: @RunWith(JExUnit.class
               ├─ built-in commands (disabled, report) and flags (exception, fastFail, …)
               └─ TestCommandRunner
                    ├─ VariableResolver replaces the variables (${name}) from the TestContext
-                   ├─ TestCommandScanner finds the @TestCommand method/class (or the built-in set command)
+                   ├─ TestCommandScanner finds the @TestCommand method/class (or BuiltInCommands: set, verify)
                    ├─ parameters: TestCase, TestContext, @Context, @TestParam, entities (TestObjectHelper/OGNL)
                    └─ invokes the command; failures are collected and reported per test group
 ```

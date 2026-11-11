@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * Here the default/built-in commands and command-attributes are defined. These are the following ones: disabled,
- * exception_expected, report, set, comment, fastFail, multiline, breakpoint.
+ * exception_expected, report, set, verify (with its column object), comment, fastFail, multiline, breakpoint.
  *
  * @author fabian
  */
@@ -26,6 +26,17 @@ public enum DefaultCommands {
      * TestContext with the value of the cell. A command implementation with the same name takes precedence.
      */
     SET("jexunit.defaultcommand.set", "set", false),
+
+    /**
+     * Default command for verifying an object out of the TestContext: each column is a property path, the cell the
+     * expected value. A command implementation with the same name takes precedence.
+     */
+    VERIFY("jexunit.defaultcommand.verify", "verify", false),
+
+    /**
+     * Column of the verify command with the id of the object (in the TestContext) to verify.
+     */
+    VERIFY_OBJECT("jexunit.defaultcommand.verify.object", "object", false),
 
     /**
      * Parameter for expecting an exception.

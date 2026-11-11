@@ -33,6 +33,10 @@ public final class VariableResolver {
     private static final String START = "${";
     private static final String ESCAPED_START = "$${";
     private static final char END = '}';
+    /**
+     * Marker for a name that is not found in the TestContext (as <code>null</code> is a valid value of a property).
+     */
+    private static final Object UNKNOWN = new Object();
 
     private VariableResolver() {
     }
@@ -126,33 +130,75 @@ public final class VariableResolver {
     private static Object lookup(final String variable, final String value, final String cell,
                                  final TestContext context) {
         final String name = variable.trim();
-        if (!name.isEmpty()) {
-            final Object found = context.get(Object.class, name);
-            if (found != null) {
-                return found;
+        final Object found;
+        try {
+            found = find(name, context);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(String.format("Variable '%s%s%s' in %s cannot be read: %s", START, name,
+                    END, describe(cell), e.getMessage()), e);
+        }
+        if (found == UNKNOWN) {
+            throw new IllegalArgumentException(String.format(
+                    "Unknown variable '%s%s%s' in %s: '%s'. Nothing was added to the TestContext with this id (write "
+                            + "'%s' for a literal '%s')", START, name, END, describe(cell), value, ESCAPED_START,
+                    START));
+        }
+        return found;
+    }
+
+    /**
+     * Get the value with the given name out of the given {@link TestContext}, like a variable (without the braces):
+     * the value added with this id, or a property of it (like <code>order.customer</code>).
+     *
+     * @param name    the id of the value, optionally followed by a property path
+     * @param context the TestContext
+     * @return the value (may be <code>null</code> for a property path)
+     * @throws IllegalArgumentException if nothing was added with this id, or the property cannot be read
+     */
+    public static Object getValue(final String name, final TestContext context) {
+        final String trimmed = name == null ? "" : name.trim();
+        final Object found;
+        try {
+            found = find(trimmed, context);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(String.format("'%s' cannot be read: %s", trimmed, e.getMessage()), e);
+        }
+        if (found == UNKNOWN) {
+            throw new IllegalArgumentException(String.format(
+                    "Nothing was added to the TestContext with the id '%s'", trimmed));
+        }
+        return found;
+    }
+
+    /**
+     * Find the value with the given name: the longest prefix of the name, that is an id in the TestContext, is the
+     * value, the rest of the name is a property path on it.
+     *
+     * @param name    the (trimmed) name
+     * @param context the TestContext
+     * @return the value (may be <code>null</code> for a property path), or {@link #UNKNOWN}
+     * @throws Exception if the property cannot be read
+     */
+    private static Object find(final String name, final TestContext context) throws Exception {
+        if (name.isEmpty()) {
+            return UNKNOWN;
+        }
+        final Object found = context.get(Object.class, name);
+        if (found != null) {
+            return found;
+        }
+        for (int i = name.length() - 1; i > 0; i--) {
+            final char c = name.charAt(i);
+            if (c != '.' && c != '[') {
+                continue;
             }
-            for (int i = name.length() - 1; i > 0; i--) {
-                final char c = name.charAt(i);
-                if (c != '.' && c != '[') {
-                    continue;
-                }
-                final Object root = context.get(Object.class, name.substring(0, i));
-                if (root != null) {
-                    // "order.id" -> "id", "items[0].qty" -> "[0].qty"
-                    final String path = c == '.' ? name.substring(i + 1) : name.substring(i);
-                    try {
-                        return OgnlUtils.readProperty(root, path);
-                    } catch (final Exception e) {
-                        throw new IllegalArgumentException(String.format(
-                                "Variable '%s%s%s' in %s cannot be read: %s", START, name, END, describe(cell),
-                                e.getMessage()), e);
-                    }
-                }
+            final Object root = context.get(Object.class, name.substring(0, i));
+            if (root != null) {
+                // "order.id" -> "id", "items[0].qty" -> "[0].qty"
+                return OgnlUtils.readProperty(root, c == '.' ? name.substring(i + 1) : name.substring(i));
             }
         }
-        throw new IllegalArgumentException(String.format(
-                "Unknown variable '%s%s%s' in %s: '%s'. Nothing was added to the TestContext with this id (write "
-                        + "'%s' for a literal '%s')", START, name, END, describe(cell), value, ESCAPED_START, START));
+        return UNKNOWN;
     }
 
     private static String describe(final String cell) {
