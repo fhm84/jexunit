@@ -9,7 +9,6 @@ import com.jexunit.core.context.TestContextManager;
 import com.jexunit.core.data.TestObjectHelper;
 import com.jexunit.core.data.VariableResolver;
 import com.jexunit.core.model.TestCase;
-import com.jexunit.core.model.TestCell;
 import ognl.MethodFailedException;
 
 import java.lang.annotation.Annotation;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -60,11 +58,7 @@ public class TestCommandRunner {
         // check, which method to run for the current TestCommand
         final List<Command> implementations = TestCommandScanner.getTestCommands(
                 testCase.getTestCommand().toLowerCase(Locale.ROOT), testBase.getTestType());
-        // a command implementation with the name of a built-in command takes precedence
-        final String setCommand = JExUnitConfig.getDefaultCommandProperty(DefaultCommands.SET);
-        if (implementations.isEmpty() && setCommand.equalsIgnoreCase(testCase.getTestCommand())) {
-            runSetCommand(testCase);
-        } else if (!implementations.isEmpty()) {
+        if (!implementations.isEmpty()) {
             final Command testCommand = selectImplementation(testCase, implementations);
 
             // set the default value for fastFail if not set in the testCase
@@ -120,25 +114,9 @@ public class TestCommandRunner {
 
             // invoke the method with the parameters
             invocation.invoke(parameters.toArray());
-        } else {
+        } else if (!BuiltInCommands.run(testCase)) {
+            // a command implementation with the name of a built-in command takes precedence, so it's checked last
             testBase.runCommand(testCase);
-        }
-    }
-
-    /**
-     * Run the built-in <code>set</code> command: add a variable for each column (the header is its name) with the value
-     * of the cell to the TestContext. Empty cells are skipped.
-     *
-     * @param testCase the test case of the set command
-     */
-    private static void runSetCommand(final TestCase<?> testCase) {
-        for (final Map<String, TestCell> row : testCase.getMultilineValues()) {
-            for (final Map.Entry<String, TestCell> entry : row.entrySet()) {
-                final String value = entry.getValue().getValue();
-                if (value != null && !value.isEmpty()) {
-                    TestContextManager.add(entry.getKey(), value);
-                }
-            }
         }
     }
 

@@ -32,7 +32,9 @@ OGNL supports the full dot-notation for nested objects:
 
 Nested objects that are `null` are created automatically via their default constructor, at every level of the path. Collection and map properties declared with an interface type get a default implementation: `List`/`Collection` → `ArrayList`, `Set` → `LinkedHashSet`, `SortedSet` → `TreeSet`, `Map` → `HashMap`, `SortedMap` → `TreeMap`.
 
-In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, booleans, enums, dates, …) before comparing.
+In a condition like `items[id=5]`, the value is converted to the type of the property (numbers, enums, dates, …) before comparing. A boolean property only matches `true` or `false`, and properties of a type without conversion (e.g. `Short`) are compared as text.
+
+The same paths can be read to check the result of a command without Java code, with the built-in [`verify`](excel-format.md#verify) command, or used in a cell as [variable](excel-format.md#variables) (`${order.items[id=5].qty}`).
 
 ### Collections
 

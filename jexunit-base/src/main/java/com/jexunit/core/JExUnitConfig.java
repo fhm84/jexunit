@@ -82,7 +82,12 @@ public class JExUnitConfig {
          * Resolve variables like <code>${orderId}</code> in the cell values from the TestContext, when the command runs.
          * Set to <code>false</code> for worksheets that contain <code>${</code> as data.
          */
-        VARIABLES_ENABLED("jexunit.variables.enabled", "true");
+        VARIABLES_ENABLED("jexunit.variables.enabled", "true"),
+
+        /**
+         * The value expecting <code>null</code> in the built-in verify command (an empty cell is not checked).
+         */
+        VERIFY_NULL("jexunit.verify.null", "<null>");
 
         private final String key;
         private final String defaultConfig;

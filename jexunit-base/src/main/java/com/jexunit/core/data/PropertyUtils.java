@@ -70,6 +70,50 @@ class PropertyUtils {
     }
 
     /**
+     * Check if the current value equals the expected value (out of the excel file). The expected value is converted to
+     * the type of the current value, so the comparison also works on non-string values (numbers, enums, dates, ...):
+     * <ul>
+     * <li>Comparable values (like <code>BigDecimal</code> and dates) are compared with <code>compareTo</code>, to
+     * ignore the scale of BigDecimals.</li>
+     * <li>Booleans only match <code>true</code> or <code>false</code> (ignoring the case).</li>
+     * <li>Values of a type the expected value cannot be converted to are compared as string (see
+     * {@link #convertObjectToPropertyString(Object)}).</li>
+     * </ul>
+     *
+     * @param currentValue  the current value
+     * @param expectedValue the expected value (as string)
+     * @return true, if the values are equal, else false (also if the current value is <code>null</code>)
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    static boolean isEqual(final Object currentValue, final String expectedValue) {
+        if (currentValue == null || expectedValue == null) {
+            return false;
+        }
+        if (currentValue instanceof String) {
+            return currentValue.equals(expectedValue);
+        }
+        if (currentValue instanceof Boolean && !"true".equalsIgnoreCase(expectedValue.trim())
+                && !"false".equalsIgnoreCase(expectedValue.trim())) {
+            return false;
+        }
+        try {
+            final Object converted = convertPropertyStringToObject(currentValue.getClass(), expectedValue);
+            if (converted instanceof String) {
+                // a type without conversion (like Short or Character)
+                return expectedValue.equals(convertObjectToPropertyString(currentValue));
+            }
+            if (converted instanceof Comparable && converted.getClass() == currentValue.getClass()) {
+                // compareTo (instead of equals) to ignore the scale of BigDecimals
+                return ((Comparable) converted).compareTo(currentValue) == 0;
+            }
+            return currentValue.equals(converted);
+        } catch (final Exception e) {
+            // the expected value cannot be converted to the type of the current value, so they can't be equal
+            return false;
+        }
+    }
+
+    /**
      * Convert the given value to a string, the way it would be written in the excel file: so
      * {@link #convertPropertyStringToObject(Class, String)} converts it back. Dates are formatted with the configured
      * date pattern, or with the date-time pattern if they have a time of day.

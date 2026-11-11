@@ -52,6 +52,8 @@ The names used in Excel for built-in commands can be changed. An optional prefix
 | `jexunit.defaultcommand.disabled` | `disabled` | Keyword to disable a worksheet |
 | `jexunit.defaultcommand.report` | `report` | Keyword to log a message from the Excel file |
 | `jexunit.defaultcommand.set` | `set` | Keyword to set [variables](excel-format.md#variables) |
+| `jexunit.defaultcommand.verify` | `verify` | Keyword to [verify](excel-format.md#verify) the properties of an object |
+| `jexunit.defaultcommand.verify.object` | `object` | Column of `verify` with the id of the object to verify |
 | `jexunit.defaultcommand.exception_expected` | `exception` | Column name that signals an expected exception |
 | `jexunit.defaultcommand.comment` | `comment` | Column name for assertion failure messages |
 | `jexunit.defaultcommand.fastfail` | `fastFail` | Column name for per-row fast-fail override |
@@ -121,6 +123,12 @@ Allowed values (case-insensitive):
 | Key | Default | Description |
 |---|---|---|
 | `jexunit.variables.enabled` | `true` | Resolve [variables](excel-format.md#variables) like `${orderId}` in the cell values from the `TestContext`. Set to `false` for worksheets that contain `${` as data |
+
+### Verify
+
+| Key | Default | Description |
+|---|---|---|
+| `jexunit.verify.null` | `<null>` | The value expecting `null` in the [verify](excel-format.md#verify) command (an empty cell is not checked) |
 
 ### Lifecycle Hooks
 
