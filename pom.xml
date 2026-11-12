@@ -71,13 +71,13 @@
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <maven-site-plugin.version>3.22.0</maven-site-plugin.version>
-        <versions-maven-plugin.version>2.23.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.25.0</versions-maven-plugin.version>
         <serviceloader-maven-plugin.version>1.4.0</serviceloader-maven-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <spotbugs-maven-plugin.version>4.10.5.0</spotbugs-maven-plugin.version>
-        <taglist-maven-plugin.version>3.2.3</taglist-maven-plugin.version>
+        <taglist-maven-plugin.version>3.3.0</taglist-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
